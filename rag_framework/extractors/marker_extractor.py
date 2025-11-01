@@ -33,6 +33,11 @@ class MarkerExtractor(BaseExtractor):
         - use_gpu : bool (défaut: False)
         - batch_size : int (défaut: 1)
         - max_pages : int (défaut: None)
+
+    Notes:
+    -----
+    Utilise marker-pdf v1.10+ avec la nouvelle API PdfConverter.
+    Compatible avec marker >= 1.10.1
     """
 
     def can_extract(self, file_path: Path) -> bool:
@@ -52,7 +57,7 @@ class MarkerExtractor(BaseExtractor):
         return file_path.suffix.lower() == ".pdf"
 
     def extract(self, file_path: Path) -> ExtractionResult:
-        """Extrait le texte avec Marker.
+        """Extrait le texte avec Marker (nouvelle API v1.10+).
 
         Parameters
         ----------
@@ -63,50 +68,74 @@ class MarkerExtractor(BaseExtractor):
         -------
         ExtractionResult
             Résultat de l'extraction.
+
+        Notes:
+        -----
+        Migration vers marker-pdf v1.10+ API:
+        - Ancienne API: marker.convert.convert_single_pdf (obsolète)
+        - Nouvelle API: marker.converters.pdf.PdfConverter (v1.10+)
         """
         try:
             # Import tardif pour éviter erreur si librairie non installée
-            from marker.convert import (  # type: ignore[import-untyped]
-                convert_single_pdf,
+            from marker.converters.pdf import (  # type: ignore[import-untyped]
+                PdfConverter,
             )
-            from marker.models import load_all_models  # type: ignore[import-untyped]
+            from marker.models import (  # type: ignore[import-untyped]
+                create_model_dict,
+            )
 
-            # Chargement des modèles ML de Marker
+            # Création du dictionnaire de modèles (artifact_dict)
             # Note: Opération lente, pourrait être mise en cache
             logger.debug("Chargement des modèles Marker...")
-            models = load_all_models()
+            artifact_dict = create_model_dict()
 
-            # Configuration Marker
-            max_pages = self.config.get("max_pages", None)
+            # Configuration du converter
+            # processor_list: None = utilise les processeurs par défaut
+            # renderer: None = utilise le renderer markdown par défaut
+            # llm_service: None = pas de service LLM externe
+            converter = PdfConverter(
+                artifact_dict=artifact_dict,
+                processor_list=None,  # Utilise processeurs par défaut
+                renderer=None,  # Utilise renderer par défaut (markdown)
+                llm_service=None,  # Pas de LLM externe
+                config=None,  # Pas de config custom
+            )
 
             # Conversion du PDF
             logger.debug(f"Extraction Marker de {file_path.name}...")
-            full_text, images, metadata_marker = convert_single_pdf(
-                str(file_path),
-                models,
-                max_pages=max_pages,
-            )
+            rendered_output = converter(str(file_path))
+
+            # Le résultat est un FullyRenderedDocument ou équivalent
+            # Extraction du texte markdown
+            if hasattr(rendered_output, "markdown"):
+                full_text = rendered_output.markdown
+            elif hasattr(rendered_output, "text"):
+                full_text = rendered_output.text
+            else:
+                # Fallback: conversion string
+                full_text = str(rendered_output)
 
             # Métadonnées
             metadata = {
                 "file_size": file_path.stat().st_size,
                 "file_name": file_path.name,
                 "extractor": "marker",
+                "marker_version": "1.10+",
             }
 
-            # Ajout métadonnées Marker
-            if metadata_marker:
-                metadata.update(metadata_marker)
+            # Extraction métadonnées supplémentaires si disponibles
+            if hasattr(rendered_output, "metadata"):
+                metadata.update(rendered_output.metadata)
 
-            if images:
-                metadata["images_extracted"] = len(images)
+            # Extraction images si disponibles
+            if hasattr(rendered_output, "images") and rendered_output.images:
+                metadata["images_extracted"] = len(rendered_output.images)
 
             # Marker a un score de confiance élevé (ML-based)
             confidence = 0.95 if full_text and len(full_text) > 100 else 0.6
 
             logger.debug(
                 f"Marker: Extrait {len(full_text)} caractères "
-                f"({len(images)} images) "
                 f"(confidence={confidence:.2f})"
             )
 
@@ -120,7 +149,8 @@ class MarkerExtractor(BaseExtractor):
 
         except ImportError:
             error_msg = (
-                "Marker n'est pas installé. Installez avec: pip install marker-pdf"
+                "Marker n'est pas installé. "
+                "Installez avec: pip install marker-pdf>=1.10.1"
             )
             logger.error(error_msg)
             return ExtractionResult(
