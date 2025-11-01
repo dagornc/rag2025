@@ -118,6 +118,12 @@ class DoclingExtractor(BaseExtractor):
             )
 
         try:
+            # Capture des métadonnées du fichier AVANT traitement
+            # (le fichier peut être déplacé pendant/après la conversion)
+            file_size = file_path.stat().st_size
+            file_name = file_path.name
+            file_format = file_path.suffix[1:]
+
             # Configuration OCR pour utiliser Tesseract CLI au lieu d'ocrmac
             # Récupération de la langue depuis config (défaut: fra pour français)
             # NOTE: lang doit être une LISTE de langues, pas une string
@@ -220,11 +226,11 @@ class DoclingExtractor(BaseExtractor):
                     f"Docling a peut-être rencontré des erreurs internes."
                 )
 
-            # Métadonnées
+            # Métadonnées (utilise les valeurs capturées avant traitement)
             metadata = {
-                "file_size": file_path.stat().st_size,
-                "file_name": file_path.name,
-                "format": file_path.suffix[1:],
+                "file_size": file_size,
+                "file_name": file_name,
+                "format": file_format,
             }
 
             # Ajout métadonnées Docling si disponibles
