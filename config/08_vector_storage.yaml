@@ -1,0 +1,47 @@
+# =============================================================================
+# ÉTAPE 8 : STOCKAGE VECTORIEL
+# =============================================================================
+# NOTE: L'activation de cette étape est contrôlée dans config/global.yaml
+#       via le paramètre steps.vector_storage_enabled
+# =============================================================================
+
+provider: "chromadb"  # Options: chromadb, qdrant
+
+# Configuration ChromaDB
+chromadb:
+  persist_directory: "./chroma_db"
+  collection_name: "compliance_docs"
+  embedding_function: null  # Géré par étape 06
+  distance_metric: "cosine"  # Options: cosine, l2, ip
+  anonymized_telemetry: false
+
+  collection_metadata:
+    description: "Documents de conformité et d'audit"
+    created_by: "rag_framework"
+
+# Configuration Qdrant
+qdrant:
+  url: "http://localhost:6333"
+  collection_name: "compliance_docs"
+  vector_size: 3072
+  distance: "Cosine"
+  on_disk_payload: true
+
+  hnsw_config:
+    m: 16
+    ef_construct: 100
+
+indexing:
+  batch_size: 100
+  show_progress: true
+
+search:
+  default_k: 5
+  max_k: 20
+  score_threshold: 0.7
+  filter_metadata: true
+
+maintenance:
+  auto_backup: true
+  backup_frequency: "daily"
+  optimize_on_shutdown: true

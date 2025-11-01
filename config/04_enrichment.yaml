@@ -1,0 +1,331 @@
+# =============================================================================
+# ÉTAPE 4 : ENRICHISSEMENT ET MÉTADONNÉES DE CONFORMITÉ
+# =============================================================================
+# Cette étape enrichit les chunks avec des métadonnées de conformité,
+# classification de documents, et tags réglementaires.
+#
+# Peut utiliser un LLM pour classification intelligente (optionnel).
+#
+# NOTE: L'activation de cette étape est contrôlée dans config/global.yaml
+#       via le paramètre steps.enrichment_enabled
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# CONFIGURATION LLM (optionnelle - pour classification intelligente)
+# -----------------------------------------------------------------------------
+# Si llm.enabled = true, utilise un LLM pour classifier les documents
+# de manière plus précise qu'avec des mots-clés simples
+#
+llm:
+  enabled: true  # false = classification par mots-clés | true = classification LLM (nécessite clé API)
+  # NOTE: Désactivé pour éviter les erreurs 429 (rate limit exceeded)
+  provider: "lm_studio"  # Provider depuis global.yaml (lm_studio, ollama, vllm, etc.)
+  model: "phi-3.5-mini-instruct"  # Modèle spécifique à utiliser
+  temperature: 0.0  # Température pour classification (0.0 = déterministe)
+  max_tokens: 500  # Limite de tokens pour les réponses
+  # Fallback: Si LLM échoue, revient à la classification par mots-clés
+
+  # Gestion du rate limiting (erreurs 429)
+  rate_limiting:
+    enabled: true              # Activer la gestion intelligente du rate limiting
+    delay_between_requests: 0.5  # Délai entre chaque requête (secondes)
+    max_retries: 3             # Nombre maximum de tentatives en cas d'erreur 429
+    retry_delay_base: 2        # Délai de base pour retry (secondes)
+    exponential_backoff: true  # Utiliser backoff exponentiel (2s, 4s, 8s, etc.)
+
+  # Prompts configurables pour classification LLM
+  prompts:
+    sensitivity_classification: |
+      Classifie le niveau de sensibilité du document suivant.
+
+      IMPORTANT: Réponds UNIQUEMENT avec UN SEUL MOT, sans explication ni justification.
+      Valeurs possibles: public, interne, confidentiel, secret
+
+      Exemples de réponses attendues:
+      - Si document accessible à tous → réponds: public
+      - Si document pour l'entreprise uniquement → réponds: interne
+      - Si document sensible, accès restreint → réponds: confidentiel
+      - Si document hautement sensible, accès très restreint → réponds: secret
+
+      Document à classifier:
+      {text}
+
+      Niveau de sensibilité (un seul mot):
+
+    document_type_classification: |
+      Identifie le type de document parmi les catégories suivantes.
+      Réponds UNIQUEMENT par l'une de ces catégories: contrat, rapport_audit, politique_interne, procedure, rapport_conformite, directive
+
+      Indices à rechercher:
+      - contrat: Termes juridiques, parties contractantes, clauses
+      - rapport_audit: Résultats d'audit, recommandations, constats
+      - politique_interne: Règles et directives organisationnelles
+      - procedure: Étapes séquentielles, instructions opérationnelles
+      - rapport_conformite: Évaluation de conformité, écarts, actions correctives
+      - directive: Instructions officielles, mandats, orientations
+
+      Document:
+      {text}
+
+      Type de document:
+
+    regulatory_framework_detection: |
+      Identifie les frameworks réglementaires mentionnés ou applicables au document suivant.
+      Frameworks possibles: RGPD, SOC2, ISO27001, NIS2, IGI1300, IGI901
+
+      Pour chaque framework identifié, indique également les articles ou sections spécifiques mentionnés.
+
+      Document:
+      {text}
+
+      Réponds au format JSON:
+      {{
+        "frameworks": [
+          {{"name": "RGPD", "articles": ["article_5", "article_6"]}},
+          ...
+        ]
+      }}
+
+    stakeholder_identification: |
+      Identifie les parties prenantes mentionnées dans le document suivant.
+
+      Recherche:
+      - Noms d'organisations
+      - Rôles et fonctions (DPO, RSSI, auditeur, etc.)
+      - Départements
+      - Autorités réglementaires
+
+      Document:
+      {text}
+
+      Réponds au format JSON:
+      {{
+        "stakeholders": [
+          {{"type": "organization", "name": "..."}},
+          {{"type": "role", "name": "..."}},
+          {{"type": "authority", "name": "..."}}
+        ]
+      }}
+
+    document_summary: |
+      Génère un résumé concis et informatif du document suivant.
+
+      Le résumé doit :
+      - Capturer les idées principales et les points clés
+      - Être factuel et objectif
+      - Faire entre 2 et 5 phrases (100-200 mots maximum)
+      - Inclure le contexte et l'objectif du document
+      - Mentionner les conclusions ou recommandations principales si présentes
+
+      Document:
+      {text}
+
+      Résumé:
+
+    chunk_summary: |
+      Génère un résumé très concis de ce fragment de document.
+
+      Le résumé doit :
+      - Tenir en 1-2 phrases maximum (50 mots)
+      - Capturer l'idée principale du fragment
+      - Être utile pour la recherche sémantique
+
+      Fragment:
+      {chunk_text}
+
+      Résumé:
+
+    tags_extraction: |
+      Extrait des tags pertinents et structurés du document suivant.
+
+      Les tags doivent couvrir :
+      - Thématiques principales (ex: sécurité, RGPD, audit, conformité)
+      - Technologies mentionnées (ex: cryptographie, cloud, réseau)
+      - Domaines d'application (ex: finance, santé, énergie)
+      - Types d'actions (ex: évaluation, recommandation, mise en œuvre)
+
+      Règles :
+      - Maximum 10 tags
+      - Tags en français
+      - Tags courts (1-3 mots)
+      - Éviter les mots trop génériques
+
+      Document:
+      {text}
+
+      Réponds au format JSON avec une liste de tags:
+      {{"tags": ["tag1", "tag2", "tag3", ...]}}
+
+# -----------------------------------------------------------------------------
+# EXTRACTION ET ENRICHISSEMENT DE MÉTADONNÉES
+# -----------------------------------------------------------------------------
+# IMPORTANT: Cette étape ENRICHIT les métadonnées déjà extraites en étape 2.
+# Étape 2 (preprocessing) extrait les métadonnées EMBARQUÉES dans le document :
+#   - title, author, creator, subject, keywords (depuis PDF metadata, Office properties)
+#   - creation_date, modification_date
+#   - document_type (si présent dans metadata)
+#
+# Étape 4 (enrichment) INFÈRE et ENRICHIT les métadonnées par analyse du contenu :
+#   - Détection intelligente du type de document (si absent ou imprécis)
+#   - Extraction de dates additionnelles depuis le texte
+#   - Extraction d'entités nommées (personnes, organisations, lieux)
+#   - Extraction de mots-clés par analyse sémantique
+#
+metadata_extraction:
+  # Enrichissement automatique de métadonnées par analyse du contenu
+  auto_detect_document_type: true  # Détecter/affiner le type de document par analyse
+  extract_dates: true  # Extraire dates mentionnées dans le texte (complément aux dates metadata)
+  extract_entities: false  # NER pour personnes, orgs, lieux (désactivé par défaut, coûteux)
+  extract_keywords: true  # Extraire mots-clés par analyse sémantique du contenu
+
+  # Extraction des auteurs et contributeurs depuis le contenu
+  # Si les métadonnées embarquées sont absentes ou incomplètes
+  extract_authors_from_content: false  # Rechercher auteurs mentionnés dans le document
+  extract_organizations: false  # Extraire organisations mentionnées
+
+  # Enrichissement des métadonnées de titre
+  # Si le titre n'est pas dans les métadonnées embarquées, tenter de l'inférer
+  infer_title_from_content: true  # Inférer le titre depuis le premier titre du document
+
+# -----------------------------------------------------------------------------
+# GÉNÉRATION DE RÉSUMÉ
+# -----------------------------------------------------------------------------
+# Génération automatique de résumés pour faciliter la recherche et la navigation
+# Utilise le LLM configuré ci-dessus si llm.enabled = true
+#
+summary_generation:
+  enabled: true  # Activer la génération de résumés
+
+  # Niveaux de résumé à générer
+  document_level: true   # Résumé du document complet (2-5 phrases)
+  chunk_level: false     # Résumé de chaque chunk individuel (1-2 phrases)
+
+  # Paramètres de génération
+  max_length_words: 200  # Longueur maximale du résumé document (en mots)
+  chunk_summary_length_words: 50  # Longueur max résumé chunk (en mots)
+
+  # Langue du résumé
+  language: "fr"  # Langue cible : fr (français), en (anglais), auto (détection auto)
+
+  # Fallback si LLM désactivé ou échoue
+  fallback_method: "extractive"  # Options: extractive (premières phrases), none (pas de résumé)
+  extractive_sentences: 3  # Nombre de phrases à extraire en mode fallback
+
+# -----------------------------------------------------------------------------
+# EXTRACTION DE TAGS
+# -----------------------------------------------------------------------------
+# Extraction automatique de tags thématiques pour catégorisation et recherche
+# Utilise le LLM configuré ci-dessus si llm.enabled = true
+#
+tags_extraction:
+  enabled: true  # Activer l'extraction de tags
+
+  # Nombre de tags à extraire
+  min_tags: 3    # Minimum de tags par document
+  max_tags: 10   # Maximum de tags par document
+
+  # Sources de tags
+  use_llm: true              # Utiliser LLM pour extraction intelligente (si llm.enabled)
+  use_keywords: true         # Utiliser extraction par mots-clés (TF-IDF)
+  use_embedded_keywords: true  # Utiliser keywords des métadonnées embarquées
+
+  # Filtrage et normalisation
+  normalize_tags: true       # Normaliser (minuscules, suppression accents)
+  remove_duplicates: true    # Supprimer doublons
+  min_tag_length: 3          # Longueur minimale d'un tag (caractères)
+  max_tag_length: 50         # Longueur maximale d'un tag (caractères)
+
+  # Tags prédéfinis par domaine (ajoutés automatiquement si détectés)
+  predefined_tags:
+    compliance:
+      - "conformité"
+      - "réglementation"
+      - "audit"
+      - "contrôle"
+    security:
+      - "sécurité"
+      - "protection"
+      - "cybersécurité"
+      - "chiffrement"
+    data_protection:
+      - "RGPD"
+      - "données personnelles"
+      - "vie privée"
+      - "consentement"
+    governance:
+      - "gouvernance"
+      - "politique"
+      - "procédure"
+      - "directive"
+
+document_classification:
+  enabled: true
+  categories:
+    - "contrat"
+    - "rapport_audit"
+    - "politique_interne"
+    - "procedure"
+    - "rapport_conformite"
+    - "directive"
+
+sensitivity_classification:
+  enabled: true
+  levels:
+    - "public"
+    - "interne"
+    - "confidentiel"
+    - "secret"
+  default_level: "confidentiel"
+
+# -----------------------------------------------------------------------------
+# TAGGING RÉGLEMENTAIRE
+# -----------------------------------------------------------------------------
+# Les frameworks réglementaires sont maintenant définis dans config/global.yaml
+# dans la section 'regulatory_frameworks'.
+#
+# Cette section contrôle uniquement l'activation du tagging automatique.
+# Les frameworks à utiliser sont ceux marqués comme 'enabled: true' dans global.yaml
+#
+regulatory_tagging:
+  enabled: true  # Activer le tagging automatique des frameworks réglementaires
+
+  # IMPORTANT: Les frameworks et leurs articles/contrôles sont définis dans
+  # config/global.yaml > regulatory_frameworks
+  # Cette configuration référence automatiquement tous les frameworks activés.
+
+compliance_metadata:
+  include_hash: true
+  hash_algorithm: "sha256"
+  include_author: true
+  include_approver: false
+  validity_period_days: 365
+
+custom_fields:
+  department: null
+  owner: null
+  version: "1.0"
+
+# -----------------------------------------------------------------------------
+# SAUVEGARDE DES CHUNKS ENRICHIS
+# -----------------------------------------------------------------------------
+# Configuration pour sauvegarder les chunks avec métadonnées enrichies en JSON
+# Ces chunks incluent toutes les métadonnées de conformité, classification,
+# et tags réglementaires ajoutés par cette étape.
+#
+output:
+  save_enriched_chunks: true                 # Activer la sauvegarde des chunks enrichis
+  enriched_dir: "./data/output/enriched"     # Répertoire pour fichiers JSON enrichis
+  format: "json"                             # Format de sauvegarde (json uniquement)
+  group_by_document: true                    # Un fichier JSON par document source
+  add_timestamp: true                        # Ajouter timestamp au nom du fichier
+  pretty_print: true                         # Formater le JSON (indentation)
+
+  # Contenu à inclure dans la sauvegarde
+  include_metadata: true                     # Inclure toutes les métadonnées enrichies
+  include_classification: true               # Inclure classification du document
+  include_sensitivity: true                  # Inclure niveau de sensibilité
+  include_regulatory_tags: true              # Inclure tags réglementaires
+  include_compliance_metadata: true          # Inclure hash, author, validity
+  include_custom_fields: true                # Inclure champs personnalisés
+  include_summary: true                      # Inclure résumés (document et/ou chunks)
+  include_tags: true                         # Inclure tags extraits

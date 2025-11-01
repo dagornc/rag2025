@@ -1,0 +1,149 @@
+# =============================================================================
+# ÉTAPE 1 : SURVEILLANCE DE FICHIERS SOURCES (Watchdog)
+# =============================================================================
+# Cette étape surveille en continu les répertoires sources pour détecter
+# l'arrivée de nouveaux documents à traiter. Utilise la bibliothèque Watchdog
+# pour une détection événementielle efficace sans polling intensif.
+#
+# Cas d'usage: Détection automatique de nouveaux rapports d'audit ou documents
+# de conformité déposés dans les répertoires surveillés.
+#
+# NOTE: L'activation de cette étape est contrôlée dans config/global.yaml
+#       via le paramètre steps.monitoring_enabled
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# RÉPERTOIRES SURVEILLÉS
+# -----------------------------------------------------------------------------
+# Liste des chemins à surveiller. Chemins relatifs depuis la racine du projet.
+# Les répertoires inexistants génèrent un avertissement mais n'empêchent pas
+# le démarrage du pipeline.
+#
+watch_paths:
+  - "./data/input/compliance_docs"  # Documents de conformité réglementaire
+  - "./data/input/audit_reports"    # Rapports d'audit à traiter
+  - "./data/input/docs"             # Informations/Connaissances pour le RAG (tous sujets)
+
+# -----------------------------------------------------------------------------
+# PATTERNS DE FICHIERS
+# -----------------------------------------------------------------------------
+# Glob patterns pour filtrer les fichiers détectés.
+# Seuls les fichiers correspondant à ces patterns déclenchent le traitement.
+# Total: 39 extensions supportées par le framework d'extraction.
+#
+# IMPORTANT: Cette liste DOIT être synchronisée avec config/parser.yaml
+# Toute modification ici doit être répercutée dans parser.yaml et vice versa.
+#
+# RÉFÉRENCE: Voir config/parser.yaml > preprocessing > file_categories
+#
+file_patterns:
+  # === TEXTE SIMPLE (11 extensions) ===
+  - "*.txt"       # Texte brut
+  - "*.log"       # Fichiers de logs
+  - "*.md"        # Markdown
+  - "*.markdown"  # Markdown (variante)
+  - "*.csv"       # Comma-Separated Values
+  - "*.tsv"       # Tab-Separated Values
+  - "*.xml"       # Extensible Markup Language
+  - "*.html"      # Pages web
+  - "*.htm"       # Pages web (variante)
+  - "*.rtf"       # Rich Text Format
+  - "*.tex"       # LaTeX source (stub)
+  - "*.svg"       # Scalable Vector Graphics (stub)
+
+  # === PDF ET FORMATS SIMILAIRES (3 extensions) ===
+  - "*.pdf"   # Portable Document Format
+  - "*.ps"    # PostScript (stub)
+  - "*.epub"  # E-book
+
+  # === MICROSOFT OFFICE (9 extensions) ===
+  # Word
+  - "*.doc"   # Word (ancien format)
+  - "*.docx"  # Word
+  - "*.docm"  # Word avec macros
+  # PowerPoint
+  - "*.ppt"   # PowerPoint (ancien format)
+  - "*.pptx"  # PowerPoint
+  - "*.pptm"  # PowerPoint avec macros
+  # Excel
+  - "*.xls"   # Excel (ancien format)
+  - "*.xlsx"  # Excel
+  - "*.xlsm"  # Excel avec macros
+
+  # === LIBREOFFICE / OPENDOCUMENT (3 extensions) ===
+  - "*.odt"   # OpenDocument Text
+  - "*.odp"   # OpenDocument Presentation
+  - "*.ods"   # OpenDocument Spreadsheet
+
+  # === IMAGES (8 extensions - OCR requis) ===
+  - "*.png"   # PNG image
+  - "*.jpg"   # JPEG image
+  - "*.jpeg"  # JPEG image (variante)
+  - "*.tiff"  # TIFF image
+  - "*.tif"   # TIFF image (variante)
+  - "*.bmp"   # Bitmap
+  - "*.webp"  # WebP image
+  - "*.gif"   # Graphics Interchange Format
+
+# Patterns d'exclusion (fichiers à ignorer même s'ils correspondent aux patterns)
+exclude_patterns:
+  - "*_tmp*"     # Fichiers temporaires
+  - "*.bak"      # Fichiers de backup
+  - ".DS_Store"  # Fichiers système macOS
+
+# -----------------------------------------------------------------------------
+# CONFIGURATION DE SURVEILLANCE
+# -----------------------------------------------------------------------------
+# Fréquence de vérification (uniquement si watchdog n'est pas disponible)
+polling_interval_seconds: 10  # Vérifier toutes les 10 secondes (fallback)
+
+# Types d'événements qui déclenchent le traitement
+triggers:
+  on_created: true   # Nouveau fichier créé → traiter
+  on_modified: true  # Fichier existant modifié → retraiter
+  on_deleted: false  # Fichier supprimé → ignorer
+  on_moved: false    # Fichier déplacé → ignorer
+
+# Surveiller récursivement les sous-répertoires
+recursive: true  # Scanner tous les niveaux de sous-dossiers
+
+# -----------------------------------------------------------------------------
+# GESTION DES FICHIERS TRAITÉS
+# -----------------------------------------------------------------------------
+# Déplacement automatique des fichiers après traitement
+# - Succès → output/processed
+# - Erreur → output/errors
+# - Texte extrait → output/extracted (JSON)
+#
+file_management:
+  enabled: true                       # Activer le déplacement automatique
+  move_processed: true                # Déplacer les fichiers traités avec succès
+  move_errors: true                   # Déplacer les fichiers en erreur
+  processed_dir: "./data/output/processed" # Répertoire pour fichiers traités
+  errors_dir: "./data/output/errors"       # Répertoire pour fichiers en erreur
+  preserve_structure: true            # Préserver la structure des sous-répertoires
+  add_timestamp: true                 # Ajouter timestamp au nom du fichier déplacé
+
+# -----------------------------------------------------------------------------
+# SAUVEGARDE DU TEXTE EXTRAIT
+# -----------------------------------------------------------------------------
+# Configuration pour sauvegarder le texte extrait en JSON
+#
+output:
+  save_extracted_text: true           # Activer la sauvegarde du texte extrait
+  extracted_dir: "./data/output/extracted"  # Répertoire pour fichiers JSON extraits
+  preserve_structure: true            # Préserver la structure des sous-répertoires
+  add_timestamp: true                 # Ajouter timestamp au nom du fichier JSON
+  include_metadata: true              # Inclure métadonnées complètes (méthode, confidence, etc.)
+  pretty_print: true                  # Formater le JSON de manière lisible (indentation)
+
+# -----------------------------------------------------------------------------
+# NOTIFICATIONS
+# -----------------------------------------------------------------------------
+# Configuration des notifications lors de la détection de fichiers
+#
+notifications:
+  enabled: true           # Active les notifications
+  log_events: true        # Logger chaque événement détecté
+  webhook_url: null       # URL webhook optionnelle (Slack, Teams, etc.)
+                          # Format: "https://hooks.slack.com/services/..."

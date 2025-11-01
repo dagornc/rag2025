@@ -1,0 +1,40 @@
+# Configuration pre-commit pour le framework RAG
+# Installation: uv run pre-commit install
+
+repos:
+  # Hooks standard pre-commit
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+        args: ['--maxkb=10000']
+      - id: check-toml
+      - id: check-json
+      - id: check-merge-conflict
+      - id: debug-statements
+      - id: mixed-line-ending
+
+  # Ruff - Formatage et linting
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.1
+    hooks:
+      # Linting
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+      # Formatage
+      - id: ruff-format
+
+  # Mypy - Type checking
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.9.0
+    hooks:
+      - id: mypy
+        additional_dependencies:
+          - pydantic>=2.5.0
+          - types-PyYAML
+          - types-requests
+        args: [--strict, --ignore-missing-imports]
+        exclude: ^(tests/|docs/)

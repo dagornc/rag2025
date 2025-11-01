@@ -1,0 +1,571 @@
+# =============================================================================
+# CONFIGURATION GLOBALE DU FRAMEWORK RAG AUDIT & CONFORMITÉ
+# =============================================================================
+# Ce fichier contient les paramètres globaux du framework RAG utilisés
+# par toutes les étapes du pipeline. Les valeurs peuvent être surchargées
+# par des variables d'environnement au format ${VAR_NAME}.
+#
+# Auteur: RAG Team
+# Version: 0.1.0
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# CONFIGURATION DES MODEL PROVIDERS (LLM + Embeddings + Vision)
+# -----------------------------------------------------------------------------
+# Configuration unifiée de TOUS les providers de modèles :
+# - LLM (Large Language Models) : génération de texte, enrichissement, audit
+# - Embeddings : chunking sémantique, vector stores, recherche sémantique
+# - VLM (Vision Language Models) : extraction d'images, PDF avec vision
+#
+# ARCHITECTURE UNIFIÉE :
+# Chaque provider définit :
+#   - Les paramètres de connexion (api_key, base_url, library)
+#   - Une liste de modèles avec leur type ("llm" ou "embedding")
+#   - Les métadonnées spécifiques à chaque modèle
+#
+# AVANTAGES :
+# - Configuration DRY : api_key définie une seule fois par provider
+# - Extensible : facile d'ajouter reranker, classifier, etc.
+# - Cohérent : même pattern pour tous types de modèles
+#
+model_providers:
+  # ========================================
+  # OpenAI - LLM + Embeddings + Vision
+  # ========================================
+  openai:
+    access_method: "openai_compatible"
+    base_url: "https://api.openai.com/v1"
+    api_key: "${OPENAI_API_KEY}"
+    # ATTENTION: Service payant, suivre usage sur https://platform.openai.com
+
+    models:
+      # === LLM Models ===
+      - name: "gpt-4"
+        type: "llm"
+        context_window: 8192
+        max_output_tokens: 4096
+        cost_per_1m_input_tokens: 30.0
+        cost_per_1m_output_tokens: 60.0
+        description: "Modèle le plus performant, multimodal (texte + vision)"
+
+      - name: "gpt-4-turbo"
+        type: "llm"
+        context_window: 128000
+        max_output_tokens: 4096
+        cost_per_1m_input_tokens: 10.0
+        cost_per_1m_output_tokens: 30.0
+        description: "Contexte étendu, vision, JSON mode"
+
+      - name: "gpt-3.5-turbo"
+        type: "llm"
+        context_window: 16385
+        max_output_tokens: 4096
+        cost_per_1m_input_tokens: 0.5
+        cost_per_1m_output_tokens: 1.5
+        description: "Rapide et économique"
+
+      # === Embedding Models ===
+      - name: "text-embedding-3-large"
+        type: "embedding"
+        dimensions: 3072
+        cost_per_1m_tokens: 0.13
+        description: "Meilleure qualité, grandes dimensions"
+
+      - name: "text-embedding-3-small"
+        type: "embedding"
+        dimensions: 1536
+        cost_per_1m_tokens: 0.02
+        description: "Rapide et économique"
+
+      - name: "text-embedding-ada-002"
+        type: "embedding"
+        dimensions: 1536
+        cost_per_1m_tokens: 0.10
+        description: "Version précédente, stable"
+
+  # ========================================
+  # OpenRouter - Agrégateur Multi-Modèles (NOUVEAU)
+  # ========================================
+  # Accès unifié à 100+ modèles (GPT-4, Claude, Llama, Mistral, etc.)
+  openrouter:
+    access_method: "openai_compatible"
+    base_url: "https://openrouter.ai/api/v1"
+    api_key: "${OPENROUTER_API_KEY}"
+    # Avantage: Un seul compte, accès à tous les modèles, fallback automatique
+
+    models:
+      # === LLM Models (exemples populaires) ===
+      - name: "openai/gpt-4-turbo"
+        type: "llm"
+        context_window: 128000
+        description: "GPT-4 Turbo via OpenRouter"
+
+      - name: "anthropic/claude-3-opus"
+        type: "llm"
+        context_window: 200000
+        description: "Claude 3 Opus via OpenRouter"
+
+      - name: "meta-llama/llama-3-70b-instruct"
+        type: "llm"
+        context_window: 8192
+        description: "Llama 3 70B via OpenRouter"
+
+      - name: "mistralai/mixtral-8x7b-instruct"
+        type: "llm"
+        context_window: 32768
+        description: "Mixtral 8x7B via OpenRouter"
+
+  # ========================================
+  # Anthropic - LLM + Vision (Claude 3)
+  # ========================================
+  anthropic:
+    access_method: "openai_compatible"
+    base_url: "https://api.anthropic.com/v1"
+    api_key: "${ANTHROPIC_API_KEY}"
+
+    models:
+      - name: "claude-3-opus"
+        type: "llm"
+        context_window: 200000
+        max_output_tokens: 4096
+        description: "Plus performant, analyse visuelle"
+
+      - name: "claude-3-sonnet"
+        type: "llm"
+        context_window: 200000
+        max_output_tokens: 4096
+        description: "Équilibre performance/coût"
+
+      - name: "claude-3-haiku"
+        type: "llm"
+        context_window: 200000
+        max_output_tokens: 4096
+        description: "Rapide et économique"
+
+  # ========================================
+  # Mistral AI - LLM Français
+  # ========================================
+  mistral_ai:
+    access_method: "openai_compatible"
+    base_url: "https://api.mistral.ai/v1"
+    api_key: "76cwpvjZqnFw1U0jLCEBKOHh5FprX2OJ"
+
+    models:
+      - name: "mistral-large"
+        type: "llm"
+        context_window: 32768
+        description: "Modèle le plus performant"
+
+      - name: "mistral-medium"
+        type: "llm"
+        context_window: 32768
+        description: "Équilibre qualité/vitesse"
+
+      - name: "mistral-small"
+        type: "llm"
+        context_window: 32768
+        description: "Rapide et économique"
+
+  # ========================================
+  # Ollama - LLM + Embeddings Locaux
+  # ========================================
+  ollama:
+    access_method: "openai_compatible"
+    base_url: "http://127.0.0.1:11434/v1"
+    api_key: "ollama"
+
+    models:
+      # === LLM Models ===
+      - name: "llama3"
+        type: "llm"
+        context_window: 8192
+        description: "Llama 3 8B/70B, excellent gratuit"
+
+      - name: "mistral"
+        type: "llm"
+        context_window: 8192
+        description: "Mistral 7B, rapide"
+
+      - name: "llava"
+        type: "llm"
+        context_window: 4096
+        description: "Vision + texte (VLM)"
+
+      # === Embedding Models ===
+      - name: "nomic-embed-text"
+        type: "embedding"
+        dimensions: 768
+        description: "Excellent modèle open-source"
+
+      - name: "mxbai-embed-large"
+        type: "embedding"
+        dimensions: 1024
+        description: "Grande dimension, haute qualité"
+
+      - name: "all-minilm"
+        type: "embedding"
+        dimensions: 384
+        description: "Léger et rapide"
+
+  # ========================================
+  # Hugging Face - LLM + Embeddings API
+  # ========================================
+  huggingface:
+    access_method: "huggingface_inference_api"
+    base_url: "https://api-inference.huggingface.co/v1"
+    api_key: "${HUGGINGFACE_API_KEY}"
+
+    models:
+      # === LLM Models ===
+      - name: "mistralai/Mistral-7B-Instruct-v0.2"
+        type: "llm"
+        context_window: 8192
+        description: "Mistral 7B via HF"
+
+      - name: "meta-llama/Llama-2-70b-chat-hf"
+        type: "llm"
+        context_window: 4096
+        description: "Llama 2 70B via HF"
+
+      # === Embedding Models ===
+      - name: "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+        type: "embedding"
+        dimensions: 384
+        description: "Multilingual via API HF"
+
+  # ========================================
+  # Sentence Transformers - Embeddings Locaux
+  # ========================================
+  sentence_transformers:
+    access_method: "local"
+    library: "sentence-transformers"
+
+    models:
+      # Modèles multilingues
+      - name: "paraphrase-multilingual-MiniLM-L12-v2"
+        type: "embedding"
+        dimensions: 384
+        languages: ["fr", "en", "de", "es", "it"]
+        size_mb: 470
+        description: "Multilingual, équilibré vitesse/qualité"
+
+      - name: "distiluse-base-multilingual-cased-v2"
+        type: "embedding"
+        dimensions: 512
+        languages: ["50+"]
+        size_mb: 540
+        description: "Support 50+ langues"
+
+      # Modèles anglais
+      - name: "all-MiniLM-L6-v2"
+        type: "embedding"
+        dimensions: 384
+        languages: ["en"]
+        size_mb: 90
+        description: "Très rapide, léger"
+
+      - name: "all-mpnet-base-v2"
+        type: "embedding"
+        dimensions: 768
+        languages: ["en"]
+        size_mb: 420
+        description: "Meilleure qualité"
+
+  # ========================================
+  # LM Studio - Local LLM (Développement)
+  # ========================================
+  lm_studio:
+    access_method: "openai_compatible"
+    base_url: "http://127.0.0.1:1234/v1"
+    api_key: "lm-studio"
+
+    models:
+      - name: "local-model"
+        type: "llm"
+        context_window: 4096
+        description: "Modèle chargé dans LM Studio"
+
+  # ========================================
+  # vLLM - Serveur d'Inférence (Production)
+  # ========================================
+  vllm:
+    access_method: "openai_compatible"
+    base_url: "http://127.0.0.1:8000/v1"
+    api_key: "vllm"
+
+    models:
+      - name: "deployed-model"
+        type: "llm"
+        context_window: 4096
+        description: "Modèle déployé sur vLLM"
+
+  # ========================================
+  # Generic API - Template OpenAI-Compatible
+  # ========================================
+  generic_api:
+    access_method: "openai_compatible"
+    base_url: "https://api.example.com/v1"
+    api_key: "${GENERIC_API_KEY}"
+
+    models:
+      - name: "custom-model"
+        type: "llm"
+        context_window: 4096
+        description: "Modèle personnalisé"
+
+# -----------------------------------------------------------------------------
+# CONFIGURATION DES ÉTAPES DU PIPELINE
+# -----------------------------------------------------------------------------
+# Contrôle centralisé et unique de l'activation/désactivation des étapes.
+# C'est ici et UNIQUEMENT ici que l'activation de chaque étape est définie.
+# Les fichiers de configuration individuels (01_*.yaml à 08_*.yaml) ne
+# contiennent AUCUN paramètre d'activation.
+#
+# Ordre d'exécution du pipeline :
+#   1. Monitoring       → Détection de nouveaux fichiers
+#   2. Preprocessing    → Extraction de texte depuis PDF/DOCX
+#   3. Chunking         → Découpage en morceaux optimaux
+#   4. Enrichment       → Ajout de métadonnées de conformité
+#   5. Audit            → Journalisation des opérations
+#   6. Embedding        → Génération de vecteurs sémantiques
+#   7. Normalization    → Normalisation des embeddings
+#   8. Vector Storage   → Stockage dans ChromaDB/Qdrant
+#
+steps:
+  monitoring_enabled: true       # Étape 1 : Surveillance des répertoires
+  preprocessing_enabled: true    # Étape 2 : Extraction de texte
+  chunking_enabled: true        # Étape 3 : Découpage en chunks
+  enrichment_enabled: true      # Étape 4 : Enrichissement métadonnées
+  audit_enabled: true           # Étape 5 : Audit logging
+  embedding_enabled: true      # Étape 6 : Génération embeddings
+  normalization_enabled: true   # Étape 7 : Normalisation vecteurs
+  vector_storage_enabled: true  # Étape 8 : Stockage vectoriel
+
+# -----------------------------------------------------------------------------
+# CONFIGURATION DU LOGGING
+# -----------------------------------------------------------------------------
+# Paramètres de journalisation pour traçabilité et debugging.
+# Les logs sont essentiels pour l'audit et le diagnostic.
+#
+logging:
+  level: "INFO"  # Niveaux : DEBUG, INFO, WARNING, ERROR, CRITICAL
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"  # Format des logs
+  log_file: "logs/rag_audit.log"  # Fichier de destination des logs
+  structured: true  # Logs structurés JSON pour parsing automatique
+  include_traceback: true  # Inclure les stack traces complètes en cas d'erreur
+
+# NOTES SUR LES CONFIGURATIONS :
+# - Configuration de SÉCURITÉ → Voir config/02_preprocessing.yaml
+# - Configuration de CONFORMITÉ RÉGLEMENTAIRE → Définie ci-dessous dans regulatory_frameworks
+#   (utilisée par config/04_enrichment.yaml et config/05_audit.yaml)
+
+# -----------------------------------------------------------------------------
+# CONFIGURATION DE PERFORMANCE
+# -----------------------------------------------------------------------------
+# Paramètres d'optimisation pour le traitement parallèle et la scalabilité.
+# Ajuster selon les ressources disponibles (CPU, RAM).
+#
+performance:
+  batch_size: 10  # Nombre de documents traités par lot (parallélisation)
+  max_workers: 4  # Nombre de workers parallèles (threads/processes)
+  timeout_seconds: 300  # Timeout maximum par opération (5 minutes)
+
+# -----------------------------------------------------------------------------
+# CONFIGURATION DES FRAMEWORKS RÉGLEMENTAIRES
+# -----------------------------------------------------------------------------
+# Configuration centralisée des normes et réglementations supportées par le framework.
+# Ces configurations sont utilisées par les étapes 04 (enrichment) et 05 (audit).
+#
+# IMPORTANT: Cette section remplace et centralise les anciennes configurations
+# regulatory_tagging (étape 04) et compliance.regulatory_frameworks (étape 05)
+#
+regulatory_frameworks:
+  # RGPD - Règlement Général sur la Protection des Données (Union Européenne)
+  # Règlement (UE) 2016/679
+  RGPD:
+    enabled: true
+    full_name: "Règlement Général sur la Protection des Données"
+    description: "Protection des données personnelles dans l'Union Européenne"
+    scope: "Toute organisation traitant des données de résidents UE"
+    region: "Union Européenne"
+
+    # Articles et exigences clés
+    articles:
+      - "article_5"    # Principes relatifs au traitement des données
+      - "article_6"    # Licéité du traitement
+      - "article_17"   # Droit à l'effacement (droit à l'oubli)
+      - "article_20"   # Droit à la portabilité
+      - "article_32"   # Sécurité du traitement
+      - "article_33"   # Notification de violation
+      - "article_35"   # Analyse d'impact (AIPD)
+
+    requirements:
+      - "lawfulness_fairness"          # Licéité et loyauté du traitement
+      - "purpose_limitation"           # Limitation des finalités
+      - "data_minimization"            # Minimisation des données
+      - "accuracy"                     # Exactitude des données
+      - "storage_limitation"           # Limitation de la conservation
+      - "integrity_confidentiality"    # Intégrité et confidentialité
+      - "right_to_be_forgotten"        # Droit à l'oubli (Art. 17)
+      - "data_portability"             # Portabilité des données (Art. 20)
+      - "consent_tracking"             # Traçabilité du consentement
+      - "breach_notification"          # Notification de violation (72h)
+      - "dpia"                         # Analyse d'impact (AIPD)
+      - "dpo_designation"              # Désignation d'un DPO si requis
+
+    notification_delay_hours: 72       # Délai notification violation de données
+
+  # SOC 2 - Service Organization Control 2
+  SOC2:
+    enabled: true
+    full_name: "Service Organization Control 2"
+    description: "Contrôles de sécurité pour les fournisseurs de services"
+    scope: "Organisations fournissant des services SaaS, cloud, data centers"
+    region: "International (AICPA)"
+
+    # Trust Services Criteria
+    controls:
+      - "CC6.1"   # Logical and Physical Access Controls - System access is restricted
+      - "CC6.6"   # Logical and Physical Access Controls - Configuration management
+      - "CC7.2"   # System Operations - Detection of system incidents
+      - "CC7.3"   # System Operations - Incident response
+      - "CC8.1"   # Change Management - Authorization and testing
+
+    trust_service_categories:
+      - "security"              # Obligatoire
+      - "availability"          # Optionnel
+      - "processing_integrity"  # Optionnel
+      - "confidentiality"       # Optionnel
+      - "privacy"               # Optionnel
+
+  # ISO/IEC 27001 - Système de Management de la Sécurité de l'Information
+  ISO27001:
+    enabled: true
+    full_name: "ISO/IEC 27001:2022"
+    description: "Norme internationale de sécurité de l'information"
+    scope: "Toute organisation souhaitant certifier son SMSI"
+    region: "International (ISO)"
+    version: "2022"
+
+    # Annexe A - Mesures de sécurité (93 mesures)
+    controls:
+      - "A.5.1"    # Politiques de sécurité de l'information
+      - "A.5.10"   # Utilisation acceptable de l'information
+      - "A.5.14"   # Transfert d'information
+      - "A.5.15"   # Contrôle d'accès
+      - "A.8.2"    # Gestion des actifs - Classification de l'information
+      - "A.8.9"    # Gestion de la configuration
+      - "A.9.4"    # Contrôle d'accès au réseau et aux services réseau
+      - "A.12.3"   # Sauvegarde de l'information
+
+    requirements:
+      # Clauses organisationnelles (4-10)
+      - "context_understanding"        # Compréhension du contexte (Clause 4)
+      - "leadership_commitment"        # Engagement de la direction (Clause 5)
+      - "risk_assessment"              # Appréciation des risques (Clause 6)
+      - "risk_treatment"               # Traitement des risques (Clause 6)
+      - "isms_implementation"          # Mise en œuvre du SMSI (Clause 8)
+      - "performance_evaluation"       # Évaluation des performances (Clause 9)
+      - "continual_improvement"        # Amélioration continue (Clause 10)
+
+      # Annexe A - Mesures de sécurité
+      - "asset_management"             # A.5.x - Gestion des actifs
+      - "access_control"               # A.5.15-18 - Contrôle d'accès
+      - "cryptography"                 # A.5.14 - Cryptographie
+      - "physical_security"            # A.7.x - Sécurité physique
+      - "operations_security"          # A.8.x - Sécurité d'exploitation
+      - "communications_security"      # A.5.13 - Sécurité des communications
+      - "acquisition_development"      # A.8.25-34 - Développement sécurisé
+      - "supplier_relationships"       # A.5.19-23 - Relations fournisseurs
+      - "incident_management"          # A.5.24-28 - Gestion des incidents
+      - "business_continuity"          # A.5.29-30 - Continuité d'activité
+      - "compliance"                   # A.5.31-37 - Conformité
+
+    certification_required: false      # Certification optionnelle mais recommandée
+    audit_frequency_months: 12         # Audit interne annuel recommandé
+
+  # NIS2 - Directive Network and Information Security 2 (Union Européenne)
+  # Directive (UE) 2022/2555
+  NIS2:
+    enabled: false  # Activer si vous êtes une entité essentielle ou importante
+    full_name: "Directive Network and Information Security 2"
+    description: "Directive UE sur la sécurité des réseaux et systèmes d'information"
+    scope: "Entités essentielles et importantes (EU)"
+    region: "Union Européenne"
+
+    requirements:
+      - "risk_management"              # Gestion des risques cyber
+      - "incident_handling"            # Gestion des incidents de sécurité
+      - "business_continuity"          # Continuité d'activité
+      - "supply_chain_security"        # Sécurité de la chaîne d'approvisionnement
+      - "security_measures"            # Mesures de sécurité appropriées
+      - "vulnerability_disclosure"     # Divulgation des vulnérabilités
+      - "cybersecurity_training"       # Formation à la cybersécurité
+      - "incident_notification"        # Notification des incidents (24h)
+
+    notification_delay_hours: 24       # Délai de notification des incidents
+
+  # IGI 1300 - Protection du Secret de la Défense Nationale (France)
+  # Instruction Générale Interministérielle n°1300
+  IGI1300:
+    enabled: false  # Activer uniquement si traitement d'informations classifiées
+    full_name: "Instruction Générale Interministérielle n°1300"
+    description: "Protection du secret de la défense nationale"
+    scope: "Informations classifiées Défense (France)"
+    region: "France"
+
+    classification_levels:
+      - "Très Secret Défense"          # TSD - Plus haut niveau
+      - "Secret Défense"                # SD
+      - "Confidentiel Défense"          # CD
+
+    requirements:
+      - "classification_marking"       # Marquage de classification
+      - "need_to_know"                 # Besoin d'en connaître
+      - "habilitation_required"        # Habilitation de sécurité requise
+      - "physical_protection"          # Protection physique des supports
+      - "secure_destruction"           # Destruction sécurisée
+      - "incident_reporting"           # Signalement des incidents
+      - "compartmentalization"         # Cloisonnement des informations
+      - "secure_transmission"          # Transmission sécurisée
+
+    zones:
+      - "ZRR"  # Zone à Régime Restrictif
+      - "ZP"   # Zone Protégée
+
+  # IGI 901 - Protection des Systèmes d'Information Sensibles (France)
+  # Instruction Générale Interministérielle n°901
+  IGI901:
+    enabled: false  # Activer si système d'information sensible
+    full_name: "Instruction Générale Interministérielle n°901"
+    description: "Protection des systèmes d'information sensibles"
+    scope: "SI traitant des informations sensibles non classifiées (France)"
+    region: "France"
+
+    sensitivity_levels:
+      - "Diffusion Restreinte"         # DR - Informations sensibles
+
+    requirements:
+      - "security_policy"              # Politique de sécurité du SI
+      - "security_classification"      # Classification de sécurité
+      - "access_control"               # Contrôle d'accès strict
+      - "audit_trail"                  # Piste d'audit
+      - "security_testing"             # Tests de sécurité réguliers
+      - "personnel_vetting"            # Enquête de sécurité du personnel
+      - "incident_response"            # Réponse aux incidents
+      - "continuous_monitoring"        # Surveillance continue
+      - "security_authorization"       # Homologation de sécurité
+
+    homologation_required: true        # Homologation obligatoire
+
+# -----------------------------------------------------------------------------
+# CONFIGURATION DE LA SYNCHRONISATION GIT AUTOMATIQUE
+# -----------------------------------------------------------------------------
+# La configuration de synchronisation Git a été déplacée vers un fichier dédié :
+# config/synchrogithub.yaml
+#
+# UTILISATION :
+#   - Pour lancer la synchronisation : ./sync_github.sh
+#   - La synchronisation n'est PAS lancée automatiquement par start.sh
+#
+# RÉFÉRENCE : Voir config/synchrogithub.yaml pour la configuration complète

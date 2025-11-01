@@ -1,0 +1,141 @@
+# =============================================================================
+# CONFIGURATION DE LA SYNCHRONISATION GIT AUTOMATIQUE
+# =============================================================================
+# Système de synchronisation automatique avec GitHub via watchdog.
+# Surveille les modifications de fichiers et effectue des push automatiques.
+#
+# SÉCURITÉ : Le token GitHub est lu depuis la variable d'environnement
+# GITHUB_TOKEN (définie dans .env). Ne JAMAIS commiter le token en clair.
+#
+# UTILISATION :
+#   - Pour lancer la synchronisation : ./sync_github.sh
+#   - La synchronisation n'est PAS lancée par start.sh (séparation des responsabilités)
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# ACTIVATION
+# -----------------------------------------------------------------------------
+git_sync:
+  # Activation de la fonctionnalité
+  enabled: true
+
+  # Mode de synchronisation
+  # - "sync" : Mode synchrone (bloquant) - Recommandé pour v1
+  # - "async" : Mode asynchrone (non-bloquant) - Réservé pour v2
+  mode: "async"
+
+  # -----------------------------------------------------------------------------
+  # FRÉQUENCE DE SYNCHRONISATION
+  # -----------------------------------------------------------------------------
+  frequency:
+    # Type de déclenchement
+    # - "immediate" : Push dès qu'un changement est détecté
+    # - "debounce" : Attend X secondes d'inactivité avant de pusher (regroupe les modifs)
+    # - "periodic" : Push toutes les X minutes si des changements existent
+    type: "periodic"
+
+    # Délai d'attente après le dernier changement (mode debounce)
+    debounce_seconds: 30
+
+    # Intervalle entre les push (mode periodic)
+    periodic_interval_minutes: 15
+
+  # -----------------------------------------------------------------------------
+  # SURVEILLANCE DES FICHIERS
+  # -----------------------------------------------------------------------------
+  # Chemins surveillés (relatifs à la racine du projet)
+  watch_paths:
+    - "."  # Racine du projet
+
+  # Patterns d'exclusion (regex Python)
+  # Ces fichiers/dossiers ne déclenchent PAS de synchronisation
+  exclude_patterns:
+    - ".*\\.git/.*"                    # Dossier .git (évite boucle infinie)
+    - ".*\\.venv/.*"                   # Environnement virtuel
+    - ".*/venv/.*"                     # Environnement virtuel alternatif
+    - ".*__pycache__.*"                # Cache Python
+    - ".*\\.pyc$"                      # Fichiers compilés Python
+    - ".*\\.pytest_cache.*"            # Cache pytest
+    - ".*\\.mypy_cache.*"              # Cache mypy
+    - ".*\\.ruff_cache.*"              # Cache ruff
+    - ".*/data/input/(?!.gitkeep).*"  # Contenu data/input (sauf .gitkeep)
+    - ".*/data/output/(?!.gitkeep).*" # Contenu data/output (sauf .gitkeep)
+    - ".*\\.DS_Store$"                 # Fichiers macOS
+    - ".*\\.coverage$"                 # Couverture de tests
+    - ".*/htmlcov/.*"                  # Rapport de couverture HTML
+    - ".*/chroma_db/.*"                # Base de données Chroma
+    - ".*\\.log$"                      # Fichiers de log
+
+  # Patterns d'inclusion (regex Python)
+  # Seuls ces fichiers déclenchent une synchronisation
+  include_patterns:
+    - ".*\\.py$"      # Fichiers Python
+    - ".*\\.yaml$"    # Fichiers de configuration YAML
+    - ".*\\.yml$"     # Fichiers de configuration YML
+    - ".*\\.md$"      # Documentation Markdown
+    - ".*\\.rst$"     # Documentation reStructuredText
+    - ".*\\.txt$"     # Fichiers texte (requirements, etc.)
+    - ".*\\.toml$"    # Fichiers de configuration (pyproject.toml)
+    - ".*\\.gitignore$"  # Fichier gitignore
+    - ".*\\.gitkeep$"    # Fichiers gitkeep
+
+  # -----------------------------------------------------------------------------
+  # CONFIGURATION DU REPOSITORY GIT
+  # -----------------------------------------------------------------------------
+  repository:
+    # URL du repository distant (lue depuis git remote -v si non spécifiée)
+    url: "https://github.com/dagornc/rag2025.git"  # Optionnel
+
+    # Branche cible pour les push
+    branch: "main"
+
+    # Nom du remote Git
+    remote: "origin"
+
+    # Créer automatiquement des fichiers .gitkeep dans data/input et data/output
+    # pour préserver l'arborescence sans commiter le contenu
+    auto_create_gitkeep: true
+
+  # -----------------------------------------------------------------------------
+  # CONFIGURATION DES COMMITS
+  # -----------------------------------------------------------------------------
+  commit:
+    # Template du message de commit
+    # Variables disponibles : ${timestamp}, ${file_count}, ${operation}, ${files}
+    message_template: "🤖 Auto-sync: ${file_count} fichier(s) modifié(s) - ${timestamp}"
+
+    # Auteur des commits automatiques
+    author_name: "RAG Framework Bot"
+    author_email: "cdagorn3@gmail.com"
+
+    # Inclure la liste des fichiers modifiés dans le message de commit
+    include_file_list: true
+
+    # Nombre maximum de fichiers à lister dans le message
+    max_files_in_message: 10
+
+  # -----------------------------------------------------------------------------
+  # GESTION DES ERREURS
+  # -----------------------------------------------------------------------------
+  error_handling:
+    # Nombre de tentatives en cas d'échec du push
+    max_retries: 3
+
+    # Délai entre les tentatives (secondes)
+    retry_delay_seconds: 5
+
+    # Continuer la surveillance même en cas d'erreur de push
+    continue_on_error: true
+
+  # -----------------------------------------------------------------------------
+  # LOGGING SPÉCIFIQUE
+  # -----------------------------------------------------------------------------
+  logging:
+    # Niveau de log (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+    level: "INFO"
+
+    # Fichier de log dédié (en plus du log global)
+    log_file: "logs/git_sync.log"
+
+    # Activer les logs structurés JSON
+    structured: true

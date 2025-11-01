@@ -1,0 +1,177 @@
+# =============================================================================
+# ÉTAPE 3 : DÉCOUPAGE DE DOCUMENTS EN CHUNKS
+# =============================================================================
+# Cette étape découpe les documents extraits en morceaux (chunks) de taille
+# optimale pour le traitement vectoriel et la recherche sémantique.
+#
+# Le chunking est critique pour la qualité du RAG :
+# - Chunks trop petits : perte de contexte
+# - Chunks trop grands : embeddings moins précis
+#
+# Stratégies disponibles :
+# 1. recursive : Découpage hiérarchique intelligent (recommandé)
+# 2. semantic : Basé sur la similarité sémantique (nécessite embeddings)
+# 3. fixed : Taille fixe simple (rapide mais moins précis)
+#
+# NOTE: L'activation de cette étape est contrôlée dans config/global.yaml
+#       via le paramètre steps.chunking_enabled
+# =============================================================================
+
+# Stratégie de découpage à utiliser
+# - "recursive" : LangChain RecursiveCharacterTextSplitter (recommandé)
+# - "semantic" : Découpage basé sur embeddings (plus lent, plus précis)
+# - "fixed" : Taille fixe avec overlap (simple, rapide)
+# - "llm_guided" : Découpage guidé par LLM (plus intelligent, plus coûteux)
+#
+# ⚠️ IMPORTANT: llm_guided fait 8-10 appels API par document de 100KB
+# Pour éviter les erreurs 429 (rate limit), utiliser "recursive" (gratuit, rapide, excellente qualité)
+strategy: "recursive" # Changé de llm_guided à recursive pour éviter rate limit
+
+# -----------------------------------------------------------------------------
+# CONFIGURATION LLM (optionnelle - pour chunking intelligent guidé par IA)
+# -----------------------------------------------------------------------------
+# Si llm.enabled = true, utilise un LLM pour analyser le contenu et déterminer
+# les meilleurs points de découpage en fonction du contexte sémantique.
+# Plus coûteux mais produit des chunks de meilleure qualité.
+#
+llm:
+  enabled: true  # Activer pour chunking guidé par LLM (nécessite strategy="llm_guided")
+  # NOTE: Pour activer, configurez la clé API appropriée dans .env
+  provider: "lm_studio"  # Provider depuis global.yaml (lm_studio, ollama, openai, etc.)
+  model: "phi-3.5-mini-instruct"  # Modèle spécifique à utiliser
+  temperature: 0.0  # Température pour analyse (0.0 = déterministe)
+  max_tokens: 1000  # Limite de tokens pour les réponses
+
+  # Gestion du rate limiting (erreurs 429)
+  rate_limiting:
+    enabled: true              # Activer la gestion du rate limiting
+    delay_between_requests: 2.0  # Délai entre chaque requête (secondes) - Augmenté pour éviter 429
+    max_retries: 3             # Nombre maximum de tentatives en cas d'erreur 429
+    retry_delay_base: 2        # Délai de base pour retry (secondes)
+    exponential_backoff: true  # Utiliser backoff exponentiel (2s, 4s, 8s, etc.)
+
+  # Prompts configurables pour le chunking guidé par LLM
+  prompts:
+    chunk_boundary_analysis: |
+      Tu es un assistant spécialisé dans l'analyse de texte. Analyse le texte suivant et identifie les points de découpage optimaux pour préserver la cohérence sémantique.
+
+      Critères pour les points de découpage :
+      - Transitions entre sujets ou sections
+      - Fin de paragraphes logiquement complets
+      - Changements de contexte ou de perspective
+      - Limites naturelles du contenu
+
+      Texte à analyser :
+      {text}
+
+      IMPORTANT: Réponds UNIQUEMENT avec un objet JSON valide, sans aucun texte explicatif avant ou après.
+      Format attendu (nombres entiers uniquement) :
+      {{"boundaries": [500, 1200, 2400]}}
+
+      Si aucun point de découpage optimal n'est trouvé, réponds :
+      {{"boundaries": []}}
+
+    semantic_coherence_check: |
+      Évalue la cohérence sémantique du chunk suivant sur une échelle de 0 à 1.
+
+      Un chunk cohérent :
+      - Traite d'un seul sujet principal
+      - A un début et une fin logiques
+      - Est compréhensible sans contexte externe (autant que possible)
+      - Ne coupe pas au milieu d'une idée
+
+      Chunk à évaluer :
+      {chunk_text}
+
+      Réponds uniquement avec un score entre 0.0 et 1.0 :
+
+    document_structure_analysis: |
+      Analyse la structure du document suivant et identifie les sections principales.
+
+      Identifie :
+      - Les titres et sous-titres
+      - Les différentes sections thématiques
+      - Les transitions importantes
+      - La hiérarchie du contenu
+
+      Document :
+      {text}
+
+      Réponds au format JSON :
+      {{
+        "sections": [
+          {{"title": "...", "start": position, "end": position, "level": 1}},
+          ...
+        ]
+      }}
+
+# -----------------------------------------------------------------------------
+# CONFIGURATION STRATÉGIE "RECURSIVE" (recommandée)
+# -----------------------------------------------------------------------------
+# Utilise RecursiveCharacterTextSplitter de LangChain
+# Découpe intelligemment en respectant la hiérarchie des séparateurs
+# (paragraphes → lignes → mots → caractères)
+#
+recursive:
+  chunk_size: 1000  # Taille cible en caractères (~250 tokens pour GPT)
+  chunk_overlap: 200  # Chevauchement entre chunks pour préserver le contexte
+
+  # Séparateurs hiérarchiques (ordre d'importance décroissant)
+  # Le splitter essaie d'abord les séparateurs du haut (paragraphes)
+  # puis descend progressivement si le chunk est trop grand
+  separators:
+    - "\n\n\n"  # Séparation entre sections majeures
+    - "\n\n"    # Séparation entre paragraphes
+    - "\n"      # Séparation entre lignes
+    - " "       # Séparation entre mots
+    - ""        # Séparation caractère par caractère (dernier recours)
+
+  keep_separator: true  # Conserver les séparateurs dans le texte
+  length_function: "len"  # Fonction de mesure de longueur (len = caractères)
+
+# -----------------------------------------------------------------------------
+# CONFIGURATION STRATÉGIE "SEMANTIC" (avancée)
+# -----------------------------------------------------------------------------
+# Découpage basé sur la similarité sémantique entre phrases
+# Nécessite un modèle d'embedding et est plus coûteux en calcul
+#
+semantic:
+  # Configuration du modèle d'embedding pour le semantic chunking
+  provider: "mistral_ai"  # Provider d'embedding (openai, sentence-transformers, ollama)
+  model: "mistral-small-latest"  # Modèle d'embedding à utiliser
+
+  # Paramètres de découpage sémantique
+  similarity_threshold: 0.75  # Seuil de similarité (0-1, plus haut = chunks plus cohérents)
+  min_chunk_size: 500  # Taille minimale d'un chunk en caractères
+  max_chunk_size: 2000  # Taille maximale d'un chunk en caractères
+
+# Configuration pour stratégie "fixed"
+fixed:
+  chunk_size: 1000
+  overlap: 200
+
+# Métadonnées à conserver par chunk
+metadata:
+  include_source: true
+  include_page_number: true
+  include_chunk_index: true
+  include_timestamp: true
+
+validation:
+  min_chunk_size: 50
+  max_chunk_size: 5000
+  reject_empty_chunks: true
+
+# -----------------------------------------------------------------------------
+# SAUVEGARDE DES CHUNKS
+# -----------------------------------------------------------------------------
+# Configuration pour sauvegarder les chunks en JSON
+#
+output:
+  save_chunks: true                      # Activer la sauvegarde des chunks
+  chunks_dir: "./data/output/chunks"     # Répertoire pour fichiers JSON
+  format: "json"                         # Format de sauvegarde (json uniquement pour l'instant)
+  group_by_document: true                # Un fichier JSON par document source
+  add_timestamp: true                    # Ajouter timestamp au nom du fichier
+  pretty_print: true                     # Formater le JSON (indentation)
+  include_metadata: true                 # Inclure toutes les métadonnées

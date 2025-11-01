@@ -1,0 +1,58 @@
+# =============================================================================
+# ÉTAPE 6 : GÉNÉRATION D'EMBEDDINGS VECTORIELS
+# =============================================================================
+# Cette étape génère les embeddings vectoriels pour les chunks enrichis.
+# Utilise les providers configurés dans config/global.yaml > llm_providers.
+#
+# NOTE: L'activation de cette étape est contrôlée dans config/global.yaml
+#       via le paramètre steps.embedding_enabled
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# CONFIGURATION DU PROVIDER D'EMBEDDINGS
+# -----------------------------------------------------------------------------
+# IMPORTANT: Le provider doit exister dans config/global.yaml > llm_providers
+#
+# Providers disponibles pour embeddings :
+# • openai          : text-embedding-3-small, text-embedding-3-large, text-embedding-ada-002
+# • mistral_ai      : mistral-embed
+# • ollama          : nomic-embed-text, mxbai-embed-large, all-minilm
+# • lm_studio       : (dépend du modèle d'embedding chargé localement)
+# • sentence-transformers : all-MiniLM-L6-v2, paraphrase-multilingual-mpnet-base-v2, etc.
+#
+provider: "lm_studio"  # Provider depuis global.yaml
+
+# Modèle d'embedding spécifique
+# Exemples par provider :
+# • openai          : text-embedding-3-large (3072 dims), text-embedding-3-small (1536 dims)
+# • mistral_ai      : mistral-embed (1024 dims)
+# • ollama          : nomic-embed-text (768 dims), mxbai-embed-large (1024 dims)
+# • sentence-transformers : all-MiniLM-L6-v2 (384 dims), paraphrase-multilingual-mpnet-base-v2 (768 dims)
+#
+model: "text-embedding-solon-embeddings-base-0.1"
+
+# Dimension des embeddings (automatique pour la plupart des modèles)
+# Si None, la dimension est détectée automatiquement
+# Utilisé principalement pour validation et compatibilité avec les bases vectorielles
+dimensions: null  # auto-détection
+
+# -----------------------------------------------------------------------------
+# PARAMÈTRES DE TRAITEMENT
+# -----------------------------------------------------------------------------
+
+processing:
+  max_text_length: 8192      # Longueur maximale de texte (caractères)
+  truncate: true              # Tronquer si trop long
+  normalize_embeddings: true  # Normaliser les vecteurs (pour Sentence Transformers)
+  batch_size: 32              # Nombre de textes à traiter par batch
+  device: "mps"               # Device pour Sentence Transformers : cpu, cuda, mps
+
+caching:
+  enabled: true
+  cache_dir: ".cache/embeddings"
+  ttl_days: 30
+
+error_handling:
+  retry_on_failure: true
+  max_retries: 3
+  fallback_to_zeros: false

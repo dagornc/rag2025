@@ -1,0 +1,325 @@
+"""Gestion de la configuration du framework RAG."""
+
+import os
+from pathlib import Path
+from typing import Any, Union
+
+import yaml
+from pydantic import BaseModel, Field
+from pydantic import ValidationError as PydanticValidationError
+
+from rag_framework.exceptions import ConfigurationError
+
+# Type pour les valeurs de configuration (peut être récursif)
+ConfigValue = Union[str, int, float, bool, dict[str, Any], list[Any], None]
+
+
+class GlobalConfig(BaseModel):
+    """Configuration globale du framework."""
+
+    vlm_providers: dict[str, Any] = Field(default_factory=dict)
+    llm_config: dict[str, Any] = Field(default_factory=dict)
+    # Nouveau: providers LLM transverses (infrastructure)
+    llm_providers: dict[str, Any] = Field(default_factory=dict)
+    # Nouveau: activation centralisée des étapes du pipeline
+    steps: dict[str, Any] = Field(default_factory=dict)
+    compliance: dict[str, Any] = Field(default_factory=dict)
+    logging: dict[str, Any] = Field(default_factory=dict)
+    security: dict[str, Any] = Field(default_factory=dict)
+    performance: dict[str, Any] = Field(default_factory=dict)
+
+
+class StepConfig(BaseModel):
+    """Configuration d'une étape du pipeline."""
+
+    enabled: bool = True
+    config: dict[str, Any] = Field(default_factory=dict)
+
+
+def substitute_env_vars(value: ConfigValue) -> ConfigValue:
+    """Remplace les variables d'environnement dans les valeurs de configuration.
+
+    Les variables d'environnement doivent être au format ${VAR_NAME}.
+
+    Parameters
+    ----------
+    value : ConfigValue
+        Valeur à traiter (peut être str, dict, list, etc.).
+
+    Returns:
+    -------
+    ConfigValue
+        Valeur avec les variables d'environnement substituées.
+
+    Examples:
+    --------
+    >>> os.environ["API_KEY"] = "secret123"
+    >>> substitute_env_vars("${API_KEY}")
+    'secret123'
+    """
+    # Traitement des chaînes de caractères
+    if isinstance(value, str):
+        # Détection du pattern ${VAR_NAME} pour substitution
+        # Exemple: "${OPENAI_API_KEY}" → valeur depuis os.environ
+        if value.startswith("${") and value.endswith("}"):
+            # Extraction du nom de variable (sans les délimiteurs ${ })
+            var_name = value[2:-1]
+
+            # Récupération depuis l'environnement système
+            env_value = os.getenv(var_name)
+
+            # Validation : la variable DOIT être définie
+            if env_value is None:
+                raise ConfigurationError(
+                    f"Variable d'environnement non définie: {var_name}",
+                    details={"variable": var_name},
+                )
+            return env_value
+
+        # Chaîne normale sans substitution
+        return value
+
+    # Traitement récursif des dictionnaires
+    # Substitue les variables dans toutes les valeurs du dict
+    elif isinstance(value, dict):
+        return {k: substitute_env_vars(v) for k, v in value.items()}
+
+    # Traitement récursif des listes
+    # Substitue les variables dans tous les éléments
+    elif isinstance(value, list):
+        return [substitute_env_vars(item) for item in value]
+
+    # Types primitifs (int, float, bool, None) : retour direct
+    else:
+        return value
+
+
+def load_yaml_config(config_path: Path) -> dict[str, Any]:
+    """Charge un fichier YAML de configuration.
+
+    Parameters
+    ----------
+    config_path : Path
+        Chemin vers le fichier YAML.
+
+    Returns:
+    -------
+    dict[str, Any]
+        Dictionnaire de configuration.
+
+    Raises:
+    ------
+    ConfigurationError
+        Si le fichier n'existe pas ou est invalide.
+    """
+    # Validation de l'existence du fichier AVANT tentative de lecture
+    # Échec rapide si le fichier n'existe pas
+    if not config_path.exists():
+        raise ConfigurationError(
+            f"Fichier de configuration introuvable: {config_path}",
+            details={"path": str(config_path)},
+        )
+
+    try:
+        # Ouverture en mode lecture avec encoding UTF-8 (standard universel)
+        # Contexte manager (with) assure la fermeture automatique du fichier
+        with open(config_path, encoding="utf-8") as f:
+            # Parsing YAML safe (n'exécute pas de code Python arbitraire)
+            # safe_load est OBLIGATOIRE pour la sécurité
+            config_data = yaml.safe_load(f)
+
+        # Fichier vide ou contenant uniquement des commentaires → dict vide
+        if config_data is None:
+            return {}
+
+        # Substitution récursive des variables d'environnement
+        # Exemple: "${API_KEY}" → valeur depuis os.environ["API_KEY"]
+        result = substitute_env_vars(config_data)
+
+        # Assertion de type : on s'attend toujours à un dictionnaire
+        # Les fichiers YAML de config doivent avoir une structure de mapping
+        assert isinstance(result, dict), "Config data must be a dictionary"
+        return result
+
+    except yaml.YAMLError as e:
+        raise ConfigurationError(
+            f"Erreur de parsing YAML: {config_path}",
+            details={"path": str(config_path), "error": str(e)},
+        ) from e
+    except Exception as e:
+        raise ConfigurationError(
+            f"Erreur lors du chargement de la configuration: {config_path}",
+            details={"path": str(config_path), "error": str(e)},
+        ) from e
+
+
+def load_config(config_dir: Path = Path("config")) -> GlobalConfig:
+    """Charge la configuration globale du framework.
+
+    Parameters
+    ----------
+    config_dir : Path, optional
+        Répertoire contenant les fichiers de configuration (default: Path("config")).
+
+    Returns:
+    -------
+    GlobalConfig
+        Instance de GlobalConfig validée.
+
+    Raises:
+    ------
+    ConfigurationError
+        Si la configuration est invalide.
+    """
+    global_config_path = config_dir / "global.yaml"
+    config_data = load_yaml_config(global_config_path)
+
+    try:
+        return GlobalConfig(**config_data)
+    except PydanticValidationError as e:
+        raise ConfigurationError(
+            "Configuration globale invalide",
+            details={"errors": e.errors()},
+        ) from e
+
+
+def load_step_config(
+    config_path: Union[Path, str],
+    config_dir: Path = Path("config"),
+) -> dict[str, Any]:
+    """Charge la configuration d'une étape spécifique.
+
+    Parameters
+    ----------
+    config_path : Union[Path, str]
+        Nom ou chemin du fichier de configuration de l'étape.
+    config_dir : Path, optional
+        Répertoire contenant les fichiers de configuration (default: Path("config")).
+
+    Returns:
+    -------
+    dict[str, Any]
+        Dictionnaire de configuration de l'étape.
+
+    Raises:
+    ------
+    ConfigurationError
+        Si la configuration est invalide.
+    """
+    if isinstance(config_path, str):
+        config_path = config_dir / config_path
+
+    return load_yaml_config(Path(config_path))
+
+
+def get_llm_client(
+    provider_name: str,
+    model: str,
+    temperature: float,
+    global_config: GlobalConfig,
+) -> Any:  # noqa: ANN401
+    """Crée un client LLM à partir de la configuration globale.
+
+    Cette fonction récupère les paramètres de connexion du provider depuis
+    global.yaml (base_url, api_key, access_method) et crée un client
+    compatible OpenAI avec les paramètres fonctionnels spécifiés.
+
+    Parameters
+    ----------
+    provider_name : str
+        Nom du provider LLM (ex: "ollama", "lm_studio", "mistral_ai").
+    model : str
+        Nom du modèle à utiliser (ex: "llama3", "mistral-large-latest").
+    temperature : float
+        Température pour la génération (0.0 = déterministe, 1.0 = créatif).
+    global_config : GlobalConfig
+        Configuration globale contenant les providers LLM.
+
+    Returns:
+    -------
+    Any
+        Client LLM configuré (compatible OpenAI API).
+
+    Raises:
+    ------
+    ConfigurationError
+        Si le provider est introuvable ou mal configuré.
+
+    Examples:
+    --------
+    >>> global_config = load_config()
+    >>> client = get_llm_client("ollama", "llama3", 0.0, global_config)
+    >>> response = client.chat.completions.create(...)
+    """
+    # Récupération de la configuration du provider depuis global.yaml
+    provider_config = global_config.llm_providers.get(provider_name)
+
+    # Validation: le provider DOIT être configuré dans global.yaml
+    if not provider_config:
+        available_providers = list(global_config.llm_providers.keys())
+        raise ConfigurationError(
+            f"Provider LLM '{provider_name}' introuvable dans global.yaml",
+            details={
+                "provider": provider_name,
+                "available_providers": available_providers,
+            },
+        )
+
+    # Extraction des paramètres de connexion (infrastructure)
+    base_url = provider_config.get("base_url")
+    api_key = provider_config.get("api_key")
+    access_method = provider_config.get("access_method", "openai_compatible")
+
+    # Validation des paramètres obligatoires
+    if not base_url or not api_key:
+        raise ConfigurationError(
+            f"Configuration incomplète pour le provider '{provider_name}'",
+            details={
+                "provider": provider_name,
+                "missing_fields": [
+                    f for f in ["base_url", "api_key"]
+                    if not provider_config.get(f)
+                ],
+            },
+        )
+
+    # Création du client selon la méthode d'accès
+    # Pour le MVP, on supporte uniquement openai_compatible et huggingface_inference_api
+    try:
+        if access_method in ("openai_compatible", "huggingface_inference_api"):
+            # Import tardif pour éviter dépendances inutiles si LLM non utilisé
+            from openai import OpenAI
+
+            # Création du client OpenAI compatible
+            # La plupart des providers modernes (Ollama, vLLM, Mistral, etc.)
+            # exposent une API compatible OpenAI
+            client = OpenAI(
+                base_url=base_url,
+                api_key=api_key,
+            )
+
+            # Stockage des paramètres fonctionnels pour utilisation ultérieure
+            # Ces paramètres ne sont pas dans __init__ mais utilisés lors des appels
+            client._model = model  # type: ignore[attr-defined]
+            client._temperature = temperature  # type: ignore[attr-defined]
+
+            return client
+
+        else:
+            raise ConfigurationError(
+                f"Méthode d'accès non supportée: {access_method}",
+                details={
+                    "provider": provider_name,
+                    "access_method": access_method,
+                    "supported_methods": [
+                        "openai_compatible",
+                        "huggingface_inference_api",
+                    ],
+                },
+            )
+
+    except ImportError as e:
+        raise ConfigurationError(
+            "Librairie 'openai' non installée. Exécutez: pip install openai",
+            details={"error": str(e)},
+        ) from e

@@ -1,0 +1,529 @@
+"id";"title";"slug";"acronym";"url";"organization";"organization_id";"owner";"owner_id";"description";"description_short";"frequency";"license";"temporal_coverage.start";"temporal_coverage.end";"spatial.granularity";"spatial.zones";"featured";"created_at";"last_modified";"tags";"archived";"resources_count";"main_resources_count";"resources_formats";"harvest.backend";"harvest.domain";"harvest.created_at";"harvest.modified_at";"harvest.remote_url";"quality_score";"metric.discussions";"metric.discussions_open";"metric.reuses";"metric.reuses_by_months";"metric.dataservices";"metric.followers";"metric.followers_by_months";"metric.views";"metric.resources_downloads"
+"6883417e592dee0d5beed92a";"LEGI: Codes, lois et règlements consolidés vectorisés";"legi-codes-lois-et-reglements-consolides-vectorises";"";"https://www.data.gouv.fr/datasets/legi-codes-lois-et-reglements-consolides-vectorises/";"Direction interministérielle du numérique";"57fe2a35c751df21e179df72";"";"";"Ce jeu de données contient une version **traitée, structurée et vectorisée** de la **législation et réglementation nationale française consolidée**, publiée sur [data.gouv.fr](https://www.data.gouv.fr/datasets/legi-codes-lois-et-reglements-consolides/) et disponibles dans leur version brute sur le [portail open data de la](https://echanges.dila.gouv.fr/OPENDATA/LEGI) **[DILA](https://echanges.dila.gouv.fr/OPENDATA/LEGI)**.
+
+Le corpus regroupe l’ensemble des **textes juridiques nationaux consolidés** (lois, codes, décrets, arrêtés...) **en** **vigueur ou bientôt abrogés**.&#x20;
+
+Les données sont encodées pour permettre la **recherche sémantique** et leur intégration dans des projets d’**intelligence artificielle** (RAG, chatbots, etc.).
+
+**Contenu** :
+&#x20;Chaque entrée du jeu de données représente un **article** ou une **partie de texte consolidé**, avec les informations suivantes :
+
+* Identifiants unique de morceau de donnée et du document source,
+* Catégorie (loi, décret, arrêté, etc.) et autorité émettrice (ministère),
+* Statut de l'article (en vigueur ou bientôt abrogé)
+* Titre court et titre complet du texte juridique,
+* Date de début et de fin de validité de l’article,
+* Numéro d'article et sous-sections éventuelles,
+* Notes complémentaires éventuelles (notas),
+* Texte consolidé de l’article (ou un de ses extraits),
+* Texte formaté pour l’analyse sémantique,
+* Vecteur d’embedding (encodage sémantique du texte).
+
+**Format** : Parquet (.parquet)
+
+**Langue** : français
+
+**Accès au jeu de données ainsi qu'à sa description complète sur la plateforme Hugging Face** :
+👉 [Consulter le dataset sur Hugging Face](https://huggingface.co/datasets/AgentPublic/legi)
+
+**Licence** :
+Licence Ouverte / Etalab 2.0
+
+**Source des données brutes** :
+
+* [LEGI: Codes, lois et règlements consolidés](https://www.data.gouv.fr/datasets/legi-codes-lois-et-reglements-consolides/)
+* [Portail open data de la](https://echanges.dila.gouv.fr/OPENDATA/LEGI) **[DILA](https://echanges.dila.gouv.fr/OPENDATA/LEGI)**
+";"";"weekly";"Licence Ouverte / Open Licence version 2.0";"";"";"country";"France";False;"2025-07-25T08:34:06.670000";"2025-09-15T09:51:35.522000";"codes,embeddings,ia,legi,legifrance,lois,rag,reglements,vecteurs";False;2;1;"parquet,html";"";"";"";"";"";"0.89";0;0;0;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";0;1;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";699;42
+"68824c7a2538d5f8e26fe68a";"DOLE : les dossiers législatifs vectorisés";"dole-les-dossiers-legislatifs-vectorises";"";"https://www.data.gouv.fr/datasets/dole-les-dossiers-legislatifs-vectorises/";"Direction interministérielle du numérique";"57fe2a35c751df21e179df72";"";"";"Ce jeu de données contient une version **traitée, structurée et vectorisée** des **Dossiers législatifs** publiés sur [data.gouv.fr](https://www.data.gouv.fr/datasets/dole-les-dossiers-legislatifs/) et disponibles dans leur version brute sur le [portail open data de la](https://echanges.dila.gouv.fr/OPENDATA/DOLE) **[DILA](https://echanges.dila.gouv.fr/OPENDATA/DOLE)**.&#x20;
+
+Le corpus comprend l’ensemble des **lois promulguées depuis la XIIᵉ législature (juin 2002)**, les **ordonnances**, ainsi que les **projets et propositions de loi en préparation**.\
+Les données sont encodées pour permettre la **recherche sémantique** et l’intégration dans des projets d’**intelligence artificielle** (RAG, chatbots, etc.).
+
+**Contenu** :
+&#x20;Chaque entrée du jeu de données représente un **article**, un **bloc de contenu de dossier** ou d'**exposé des motifs** avec les informations suivantes :
+
+* Identifiants unique de morceau de donnée et du document source,
+* Catégorie/type de dossier,
+* Type de contenu,
+* Titre du sujet et son numéro officiel,
+* Date de création ou de publication,
+* Données associées à l’article : numéro, titre, synthèse éventuelle,
+* Contenu textuel extrait et structuré par blocs du contenu concerné,
+* Texte formaté pour l’analyse sémantique,
+* Vecteur d’embedding (encodage sémantique du texte).
+
+**Format** : Parquet (.parquet)
+
+**Langue** : français
+
+**Accès au jeu de données ainsi qu'à sa description complète sur la plateforme Hugging Face** :
+👉 [Consulter le dataset sur Hugging Face](https://huggingface.co/datasets/AgentPublic/dole)
+
+**Licence** :
+Licence Ouverte / Etalab 2.0
+
+**Source des données brutes** :
+
+* [DOLE : les dossiers législatifs](https://www.data.gouv.fr/datasets/dole-les-dossiers-legislatifs/)
+* [Portail open data de la](https://echanges.dila.gouv.fr/OPENDATA/DOLE) **[DILA](https://echanges.dila.gouv.fr/OPENDATA/DOLE)**
+";"";"weekly";"Licence Ouverte / Open Licence version 2.0";"";"";"country";"France";False;"2025-07-24T15:08:42.390000";"2025-09-15T09:52:28.762000";"dole,dossiers-legislatifs,ia,legifrance,rag,vecteurs";False;2;1;"parquet,html";"";"";"";"";"";"0.78";0;0;0;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";0;1;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";304;1
+"6882287ca3dd7dc49ff64fa3";"CONSTIT: les décisions du Conseil constitutionnel vectorisées";"constit-les-decisions-du-conseil-constitutionnel-vectorisees";"";"https://www.data.gouv.fr/datasets/constit-les-decisions-du-conseil-constitutionnel-vectorisees/";"Direction interministérielle du numérique";"57fe2a35c751df21e179df72";"";"";"Ce jeu de données contient une version **traitée, structurée et vectorisée** de l’ensemble des **décisions rendues par le Conseil constitutionnel** depuis sa création en 1958.\
+Les données sont publiées sur [data.gouv.fr](https://www.data.gouv.fr/datasets/constit-les-decisions-du-conseil-constitutionnel/) et disponibles dans leur version brute sur le [portail open data de la](https://echanges.dila.gouv.fr/OPENDATA/CONSTIT) **[DILA](https://echanges.dila.gouv.fr/OPENDATA/CONSTIT)**.
+
+Les décisions du Conseil constitutionnel couvrent notamment le contrôle des lois, les QPC (question prioritaire de constitutionnalité), contentieux électoraux, nominations et autres décisions diverses.\
+Cette version vectorisée permet l’exploitation du corpus pour des cas d’usage avancés : **recherche sémantique**, assistants juridiques, **RAG**, etc.
+
+**Contenu** :
+Chaque entrée du jeu de données représente un **extrait vectorisé** d’une **décision constitutionnelle**, incluant les éléments suivants :
+
+* Identifiants unique de morceau de donnée et du document source,,
+* Nature de la décision (QPC, contrôle de loi, élection, nomination…),
+* Solution juridique rendue,
+* Titre, numéro officiel et date de publication,
+* Contenu textuel extrait et structuré par blocs,
+* Texte formaté pour analyse sémantique,
+* Vecteur d’embedding (encodage sémantique du texte).
+
+**Format** : Parquet (.parquet)
+
+**Langue** : français
+
+**Accès au jeu de données ainsi qu'à sa description complète sur la plateforme Hugging Face** :
+👉 [Consulter le dataset sur Hugging Face](https://huggingface.co/datasets/AgentPublic/constit)
+
+**Licence** :
+Licence Ouverte / Etalab 2.0
+
+**Source des données brutes** :
+
+* [CONSTIT: les décisions du Conseil constitutionnel](https://www.data.gouv.fr/datasets/constit-les-decisions-du-conseil-constitutionnel/)
+* [Portail open data de la](https://echanges.dila.gouv.fr/OPENDATA/CONSTIT) **[DILA](https://lannuaire.service-public.fr)**
+";"";"weekly";"Licence Ouverte / Open Licence version 2.0";"";"";"country";"France";False;"2025-07-24T12:35:08.068000";"2025-09-15T09:53:16.927000";"conseil-constitutionnel,constit,decisions,embeddings,legifrance,rag,vecteurs";False;2;1;"parquet,html";"";"";"";"";"";"0.78";0;0;0;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";0;1;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";291;13
+"6882101ca3a2a9c5b3c446b8";"Les délibérations de la CNIL vectorisées";"les-deliberations-de-la-cnil-vectorisees";"";"https://www.data.gouv.fr/datasets/les-deliberations-de-la-cnil-vectorisees/";"Direction interministérielle du numérique";"57fe2a35c751df21e179df72";"";"";"Ce jeu de données contient une version **traitée, structurée et vectorisée** des **délibérations et décisions officielles de la CNIL** (Commission Nationale de l’Informatique et des Libertés).
+
+Les délibérations sont couverts **depuis 1979** et incluent des documents tels que des avis, des recommandations, des normes simplifiées, des autorisations générales ou encore des décisions formelles.\
+Les données brutes sont publiées sur [data.gouv.fr,](https://www.data.gouv.fr/datasets/les-deliberations-de-la-cnil/) le [portail open data de la](https://echanges.dila.gouv.fr/OPENDATA/CNIL/) **[DILA](https://echanges.dila.gouv.fr/OPENDATA/CNIL/)** et disponibles également sur le site [Legifrance.gouv.fr](https://www.legifrance.gouv.fr).
+
+Les données sont encodées pour permettre la **recherche sémantique** et l’intégration dans des projets d’**intelligence artificielle** (RAG, chatbots, etc.).
+
+**Contenu** :
+Chaque entrée du jeu de données représente un **extrait cohérent d’une délibération** (ou décision) avec les informations suivantes :
+
+* Identifiants unique de morceau de donnée et du document source,
+* Nature de l’acte (délibération, décision, etc.),
+* Statut du document,
+* Nature de la délibération,
+* Titre court et titre complet de l’acte,
+* Numéro officiel et date de publication,
+* Contenu textuel extrait et structuré par blocs,
+* Texte formaté pour l’analyse sémantique,
+* Vecteur d’embedding (encodage sémantique du texte).
+
+**Format** : Parquet (.parquet)
+
+**Langue** : français
+
+**Accès au jeu de données ainsi qu'à sa description complète sur la plateforme Hugging Face** :
+👉 [Consulter le dataset sur Hugging Face](https://huggingface.co/datasets/AgentPublic/cnil)
+
+**Licence** :
+Licence Ouverte / Etalab 2.0
+
+**Source des données brutes** :
+
+* [Les délibérations de la CNIL](https://www.data.gouv.fr/datasets/les-deliberations-de-la-cnil/)
+* [Portail open data de la](https://echanges.dila.gouv.fr/OPENDATA/CNIL) **[DILA](https://lannuaire.service-public.fr)**
+";"";"weekly";"Licence Ouverte / Open Licence version 2.0";"";"";"country";"France";False;"2025-07-24T10:51:08.506000";"2025-09-15T09:57:52.590000";"cnil,decisions,deliberations,embeddings,ia,rag,vecteurs";False;2;1;"parquet,html";"";"";"";"";"";"0.89";0;0;0;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";0;1;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";347;14
+"688201cd45ea9d6bf4921b95";"Service-public.fr - Annuaire de l’administration - Base de données locales vectorisée";"service-public-fr-annuaire-de-ladministration-base-de-donnees-locales-vectorisee";"";"https://www.data.gouv.fr/datasets/service-public-fr-annuaire-de-ladministration-base-de-donnees-locales-vectorisee/";"Direction interministérielle du numérique";"57fe2a35c751df21e179df72";"";"";"Ce jeu de données contient une version traitée, structurée et **vectorisée** de la **Base de données locales de l'annuaire de l'administration**, dont les données sont publiées par la DILA sur [data.gouv](https://www.data.gouv.fr/fr/datasets/referentiel-de-lorganisation-administrative-de-letat/) et disponible sur [lannuaire.service-public.fr](https://lannuaire.service-public.fr/).
+Il référence plus de **63 000 guichets publics locaux** (mairies, préfectures, CAF, services sociaux, antennes locales des ministères, etc.), avec des métadonnées complètes sur leurs coordonnées, horaires, modes de contact, et périmètres géographiques d’intervention.\
+Les données sont ensuite encodées pour permettre la recherche sémantique et l’intégration dans des projets d’intelligence artificielle (RAG, chatbots, etc.).
+
+**Contenu** :
+Chaque entrée du jeu de données représente un **organisme administratif local**, avec les informations suivantes :
+
+* Nom, type et mission,
+* Coordonnées (adresses, téléphones, emails, sites, horaires, réseaux sociaux…),
+* Informations hiérarchiques et organigramme,
+* Responsables identifiés,
+* URL de référence sur l’annuaire officiel,
+* Texte synthétique de description
+* Vecteur d’embedding (encodage sémantique du texte).
+
+**Format** : Parquet (.parquet)
+
+**Langue** : français
+
+**Accès au jeu de données ainsi qu'à sa description complète sur la plateforme Hugging Face** :
+👉 [Consulter le dataset sur Hugging Face](https://huggingface.co/datasets/AgentPublic/local-administrations-directory)
+
+**Licence** :
+Licence Ouverte / Etalab 2.0
+
+**Source des données brutes** :
+
+* [Service-public.fr - Annuaire de l’administration - Base de données locales](https://www.data.gouv.fr/datasets/service-public-fr-annuaire-de-l-administration-base-de-donnees-locales/)
+* [lannuaire.service-public.fr](https://lannuaire.service-public.fr)
+";"";"weekly";"Licence Ouverte / Open Licence version 2.0";"";"";"fr:commune";"France";False;"2025-07-24T09:50:05.621000";"2025-09-15T09:57:09.684000";"administration,annuaire,embeddings,fiches-pratiques,ia,local,rag,service-public,vecteurs";False;2;1;"parquet,html";"";"";"";"";"";"0.78";0;0;0;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";0;1;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";456;55
+"6865359ce8133360095b3f5b";"Catalogue des jeux de données de data.gouv.fr vectorisé";"catalogue-des-jeux-de-donnees-de-data-gouv-fr-vectorise";"";"https://www.data.gouv.fr/datasets/catalogue-des-jeux-de-donnees-de-data-gouv-fr-vectorise/";"Direction interministérielle du numérique";"57fe2a35c751df21e179df72";"";"";"Ce jeu de données contient une version **vectorisée** du catalogue des jeux de données publiés sur [data.gouv.fr](https://www.data.gouv.fr).\
+Uniquement les jeux de données ayant une description d'au minimum 100 caractères sont répertoriés dans ce jeu de données. Ceci afin de minimiser le bruit de jeux de données éventuellement incomplets.
+
+\
+Les contenus ont été retraités et vectorisés pour permettre la recherche sémantique et l’intégration dans des projets basés d’intelligence artificielle (RAG, assistants, moteur de recherche etc.).
+
+**Contenu** :
+Chaque entrée du jeu de données représente un jeu de données publié sur data.gouv.fr, avec les informations suivantes :
+
+* Titre du jeu de donnée,
+* Organisation,
+* Description,
+* URL de la page data.gouv.fr du jeu de données
+* Métadonnées (métriques, licence, fréquence de mise à jour, etc.),
+* Vecteur d’embedding (encodage sémantique du texte).
+
+**Format** : Parquet (.parquet)
+**Langue** : français
+
+**Accès au jeu de données ainsi qu'à sa description complète sur la plateforme Hugging Face** :
+👉 [Consulter le dataset sur Hugging Face](https://huggingface.co/datasets/AgentPublic/data-gouv-datasets-catalog)
+
+**Licence** :
+Licence Ouverte / Etalab 2.0
+
+**Source des données brutes** :
+
+* [Catalogue des données de data.gouv.fr (jeux de données)](https://www.data.gouv.fr/datasets/catalogue-des-donnees-de-data-gouv-fr/)
+";"";"weekly";"Licence Ouverte / Open Licence version 2.0";"";"";"";"";False;"2025-07-02T13:35:24.301000";"2025-09-15T09:49:55.377000";"";False;2;1;"parquet,html";"";"";"";"";"";"0.67";0;0;0;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";0;1;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";420;11
+"68650cd6130c82da6ba44a92";"statistiques d'usage de la messagerie Dimail pour l'environnement osprod";"statistiques-dusage-de-la-messagerie-dimail-pour-lenvironnement-osprod";"dimail_stats";"https://www.data.gouv.fr/datasets/statistiques-dusage-de-la-messagerie-dimail-pour-lenvironnement-osprod/";"Direction interministérielle du numérique";"57fe2a35c751df21e179df72";"";"";"Ce jeu de données correspond aux statistiques d'usages de la Messagerie de la Suite Numérique. \
+Chaque jour une nouvelle ligne de statistique sera ajoutée. \
+Chaque fichier est composé de la date du jour, le nombre de visiteurs uniques du jour, des 7 derniers jours et des 30 derniers jours
+";"";"daily";"Licence Ouverte / Open Licence version 2.0";"2025-06-01";"";"country";"";False;"2025-07-02T10:41:26.950000";"2025-10-13T01:10:03.457000";"dimail,osprod,statistiques";False;1;1;"csv";"";"";"";"";"";"1.00";0;0;0;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";0;0;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";425;13
+"6830a0bdcbad82b7876585bd";"Fiches pratiques Travail Emploi vectorisées";"fiches-pratiques-travail-emploi-vectorisees";"";"https://www.data.gouv.fr/datasets/fiches-pratiques-travail-emploi-vectorisees/";"Direction interministérielle du numérique";"57fe2a35c751df21e179df72";"";"";"Ce jeu de données contient une version traitée, structurée et **vectorisée** des fiches pratiques publiées sur le [site officiel du Ministère du Travail et de l’Emploi](https://travail-emploi.gouv.fr/) . Les contenus ont été extraits, nettoyés, structurés par section, puis découpés (*chunkés*) et vectorisés pour permettre la **recherche sémantique** et l’intégration dans des projets d’**intelligence artificielle** (RAG, chatbots, etc.).
+
+**Contenu** :
+Chaque entrée du jeu de données représente un fragment de texte cohérent issu d’une fiche, avec les informations suivantes :
+
+* Titre de l’article,
+* Paragraphe d’introduction,
+* Texte extrait,
+* Métadonnées (identifiant, URL, date de publication, etc.),
+* Vecteur d’embedding (encodage sémantique du texte).
+
+**Format** : Parquet (.parquet)
+**Langue** : français
+
+**Accès au jeu de données ainsi qu'à sa description complete sur la plateforme Hugging Face** :
+👉 [Consulter le dataset sur Hugging Face](https://huggingface.co/datasets/AgentPublic/travail-emploi)
+
+**Licence** :
+Licence Ouverte / Etalab 2.0
+
+**Source des données brutes** :
+
+* [Site officiel du Ministère du Travail et de l’Emploi](https://travail-emploi.gouv.fr)
+* [Dépôt GitHub de la Fabrique numérique des Ministères Sociaux (Social Gouv)](https://github.com/SocialGouv/fiches-travail-data)
+";"";"quarterly";"Licence Ouverte / Open Licence version 2.0";"";"";"country";"France";False;"2025-05-23T16:22:21.526000";"2025-09-15T09:54:27.833000";"embeddings,emploi,fiches-pratique,ia,rag,travail,travail-emploi,vecteurs";False;2;1;"parquet,html";"";"";"";"";"";"0.89";0;0;0;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";0;1;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 1, '2025-06': 0, '2025-07': 0, '2025-08': 0}";386;22
+"6830a073ae01d6cc33cf3948";"Référentiel de l’organisation administrative de l’État vectorisé";"referentiel-de-lorganisation-administrative-de-letat-vectorise";"";"https://www.data.gouv.fr/datasets/referentiel-de-lorganisation-administrative-de-letat-vectorise/";"Direction interministérielle du numérique";"57fe2a35c751df21e179df72";"";"";"Ce jeu de données contient une version traitée, structurée et **vectorisée** du **Référentiel de l’organisation administrative de l’État**, dont les données sont publiées par la DILA sur [data.gouv](https://www.data.gouv.fr/fr/datasets/referentiel-de-lorganisation-administrative-de-letat/) et disponible sur [lannuaire.service-public.fr](https://lannuaire.service-public.fr/).
+Il regroupe les entités administratives françaises (ministères, préfectures, directions, services…) enrichies avec des informations hiérarchiques, des contacts, des missions, puis encodées pour permettre la recherche sémantique et l’intégration dans des projets d’intelligence artificielle (RAG, chatbots, etc.).
+
+**Contenu** :
+Chaque entrée du jeu de données représente une entité ou un service administratif, avec les informations suivantes :
+
+* Nom, type et mission,
+* Coordonnées (adresses, téléphones, emails, sites, horaires, réseaux sociaux…),
+* Informations hiérarchiques et organigramme,
+* Responsables identifiés,
+* URL de référence sur l’annuaire officiel,
+* Texte synthétique de description
+* Vecteur d’embedding (encodage sémantique du texte).
+
+**Format** : Parquet (.parquet)
+**Langue** : français
+
+**Accès au jeu de données ainsi qu'à sa description complète sur la plateforme Hugging Face** :
+👉 [Consulter le dataset sur Hugging Face](https://huggingface.co/datasets/AgentPublic/state-administrations-directory)
+
+**Licence** :
+Licence Ouverte / Etalab 2.0
+
+**Source des données brutes** :
+
+* [Référentiel de l’organisation administrative de l’État](https://www.data.gouv.fr/fr/datasets/referentiel-de-lorganisation-administrative-de-letat/)
+* [lannuaire.service-public.fr](https://lannuaire.service-public.fr)
+";"";"weekly";"Licence Ouverte / Open Licence version 2.0";"";"";"other";"Monde";True;"2025-05-23T16:21:07.948000";"2025-09-15T09:55:11.854000";"annuaire-des-administrations,embeddings,ia,lannuaire,organisation-administrative-de-letat,rag,vecteurs";False;2;1;"parquet,html";"";"";"";"";"";"0.78";0;0;0;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";0;1;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 1, '2025-06': 0, '2025-07': 0, '2025-08': 0}";708;46
+"68309fcb36ea9a6ee45f9cf4";"Fiches pratiques Service-Public.fr vectorisées";"fiches-pratiques-service-public-fr-vectorisees";"";"https://www.data.gouv.fr/datasets/fiches-pratiques-service-public-fr-vectorisees/";"Direction interministérielle du numérique";"57fe2a35c751df21e179df72";"";"";"Ce jeu de données contient une version traitée, structurée et **vectorisée** des fiches pratiques publiées sur le site [Service-Public.fr](https://www.service-public.fr/), le site officiel d'information et de démarches administratives.
+Les contenus ont été extraits, nettoyés, structurés par sections, puis découpés (*chunkés*) et vectorisés pour permettre la recherche sémantique et l’intégration dans des projets basés d’intelligence artificielle (RAG, assistants, etc.).
+
+**Contenu** :
+Chaque entrée du jeu de données représente un fragment de texte cohérent issu d’une fiche, avec les informations suivantes :
+
+* Titre de l’article,
+* Introduction,
+* Thème et public visé (particuliers ou professionnels),
+* Texte extrait et structuré,
+* Services en ligne associés et questions liées,
+* Métadonnées (identifiant, URL, etc.),
+* Vecteur d’embedding (encodage sémantique du texte).
+
+**Format** : Parquet (.parquet)
+**Langue** : français
+
+**Accès au jeu de données ainsi qu'à sa description complète sur la plateforme Hugging Face** :
+👉 [Consulter le dataset sur Hugging Face](https://huggingface.co/datasets/AgentPublic/service-public)
+
+**Licence** :
+Licence Ouverte / Etalab 2.0
+
+**Source des données brutes** :
+
+* Portail officiel [Service-Public.fr](https://www.service-public.fr)
+* [Fiches Particuliers sur data.gouv.fr](https://www.data.gouv.fr/fr/datasets/fiches-pratiques-et-ressources-de-service-public-fr-particuliers/)
+* [Fiches Entreprendre sur data.gouv.fr](https://www.data.gouv.fr/fr/datasets/fiches-pratiques-et-ressources-entreprendre-service-public-fr/)
+";"";"quarterly";"Licence Ouverte / Open Licence version 2.0";"";"";"country";"France";False;"2025-05-23T16:18:19.381000";"2025-09-15T09:56:55.571000";"demarches-administratives,embeddings,fiches-pratiques,ia,rag,service-public,vecteurs";False;2;1;"parquet,html";"";"";"";"";"";"0.89";0;0;0;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";0;1;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 1, '2025-06': 0, '2025-07': 0, '2025-08': 0}";1043;70
+"67a5cd40941cbe4c206efcd1";"Recensement de la DINUM des administrations au sens L100-3";"recensement-de-la-dinum-des-administrations-au-sens-l100-3";"";"https://www.data.gouv.fr/datasets/recensement-de-la-dinum-des-administrations-au-sens-l100-3/";"Direction interministérielle du numérique";"57fe2a35c751df21e179df72";"";"";"Ce jeu de données contient une liste **des administrations françaises.**  Elle est tenue par la Direction Interministérielle du Numérique (DINUM). Elle est mise à jour quotidiennement.&#x20;
+
+Elle regroupe deux types d'administrations :&#x20;
+
+* les administrations au sens de **l['article L. 100-3](https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000031367308)** **du code des relations entre le public et l'administration (CRPA)** ;
+* les organismes chargés d'une mission de service public
+
+ 
+
+Pour chaque administration, la liste contient :
+
+* le numéro SIREN
+* le code juridique
+* la dénomination
+* est-elle une administration au sens de l'article L. 100-3  ou un organisme chargé d'une mission de service public
+
+ 
+
+Ce jeu de donnée est le fruit d'un travail en cours, mené par la DINUM. Il est possible qu'une organisation n’apparaisse pas dans la liste, alors qu'elle le devrait.
+
+Si une organisation n’apparait pas dans la liste, vous pouvez [demander à la Direction interministérielle du numérique (DINUM) d’étudier son ajout à la liste](https://www.demarches-simplifiees.fr/commencer/demande-d-ajout-a-la-liste-des-administrations).
+
+Si la demande est acceptée par la DINUM, le SIREN de **votre administration sera ajoutée à la liste et le badge ""Administration"" sera affiché sur** **[l’Annuaire des Entreprises](https://annuaire-entreprises.data.gouv.fr ""Nouvel onglet"")**.
+";"";"daily";"Licence Ouverte / Open Licence version 2.0";"2025-02-06";"2025-02-20";"other";"France métropolitaine";True;"2025-02-07T09:07:12.188000";"2025-10-12T18:06:01.563000";"administration,code-juridique,siren";False;2;1;"csv,json";"";"";"";"";"";"1.00";1;1;1;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";0;5;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 5, '2025-03': 0, '2025-04': 0, '2025-05': 1, '2025-06': 0, '2025-07': 0, '2025-08': 0}";4625;709
+"67190c3a47790f31885a4486";"Lauréats guichets numériques du Fonds pour la transformation de l'action publique (FTAP)";"laureats-guichets-numeriques-du-fonds-pour-la-transformation-de-laction-publique-ftap";"Lauréats guichets numériques FTAP";"https://www.data.gouv.fr/datasets/laureats-guichets-numeriques-du-fonds-pour-la-transformation-de-laction-publique-ftap/";"Direction interministérielle du numérique";"57fe2a35c751df21e179df72";"";"";"Depuis 2023, le FTAP renforce son soutien à la transformation numérique de l’État par le financement de six guichets thématiques pilotés par la DINUM.
+
+Ces guichets déclinent des priorités identifiées dans le cadre des comités interministériels de la transformation publique (CITP) :
+•	Soutenir l’exploitation, la valorisation et la circulation des données ;
+•	Soutenir des projets en faveur d’un numérique écoresponsable ;
+•	Stimuler l’adoption du Cloud de confiance par les administrations et les opérateurs ;
+•	Améliorer le design et l’accessibilité des produits et services numériques publics ;
+•	Déployer l’offre « Campus du numérique » dédiée à la montée en compétence numérique des agents de l’État ;
+•	Opérer en confiance et en qualité des produits numériques interministériels afin de fédérer tous les agents et professionnels de la sphère publique autour de services interconnectés.
+
+La transformation numérique est un levier d’action privilégié par les lauréats du FTAP depuis sa création. Dans ce contexte, les guichets DINUM démontrent l’intérêt d’une approche complémentaire au guichet national sur cette thématique :
+•	Par leur capacité à financer des produits numériques structurants, mais aussi des produits plus modestes, à gain rapide, qui seraient sinon inéligibles au guichet national ;
+•	Par une démarche pro-active et une capacité d’accompagnement notamment au travers de l’incubateur « AllIAnce » pour faire émerger le potentiel des technologies d’intelligence artificielle (IA) au sein des administrations.
+Les projets font l’objet d’une instruction « au fil de l’eau » et sont examinés dans le cadre de comités d’évaluation propres à chaque guichet. Le jury étudie la compatibilité du projet avec le cahier des charges du FTAP, en particulier la notion de retour sur investissement, ainsi que sa pertinence et sa cohérence avec les enjeux thématiques du guichet. La coordination assurée par la DINUM permet également de garantir une cohérence entre les guichets si des projets couvrent plusieurs thématiques, par exemple la circulation des données et l’accessibilité au sein d’un même service numérique.
+
+Le présent jeu de données liste les lauréats effectifs au 23 octobre 2024 (conventions de financement signées).";"";"punctual";"Licence Ouverte / Open Licence version 2.0";"2023-09-01";"2024-10-23";"country";"France";False;"2024-10-23T14:46:18.646000";"2024-10-23T15:04:59.750000";"dinum,direction-interministerielle-du-numerique-dinum,fonds-pour-la-transformation-de-laction-publique,ftap,numerique";False;1;1;"csv";"";"";"";"";"";"1.00";0;0;0;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";0;0;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";2047;133
+"66f5835b28ffd8d7f20065c7";"Utilisation des données API entreprise par Démarches simplifiées";"utilisation-des-donnees-api-entreprise-par-demarches-simplifiees";"";"https://www.data.gouv.fr/datasets/utilisation-des-donnees-api-entreprise-par-demarches-simplifiees/";"Direction interministérielle du numérique";"57fe2a35c751df21e179df72";"";"";"Liste des données entreprises-associations ( intégrées via [API Entreprise](https://entreprise.api.gouv.fr/) ) , utilisées par Démarches simplifiées. 
+Données remontées par appel API : 
+- Type d'API appelée
+- Siret de l'acteur public traitant la démarche
+- Siret de l'entreprise réalisant la démarche
+
+Catalogue des API entreprise [disponible ici](http://entreprise.api.gouv.fr/catalogue)
+
+
+
+
+
+
+";"";"unknown";"License Not Specified";"2024-06-01";"2024-09-26";"";"";True;"2024-09-26T15:52:59.835000";"2024-09-26T16:26:45.238000";"api,api-entreprise,associations,demarches-simplifiees,entreprise";False;1;1;"csv";"";"";"";"";"";"0.67";0;0;0;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";0;0;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";1896;85
+"66e04aedc85e81c06999f0ba";"Domaines email de contact par organisation française";"domaines-email-de-contact-par-organisation-francaise";"";"https://www.data.gouv.fr/datasets/domaines-email-de-contact-par-organisation-francaise/";"Direction interministérielle du numérique";"57fe2a35c751df21e179df72";"";"";"Ce jeu de données recense les domaines email de contact qui ont été faits par des organisations en contact avec certains services de l'État.
+
+C'est un CSV avec 3 colonnes :
+
+SIRET|domain_email|data_source
+-- | -- | --
+10000001700010|elysee.fr|moncomptepro
+
+Les trois colonnes en détails :
+
+- `SIRET` : le SIRET de l'organisation
+- `domain_email` : le domaine email de contact de l'organisation
+- `data_source` : la source de la donnée
+
+La source de donnée provient de l'un des trois services de l'État suivants :
+
+- `moncomptepro` : le domaine email a été vérifié manuellement par les équipes de MonComptePro (uniquement organisation publique)
+- `trackdechets_postal_mail` : le domaine email a été vérifié avec un courrier envoyé par TrackDéchets au siège social de l'organisation
+- `alternance_job_contracted` : le domaine email a été vérifié avec une signature de contrat d'alternance sur La Bonne Alternance
+
+";"";"punctual";"Licence Ouverte / Open Licence version 2.0";"2024-01-01";"2024-09-10";"country";"France";False;"2024-09-10T13:34:37.803000";"2024-09-10T17:17:35.152000";"";False;1;1;"csv";"";"";"";"";"";"1.00";0;0;0;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";0;2;"{'2024-08': 0, '2024-09': 1, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 1, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";2337;206
+"66ba1325a3674318d42cae5c";"Structures proposant des formations aux logiciels libres";"structures-proposant-des-formations-aux-logiciels-libres";"";"https://www.data.gouv.fr/datasets/structures-proposant-des-formations-aux-logiciels-libres/";"Direction interministérielle du numérique";"57fe2a35c751df21e179df72";"";"";"Liste de structures proposant des formations aux logiciels libres.
+
+Pour améliorer cette liste, vous pouvez éditer le fichier [formations-logiciels-libres.yml](https://git.sr.ht/~codegouvfr/codegouvfr-data/tree/main/item/formations-logiciels-libres.yml) et envoyer des correctifs (voir [comment contribuer](https://git.sr.ht/~codegouvfr/codegouvfr-data/tree/main/item/CONTRIBUTING.md)).";"";"punctual";"Licence Ouverte / Open Licence version 2.0";"0202-08-12";"2026-08-12";"country";"France";True;"2024-08-12T13:50:29.496000";"2024-09-30T12:42:02.722000";"education-formation,formation,logiciels-libres,open-source";False;1;1;"json";"";"";"";"";"";"1.00";0;0;0;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";0;0;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";1444;224
+"65a6c0fba8b46aea409ce9ee";"Référentiel de rémunération des 55 métiers de la filière numérique (janvier 2024)";"referentiel-de-remuneration-des-55-metiers-de-la-filiere-numerique-janvier-2024";"";"https://www.data.gouv.fr/datasets/referentiel-de-remuneration-des-55-metiers-de-la-filiere-numerique-janvier-2024/";"Direction interministérielle du numérique";"57fe2a35c751df21e179df72";"";"";"Applicable à l’ensemble des administrations d’État, ce référentiel définit des valeurs de salaires sur l’ensemble des métiers de la filière numérique, avec des fourchettes basses et hautes, en fonction du métier et de l’expérience de chaque candidat ou agent déjà en place. Chaque fourchette haute est également un seuil en dessous duquel le contrôle budgétaire n’est plus nécessaire et la procédure ainsi simplifiée dans le cadre du recrutement et du renouvellement d’agents contractuels.
+
+Initié en 2019 avec la création d’un premier référentiel de rémunération, il est mis à jour par la circulaire n°6434/SG de la Première ministre du 3 janvier 2024. 
+
+Voir historique : 
+[Référentiel des métiers et compétences des Systèmes d’information et de communication (SIC) (juillet 20216)](https://www.data.gouv.fr/fr/datasets/referentiel-des-metiers-et-competences-des-systemes-dinformation-et-de-communication-sic/)
+[Référentiel de rémunération des 56 métiers de la filière numérique et des systèmes d'information et communication (janvier 2022)](https://www.data.gouv.fr/fr/datasets/referentiel-de-remuneration-des-56-metiers-de-la-filiere-numerique-et-des-systemes-dinformation-et-communication/)
+";"";"irregular";"Licence Ouverte / Open Licence version 2.0";"";"";"country";"France";True;"2024-01-16T17:46:35.374000";"2024-01-18T14:35:04.165000";"numerique,referentiel,remuneration";False;2;2;"csv,pdf";"";"";"";"";"";"0.78";0;0;2;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";0;0;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";7845;2232
+"650058b88c347ca616bcb5b2";"Projets informatiques de l’État : retrouvez l'ensemble des avis conformes émis par la DINUM (articles 3 et 7)";"projets-informatiques-de-letat-retrouvez-lensemble-des-avis-conformes-emis-par-la-dinum-articles-3-et-7";"";"https://www.data.gouv.fr/datasets/projets-informatiques-de-letat-retrouvez-lensemble-des-avis-conformes-emis-par-la-dinum-articles-3-et-7/";"Direction interministérielle du numérique";"57fe2a35c751df21e179df72";"";"";"C’est l’une des missions assignées à la DINUM (ex-DINSIC) : sécuriser les grands projets informatiques de l’État et des organismes placés sous la tutelle de l’État. Ainsi, avant tout lancement d’un projet de plus de 9 millions d’euros, chaque ministère doit solliciter un avis de conformité auprès du directeur de la DINUM, au titre de [l’article 3 du décret n° 2019-1088 (1)](https://www.legifrance.gouv.fr/loda/article_lc/LEGIARTI000039282808/2019-10-28), dont l’application est précisée par [l’arrêté du 5 juin 2020](https://www.legifrance.gouv.fr/loda/id/JORFTEXT000042152725/). Chaque projet est alors évalué selon cinq critères : stratégie, finances, gouvernance, réalisation et planning. L’agence nationale de la sécurité des systèmes d’information (ANSSI) analyse le volet sécurité.
+
+L’avis est accompagné, le cas échéant, de recommandations mettant en avant les axes d’améliorations à prendre en compte pour le bon déroulement du projet. Tous les projets déclarés conformes sont ensuite suivis dans le [panorama des grands projets du SI de l’État](https://www.numerique.gouv.fr/publications/panorama-grands-projets-si/) que la DINUM publie depuis novembre 2016.
+
+Dans une volonté de transparence et d’ouverture, et dans la continuité de la loi pour une République numérique, la liste de ces avis sera régulièrement mise à jour. Les avis des projets classifiés ne sont pas publiés et ceux de projets faisant l’objet de procédures d’appel d’offre à venir le seront en différé. Retrouvez également sur [data.gouv.fr l’intégralité des documents](https://www.data.gouv.fr/fr/datasets/publication-des-avis-dinsic-articles-3-et-7/) (avis + annexes) en formats .odt et .pdf.
+
+Les derniers avis conformes sont publiés sur [numérique.gouv.fr](https://www.numerique.gouv.fr/publications/avis-conformes/)
+
+(1) Précédemment au titre de l'article 7 du [décret n°2011-193](https://www.legifrance.gouv.fr/affichTexte.do?cidTexte=JORFTEXT000023619023&categorieLien=cid) puis de l'article 3 du [décret n°2014-879](https://www.legifrance.gouv.fr/affichTexte.do?cidTexte=JORFTEXT000029337021)";"";"annual";"Licence Ouverte / Open Licence";"2010-01-01";"2023-09-12";"country";"";False;"2023-09-12T12:25:28.675000";"2023-09-13T09:41:29.883000";"";False;10;0;"pdf";"";"";"";"";"";"0.78";0;0;0;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";0;0;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";3648;852
+"64bff60c8f17a6d1cec079ea";"Répertoire d'informations publiques de la Direction interministérielle du numérique";"repertoire-dinformations-publiques-de-la-direction-interministerielle-du-numerique";"DINUM";"https://www.data.gouv.fr/datasets/repertoire-dinformations-publiques-de-la-direction-interministerielle-du-numerique/";"Direction interministérielle du numérique";"57fe2a35c751df21e179df72";"";"";"Dans le cadre des dispositions prévues par l’art. L.322-6 du CRPA, les Administrations tiennent à la disposition des usagers un répertoire des principaux documents dans lesquels figurent les informations publiques qu’elles détiennent ou qu’elles produisent. 
+
+Ce Répertoire d’information publique (« RIP ») est destiné à présenter aux réutilisateurs et, de façon générale, au public, les données qui peuvent leur être utiles. Le RIP de la DINUM est principalement composé des documents administratifs produits ou détenus par le département Etalab, dont l’activité principale est axée autour de la donnée, ainsi que des départements qui agissent notamment dans le cadre des grands projets SI de l’Etat, ou dans l’élaboration de l’offre de service de la DINUM. 
+
+Ce répertoire est continuellement enrichi de nouveaux documents administratifs en fonction de l’évolution des activités de la DINUM. Il a vocation à restituer les principales activités de la DINUM et non à être exhaustif. Si vous pensez qu’un document administratif détenu par la DINUM devrait y figurer alors qu’il n’y est pas mentionné, n’hésitez à nous contacter et nous nous ferons un plaisir de l’ajouter au répertoire. Pour nous contacter, rien de plus facile, il vous suffit de nous contacter [sur https://support.data.gouv.fr/](https://support.data.gouv.fr/)
+
+Le fichier, au format tabulaire (.CSV) contient les informations publiques ventilées par types (Données et bases de données; Algorithmes et Codes sources; Publications). Pour chaque information publique, un titre et un lien dirigeant vers l'information publique en question sont également renseignés.";"";"punctual";"Licence Ouverte / Open Licence version 2.0";"2023-07-25";"2023-12-31";"country";"France";False;"2023-07-25T16:19:24.578000";"2023-07-26T09:48:09.669000";"dinum,direction-interministerielle-du-numerique,repertoire-dinformations-publiques,rip";False;1;1;"csv";"";"";"";"";"";"1.00";0;0;0;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";0;1;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";2969;163
+"6409df682de5899ed2a1a87d";"Habilitations Datapass validées";"habilitations-datapass-validees";"";"https://www.data.gouv.fr/datasets/habilitations-datapass-validees/";"Direction interministérielle du numérique";"57fe2a35c751df21e179df72";"";"";"DataPass est un service de mise en relation entre consommateur et fournisseur de données. Il permet de vérifier et d’accorder l’accès aux données produites par l’Etat aux administrations et aux entreprises légalement habilitées à en connaitre.
+
+Le jeu de données suivant liste les habilitations validées via DataPass. Conformément aux dispositions du dernier alinéa de l’article L.114-8 du code des relations entre le public et l’administration, il permet d’assurer la diffusion publique de :
+
+* &#x20; la liste des administrations qui se procurent directement des informations ou des données auprès d'autres administrations françaises en application de l’article L.114-8 du code des relations entre le public et l’administration,
+
+* &#x20;    la liste des informations ou des données ainsi échangées,
+
+* &#x20;    le fondement juridique sur lequel repose l’échange.
+";"";"monthly";"Licence Ouverte / Open Licence version 2.0";"";"";"country";"France";True;"2023-03-09T14:30:16.184000";"2025-08-27T16:06:16.403000";"api,datapass,habilitation";False;1;1;"csv";"";"";"";"";"";"0.78";0;0;0;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";0;1;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";6576;499
+"627d17bf92fad54f73ed1a90";"Statistiques d’usage de Webconf";"statistiques-dusage-de-webconf";"DINUM";"https://www.data.gouv.fr/datasets/statistiques-dusage-de-webconf/";"Direction interministérielle du numérique";"57fe2a35c751df21e179df72";"";"";"L’État met à la disposition de tous ses agents un service de webconférence interministériel pour favoriser la coopération des équipes et le travail à distance.
+
+Les données présentes dans ce jeu de données correspondent aux différentes statistiques d'usage de Webconf par les usagers depuis le déploiement du produit. Elle regroupe pour l'instant :
+Nombre total de conférences par mois 
+Nombre de participants (non unique) par mois 
+Nombre moyen de conférences par jour ouvré pour chaque mois 
+Nombre moyen de participants par conférence des jours ouvrés par mois 
+
+Le jeu de données est mis à jour mensuellement.
+
+Les données proviennent de Metabase.
+
+Lien vers Webconf : https://webconf.numerique.gouv.fr/ 
+
+
+";"";"monthly";"Licence Ouverte / Open Licence version 2.0";"";"";"";"";True;"2022-05-12T16:20:47.779000";"2023-05-17T09:59:21.825000";"conference,dinum,mois,participants,webconf";False;4;4;"csv";"";"";"";"";"";"0.56";0;0;0;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";0;0;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";4494;588
+"626152fb25989c68b55a706b";"Statistiques d’usage d’Audioconf";"statistiques-dusage-daudioconf";"DINUM";"https://www.data.gouv.fr/datasets/statistiques-dusage-daudioconf/";"Direction interministérielle du numérique";"57fe2a35c751df21e179df72";"";"";"Pour faciliter les échanges à distance, à plusieurs, l’État met à la disposition de tous ses agents un service d’audioconférence, accessible depuis n’importe quel téléphone.
+
+Les données présentes dans ce jeu de données correspondent aux différentes statistiques d'usage d’Audioconf par les usagers. Elle regroupe pour l'instant le nombre moyen de participants à des conférences et le nombre de conférences depuis le déploiement du produit. Le jeu de données est mis à jour mensuellement.
+
+Les données proviennent de Metabase.
+
+Lien vers Audioconf : https://audioconf.numerique.gouv.fr/
+
+";"";"monthly";"Licence Ouverte / Open Licence version 2.0";"";"";"";"";False;"2022-04-21T14:50:03.742000";"2022-05-20T15:10:08.415000";"audioconf,conference,dinum,mois,participants";False;2;2;"cvs,csv";"";"";"";"";"";"0.67";0;0;0;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";0;0;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";5327;977
+"62614e918244a95572181e0b";"Statistiques d’usage de Webinaire";"statistiques-dusage-de-webinaire";"DINUM";"https://www.data.gouv.fr/datasets/statistiques-dusage-de-webinaire/";"Direction interministérielle du numérique";"57fe2a35c751df21e179df72";"";"";"Un service dédié aux agents de l’État pour leurs séminaires en ligne, formations, présentations, conférences virtuelles, jusqu’à 350 participants.
+
+Les données présentes dans ce jeu de données correspondent aux différentes statistiques d'usage de Webinaire par les usagers depuis le déploiement du produit. Elle regroupe pour l'instant :
+Nombre total de conférences pour les mois passés 
+Nombre de participants (non unique) par mois 
+Nombre moyen de conférences des jours ouvrés pour chaque mois 
+Nombre moyen de participants par conférence des jours ouvrés par mois 
+
+Le jeu de données est mis à jour mensuellement.
+
+Les données proviennent de Metabase.
+
+Lien vers Webinaire : https://webinaire.numerique.gouv.fr
+
+";"";"monthly";"License Not Specified";"";"";"";"";False;"2022-04-21T14:31:13.110000";"2022-05-20T16:05:49.851000";"conference,dinum,mois,participants,webinaire";False;4;4;"csv";"";"";"";"";"";"0.67";0;0;0;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";0;1;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";3377;2136
+"6218aeb8e1a110cb189d9b1a";"Guide pratique pour des achats numériques responsables";"guide-pratique-pour-des-achats-numeriques-responsables";"";"https://www.data.gouv.fr/datasets/guide-pratique-pour-des-achats-numeriques-responsables/";"Direction interministérielle du numérique";"57fe2a35c751df21e179df72";"";"";"Depuis la loi relative à la lutte contre le gaspillage et à l'économie circulaire, ainsi que la circulaire relative aux services publics écoresponsables, l’État s’engage davantage à réduire son empreinte environnementale liée au numérique. Les efforts d’adaptation pour s’engager dans la transition écologique et solidaire doivent, pour une raison d’exemplarité, s’appliquer au service public.
+
+La fabrication des équipements informatiques concentre la grande majorité des impacts environnementaux et sociaux. Il est donc essentiel de s’emparer du sujet de l’achat numérique pour le rendre plus responsable.
+
+Ce guide, contenant des fiches pratiques d’achat responsable et s’adressant en priorité aux acheteurs de l’État, mais également à tout agent public, acheteur du secteur privé ou citoyen, permet de trouver des ressources pour être acteur de ce changement.";"";"punctual";"Licence Ouverte / Open Licence version 2.0";"";"";"";"";False;"2022-02-25T11:26:00.959000";"2022-02-25T11:28:33.582000";"achats,achats-publics,environnement,numerique,numeriqueresponsable";False;2;2;"pdf,html";"";"";"";"";"";"0.67";0;0;1;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";0;0;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";6305;1774
+"6218ab83e1a110cb189d9b19";"Guide de bonnes pratiques numérique responsable pour les organisations";"guide-de-bonnes-pratiques-numerique-responsable-pour-les-organisations";"";"https://www.data.gouv.fr/datasets/guide-de-bonnes-pratiques-numerique-responsable-pour-les-organisations/";"Direction interministérielle du numérique";"57fe2a35c751df21e179df72";"";"";"Ce guide répond à un besoin des organisations d’avoir un outil pour les accompagner dans la mise en œuvre de leur démarche et de leur plan d’action pour un numérique plus responsable.
+
+L’objectif de ce guide est d’une part de sensibiliser les différents acteurs aux impacts de certaines pratiques rencontrées au sein des organisations, et d’autre part de partager des exemples de bonnes pratiques numérique responsable qui peuvent participer à la réduction de l’empreinte environnementale du numérique. Ce guide s’adresse à tout type d’organisation, du secteur public comme du secteur privé. Certains exemples de bonnes pratiques sont plus adaptés que d’autres suivant le contexte et la maturité de la démarche numérique responsable au sein des organisations.
+
+Le numérique plus responsable est un vaste sujet, qui ne concerne pas uniquement la direction du numérique. De nombreux services transverses comme les achats, les ressources humaines, la communication, les services généraux etc. sont également impliqués. Ce guide s’adresse donc à un large public en relation avec les systèmes d’information tels que les directions informatiques, administrateurs systèmes et réseaux, développeurs, acheteurs, usagers, etc.";"";"punctual";"Licence Ouverte / Open Licence version 2.0";"";"";"";"";False;"2022-02-25T11:12:19.519000";"2023-08-30T09:00:04.852000";"bonnespratiques,deee,ecoconception,environnement,numerique,numeriqueresponsable";False;2;2;"csv,json";"";"";"";"";"";"0.56";0;0;2;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";0;1;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";6777;1221
+"6206606a41df888e0733af29";"Statistiques d’usage de FranceConnect";"statistiques-dusage-de-franceconnect";"";"https://www.data.gouv.fr/datasets/statistiques-dusage-de-franceconnect/";"Direction interministérielle du numérique";"57fe2a35c751df21e179df72";"";"";"FranceConnect est un dispositif permettant de garantir l’identité d’un utilisateur en s’appuyant sur des comptes existants pour lesquels son identité a déjà été vérifiée. Ce dispositif est un bien commun mis à la disposition de toutes les autorités administratives. Il est mis en œuvre par la DINUM, un service du premier ministre. Certains acteurs du secteur privé peuvent aussi en bénéficier s'ils contribuent à l'action publique (banques et assurances par exemple).
+
+Les données présentes dans ce jeu de données correspondent aux différentes statistiques d'usage de FranceConnect par les usagers. Elle regroupe pour l'instant le nombre de connexions et le nombre d'utilisateurs sur l'année 2021 et sur le début de l'année 2022 ( janvier à mars ). Le jeu de données est mis à jour de manière anuelle. ";"";"annual";"Licence Ouverte / Open Licence version 2.0";"2021-01-01";"2022-12-31";"";"";True;"2022-02-11T14:11:06.343000";"2024-09-24T08:31:43.162000";"authentification,federation-didentite,fournisseur-de-services-internet,fournisseur-didentite,franceconnect,identite,identite-numerique,securite,sso";False;7;7;"csv";"";"";"";"";"";"0.78";3;0;0;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";0;0;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";8657;1251
+"61d5bd6fd8fa52f2c3c19243";"Référentiel de rémunération des 56 métiers de la filière numérique et des systèmes d'information et communication (janvier 2022)";"referentiel-de-remuneration-des-56-metiers-de-la-filiere-numerique-et-des-systemes-dinformation-et-communication-janvier-2022";"";"https://www.data.gouv.fr/datasets/referentiel-de-remuneration-des-56-metiers-de-la-filiere-numerique-et-des-systemes-dinformation-et-communication-janvier-2022/";"Direction interministérielle du numérique";"57fe2a35c751df21e179df72";"";"";"ℹ️ En janvier 2024 un [nouveau référentiel](https://www.data.gouv.fr/fr/datasets/referentiel-de-remuneration-des-55-metiers-de-la-filiere-numerique-janvier-2024/) a été publié. Les référentiels ci-après sont conservés pour historisation. 
+
+Applicable à l’ensemble des administrations d’État, à compter de janvier 2022, ce référentiel définit des valeurs de salaires sur l'ensemble des métiers de la filière numérique, en-dessous desquelles le contrôle budgétaire est supprimé et la procédure ainsi simplifiée dans le cadre du recrutement et du renouvellement d’agents contractuels.
+Ce référentiel a été élaboré conjointement par la direction interministérielle du numérique (DINUM), à travers sa mission Talents, la direction générale de l’administration et des finances publiques (DGAFP) et la direction du budget (DB), en lien avec les acteurs RH et SI de la filière numérique.
+[Pour en savoir plus](https://www.numerique.gouv.fr/publications/referentiel-remuneration-filiere-numerique)
+
+ℹ️ Ce référentiel est la suite du travail mené sur le [Référentiel des métiers et compétences des Systèmes d’information et de communication (SIC)](https://www.data.gouv.fr/fr/datasets/referentiel-des-metiers-et-competences-des-systemes-dinformation-et-de-communication-sic/)";"";"unknown";"Licence Ouverte / Open Licence version 2.0";"2022-01-01";"2024-01-01";"other";"France";False;"2022-01-05T16:46:55.952000";"2024-01-18T14:31:48.082000";"metiers,numerique,remuneration";False;2;1;"csv,pdf";"";"";"";"";"";"0.78";0;0;0;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";0;0;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";17575;2338
+"61a8e612a4e1fcae0304d7b2";"Référentiel général d'écoconception de services numériques";"referentiel-general-decoconception-de-services-numeriques";"RGESN";"https://www.data.gouv.fr/datasets/referentiel-general-decoconception-de-services-numeriques/";"Direction interministérielle du numérique";"57fe2a35c751df21e179df72";"";"";"Ce référentiel est mené dans le cadre de la mission interministérielle « Green Tech » et co-pilotée par la Direction interministérielle du numérique (DINUM), le Ministère de la Transition Écologique, mais également l’ADEME et l’Institut du Numérique Responsable.
+
+**Les objectifs** : réduire la consommation de ressources informatiques et énergétiques et la contribution à l’obsolescence des équipements, qu’il s’agisse des équipements utilisateurs ou des équipements réseau ou serveur.
+
+**Public cible :** Tous les métiers liés de près ou de loin à la conception d’un service numérique : chef(fe) de projet, assistant(e) à maîtrise d'ouvrage (AMOA), assistant(e) à maitrise d'œuvre, product owner, UX researcher, designer, graphiste, développeur(se), devops, testeur(se), rédacteur ou rédactrice web, contributeur ou contributrice à un outil de gestion de contenu...";"";"punctual";"Licence Ouverte / Open Licence version 2.0";"";"";"";"";True;"2021-12-02T16:28:18.302000";"2023-04-24T14:37:49.325000";"";False;2;2;"json,ods";"";"";"";"";"";"0.56";1;1;1;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";0;1;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";9914;1453
+"6193d97700f9bcd4a6cbfc9d";"COSINUM du 03/12/2020";"cosinum-du-03-12-2020";"DINUM";"https://www.data.gouv.fr/datasets/cosinum-du-03-12-2020/";"Direction interministérielle du numérique";"57fe2a35c751df21e179df72";"";"";"Le comité d'orientation stratégique interministériel du numérique (COSINUM) est l’instance interministérielle stratégique en matière de numérique de l’État. Deux fois par an, il en définit les grandes orientations, ainsi que les moyens humains et budgétaires à mobiliser. Il prend connaissance de l’avancement des missions et de la progression des indicateurs de pilotage du programme TECH.GOUV, décide des inflexions nécessaires, et soumet ses conclusions au Gouvernement.
+
+Présidé par la secrétaire générale du Gouvernement (SGG) et animé par le directeur interministériel du numérique (DINUM), le COSINUM réunit les secrétaires généraux de tous les ministères et des directeurs du budget (DB), de la transformation publique (DITP), de l’administration et de la fonction publique (DGAFP), des achats de l’État (DAE) et de la sécurité des systèmes d’information (ANSSI).
+
+Vous trouverez ici le compte-rendu du COSINUM du 3 décembre 2020, ainsi que les fiches associées.";"";"punctual";"Licence Ouverte / Open Licence version 2.0";"";"";"";"";False;"2021-11-16T17:16:55.209000";"2021-11-16T17:21:58.463000";"cosinum,dinum";False;5;1;"pdf";"";"";"";"";"";"0.67";0;0;0;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";0;0;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";2818;559
+"6193d47e09fb1ab2df3868bd";"COSINUM du 28/05/2020";"cosinum-du-28-05-2020";"COSINUM";"https://www.data.gouv.fr/datasets/cosinum-du-28-05-2020/";"Direction interministérielle du numérique";"57fe2a35c751df21e179df72";"";"";"Le comité d'orientation stratégique interministériel du numérique (COSINUM) est l’instance interministérielle stratégique en matière de numérique de l’État. Deux fois par an, il en définit les grandes orientations, ainsi que les moyens humains et budgétaires à mobiliser. Il prend connaissance de l’avancement des missions et de la progression des indicateurs de pilotage du programme TECH.GOUV, décide des inflexions nécessaires, et soumet ses conclusions au Gouvernement. 
+
+Présidé par la secrétaire générale du Gouvernement (SGG) et animé par le directeur interministériel du numérique (DINUM), le COSINUM réunit les secrétaires généraux de tous les ministères et des directeurs du budget (DB), de la transformation publique (DITP), de l’administration et de la fonction publique (DGAFP), des achats de l’État (DAE) et de la sécurité des systèmes d’information (ANSSI).
+
+Vous trouverez ici le compte-rendu du COSINUM du 28 mai 2020, ainsi que les fiches associées.
+";"";"punctual";"Licence Ouverte / Open Licence version 2.0";"";"";"";"";False;"2021-11-16T16:55:42.917000";"2021-11-16T17:24:24.272000";"cosinum,dinum";False;6;1;"pdf";"";"";"";"";"";"0.67";0;0;0;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";0;0;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";2749;587
+"613b2be1e1de84d6f137c0e1";"Résultats du baromètre numérique de l'agent";"resultats-du-barometre-numerique-de-lagent";"BNA";"https://www.data.gouv.fr/datasets/resultats-du-barometre-numerique-de-lagent/";"Direction interministérielle du numérique";"57fe2a35c751df21e179df72";"";"";"Le Baromètre Numérique de l’agent est une consultation annuelle auprès des agents des services ministériels et interministériels, des administrations centrales et des services déconcentrés. Elle vise à mesurer la qualité de l’environnement numérique des agents et du service rendu par les services interministériels des systèmes d’information et de communication.";"";"annual";"Licence Ouverte / Open Licence version 2.0";"";"";"";"";False;"2021-09-10T11:56:49.744000";"2023-03-08T15:10:06.352000";"";False;6;6;"csv,xlsx,pdf";"";"";"";"";"";"0.56";1;1;0;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";0;1;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";7400;1159
+"60a518cbcb47626d4cc74bf9";"Liste des administrateurs ministériels des données, des algorithmes et des codes sources";"liste-des-administrateurs-ministeriels-des-donnees-des-algorithmes-et-des-codes-sources";"AMDAC";"https://www.data.gouv.fr/datasets/liste-des-administrateurs-ministeriels-des-donnees-des-algorithmes-et-des-codes-sources/";"Direction interministérielle du numérique";"57fe2a35c751df21e179df72";"";"";"Dans le cadre de la mise en œuvre de la [circulaire n°6264/SG publiée le 27 avril 2021](https://www.legifrance.gouv.fr/circulaire/id/45162), le Premier ministre a demandé la nomination d'administrateurs ministériels des données, chargés d'élaborer la stratégie des différents ministères en matière de données, d'algorithmes et de codes sources et de coordonner les différentes parties prenantes. 
+Conformément à cette décision, un fichier recensant l'ensemble des administrateurs ministériels des données est disponible en téléchargement sur data.gouv.fr.";"";"punctual";"Licence Ouverte / Open Licence version 2.0";"2024-01-01";"2024-06-30";"country";"France";True;"2021-05-19T15:55:23.737000";"2025-10-06T09:10:40.721000";"administrations,algorithme,amdac,code-source,donnees,ministeres,politique-donnee";False;1;1;"csv";"";"";"";"";"";"1.00";3;3;2;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";0;2;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";20449;949
+"5d0a5c09634f412301dba116";"Observatoire de la qualité des démarches en ligne";"observatoire-de-la-qualite-des-demarches-en-ligne";"";"https://www.data.gouv.fr/datasets/observatoire-de-la-qualite-des-demarches-en-ligne/";"Direction interministérielle du numérique";"57fe2a35c751df21e179df72";"";"";"L'Observatoire ""Vos Démarches Essentielles"" (VDE) est un dispositif gouvernemental chargé d’évaluer et d’améliorer la qualité des services publics numériques à destination des particuliers, entreprises et associations. 
+
+Lancé en juin 2019, l’Observatoire s’inscrit dans la dynamique d’accélération de la transformation numérique du service public conduite par la Direction interministérielle du numérique (DINUM). Il répond à la volonté du gouvernement de placer les besoins utilisateurs et l’inclusion de tous les usagers au cœur de la conception des services publics.
+
+C’est également un outil de pilotage interministériel et de transparence de l’action publique.
+
+Chaque trimestre, les résultats sont actualisés et publiés sur le site de l'Observatoire VDE ([https://observatoire.numerique.gouv.fr)](https://observatoire.numerique.gouv.fr), puis mis à disposition en données ouvertes sur data.gouv.fr. Cela permet notamment d’identifier les axes d’amélioration et d’accompagner les ministères dans l’élaboration et la mise en œuvre de leurs plans d’action. 
+";"";"quarterly";"";"";"";"country";"France";False;"2019-06-19T18:00:08.990000";"2025-05-28T09:15:42.240000";"demarche,demarche-administrative,demarches-phares,dematerialisation,qualite,satisfaction,satisfaction-usagers";False;25;23;"xlsx,csv,ods";"";"";"";"";"";"0.67";4;4;0;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";0;2;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 1, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";16561;5195
+"5cd95215634f417dff43508f";"Socle interministériel de logiciels libres";"socle-interministeriel-de-logiciels-libres";"SILL";"https://www.data.gouv.fr/datasets/socle-interministeriel-de-logiciels-libres/";"Direction interministérielle du numérique";"57fe2a35c751df21e179df72";"";"";"Le socle interministériel de logiciels libres (SILL) est une liste de [logiciels libres](https://fr.wikipedia.org/wiki/Logiciel_libre) recommandés pour les administrations publiques.  Cette liste est établie par des agents publics volontaires pour être référents d'un ou plusieurs logiciels.
+
+Le SILL est publié par la [mission logiciels libres](https://code.gouv.fr) de la [DINUM](https://numerique.gouv.fr) sur le site [code.gouv.fr/sill](https://code.gouv.fr/sill).
+
+Les groupes MIM réunissent les référents SILL dans des groupes de travail qui se coordonnent via le site [www.mim-libre.fr](https://www.mim-libre.fr).
+
+Le SILL est mis à disposition de tous sans garantie de l’État. Il peut être utilisé librement et gratuitement, à titre public, professionnel ou privé.  Il peut être copié et diffusé sans restriction.";"";"weekly";"Licence Ouverte / Open Licence version 2.0";"2019-01-01";"2019-12-31";"country";"France";True;"2019-05-13T13:16:37.439000";"2024-08-12T14:43:13.700000";"libre,logiciel,opensource";False;7;7;"csv,ods,pdf,url,json";"";"";"";"";"";"0.89";0;0;2;"{'2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0, '2025-09': 0}";0;4;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 1, '2025-06': 0, '2025-07': 0, '2025-08': 0}";74374;10787
+"5bc0d6e5634f4142b4581861";"Inventaire des codes sources de logiciels publiés par des organismes publics ";"inventaire-des-codes-sources-de-logiciels-publies-par-des-organismes-publics";"";"https://www.data.gouv.fr/datasets/inventaire-des-codes-sources-de-logiciels-publies-par-des-organismes-publics/";"Direction interministérielle du numérique";"57fe2a35c751df21e179df72";"";"";"Ce jeu de données propose des informations sur la liste des dépôts de code source accessibles depuis les comptes d'organisation des organismes publics.
+
+⚠️ *Ce jeu de données n'est plus mis à jour depuis le 13 avril 2025* ⚠️
+
+## Collecte des données
+
+Ce jeu de données n'est pas exhaustif car la liste des comptes d'organisation n'est pas complète.
+
+## Ajouter votre organisation
+
+Pour ajouter le compte d'organisation de votre organisme, envoyez-nous un mail à <floss@numerique.gouv.fr> ou proposez une modification de [ce fichier](https://github.com/codegouvfr/codegouvfr-data/blob/main/comptes-organismes-publics.yml).
+";"";"unknown";"Licence Ouverte / Open Licence version 2.0";"";"";"";"";True;"2018-10-12T19:16:21.138000";"2025-05-06T08:48:45.050000";"code-source,france,gouvernement,logiciel,organisme-public";False;4;4;"csv,json";"";"";"";"";"";"0.44";0;0;3;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";0;3;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";42355;4103
+"5ad74db988ee38033f37f23e";"Publication des avis DINUM (articles 3 et 7)";"publication-des-avis-dinum-articles-3-et-7";"";"https://www.data.gouv.fr/datasets/publication-des-avis-dinum-articles-3-et-7/";"Direction interministérielle du numérique";"57fe2a35c751df21e179df72";"";"";"**La direction interministérielle du numérique(DINUM)** publie ses avis de conformité sur les grands projets du système d'information de l’État. 
+
+Afin de garantir la sécurité et la conformité des grands projets informatiques de l’État et des organismes placés sous la tutelle de l'État, tout projet de plus de 9 millions d’euros doit, au titre de l'article 3 du décret n° 2019-1088 relatif au système d'information et de communication de l'État, être soumis pour avis conforme au directeur de la DINUM. Cet avis est sollicité par le secrétaire général du ministère émetteur. Chaque projet est alors évalué selon 5 axes : stratégie, finances, gouvernance, réalisation et planning.
+
+Dans une volonté de transparence et d’ouverture, et dans la continuité de la Loi pour une République numérique, la liste de ces avis sera régulièrement mise à jour. 
+
+Chaque avis rendu est accompagné de recommandations spécifiant les axes d’amélioration à prendre en compte pour le bon déroulement du projet. Tous les projets ayant fait l’objet d’un avis conforme sont suivis dans le cadre du panorama des grands projets du SI de l’État que la DINUM publie depuis novembre 2016.
+";"";"unknown";"Licence Ouverte / Open Licence";"2011-01-01";"2020-07-06";"country";"France";False;"2018-04-18T15:52:57.151000";"2025-05-22T14:09:14.737000";"art3,article3,avis,avis-articles-3,dinsic,grands-projets,projet";False;5;5;"zip,7z";"";"";"";"";"";"0.78";1;1;0;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";0;2;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";8784;1777
+"582e1e2888ee386b7ac65bb4";"Panorama des grands projets numériques de l’État";"panorama-des-grands-projets-numeriques-de-letat";"";"https://www.data.gouv.fr/datasets/panorama-des-grands-projets-numeriques-de-letat/";"Direction interministérielle du numérique";"57fe2a35c751df21e179df72";"";"";"Issu d’une collaboration étroite entre la DINUM et les ministères, le **panorama des grands projets numériques de l’État** recense et décrit les principaux projets informatiques au sein de l’Etat.
+ 
+Il apporte à ce titre :
+- une vision partagée des principaux projets informatiques en cours ;
+- un levier pour valoriser ces projets ou pour partager les difficultés ;
+- le témoignage d’une transformation numérique en marche : dématérialisation, relation usagers, identité numérique, solutions collaboratives, mobilité, big data…
+ 
+Sur cette base, les ministères et les services du Premier ministre identifient et engagent les actions nécessaires au succès de ces projets.
+ 
+Chacun de ces projets est décrit en dix points : nom, descriptif, ministère porteur, date de début, durée prévisionnelle, phase en cours, coût estimatif, caractère interministériel, zone fonctionnelle principale en relation avec le plan d’occupation des sols.
+ 
+Le panorama des grands projets numériques (anciennement ""panorama des grands projets SI"") est disponible sur [numerique.gouv.fr](https://www.numerique.gouv.fr/publications/panorama-grands-projets-si/).
+ 
+Tout citoyen dispose ainsi d'une vue sur les principaux efforts consentis par l'Etat pour moderniser son système d’information et engager une transformation numérique.";"";"semiannual";"Licence Ouverte / Open Licence";"";"";"country";"France";False;"2016-11-17T22:16:24.092000";"2025-08-14T08:45:31.317000";"administration,dinsic,dinum,numerique,service-public,services-de-l-etat,sgmap,systeme-d-information,tableau-de-bord";False;42;42;"ods,csv,xlsx";"";"";"";"";"";"0.89";2;2;5;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";0;4;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";19139;9780
+"5796275a88ee3831d77d97c2";"Référentiel des métiers et compétences des Systèmes d’information et de communication (SIC)  (juillet 2016)";"referentiel-des-metiers-et-competences-des-systemes-dinformation-et-de-communication-sic-juillet-2016";"";"https://www.data.gouv.fr/datasets/referentiel-des-metiers-et-competences-des-systemes-dinformation-et-de-communication-sic-juillet-2016/";"Direction interministérielle du numérique";"57fe2a35c751df21e179df72";"";"";"📣 Depuis janvier 2024, c'est le [Référentiel de rémunération des 55 métiers de la filière numérique](https://www.data.gouv.fr/fr/datasets/referentiel-de-remuneration-des-55-metiers-de-la-filiere-numerique-janvier-2024/) qui est applicable. Le Référentiel interministériel des métiers et compétences des Systèmes d’Information et de Communication (SIC) qui était jusqu'alors en vigueur est conservé ici dans une logique d'historisation. 
+
+➡️ Le référentiel interministériel des métiers et compétences des Systèmes d’Information et de Communication (SIC) est le langage commun, au sein de l’Etat, pour décrire les missions, les activités et les compétences des agents travaillant dans ce domaine.
+
+Il a été constitué par des groupes de travail interministériels coordonnés par la DINSIC et associant les DRH et les DSI de chaque ministère. 
+
+S’inspirant largement de la nomenclature des métiers du CIGREF ([http://cigref.hr-ingenium.com/accueil.aspx](http://cigref.hr-ingenium.com/accueil.aspx)), il recense 44 métiers et détaille pour chacun d’eux les compétences requises (savoir-faire et savoir-être). Outil de base pour mettre en place un gestion prévisionnelle des emplois et compétences, il inclut les métiers traditionnels des SI, ainsi que ceux liés à la donnée, au web, ou à la sécurité SI qui émergent au sein de l’administration. 
+";"";"punctual";"Licence Ouverte / Open Licence";"2016-07-25";"2022-01-05";"country";"France";False;"2016-07-25T16:51:06.356000";"2024-01-18T14:30:10.712000";"competences,metiers,referentiel,sic";False;2;2;"ods,odt";"";"";"";"";"";"1.00";1;1;0;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";0;1;"{'2024-08': 0, '2024-09': 0, '2024-10': 0, '2024-11': 0, '2024-12': 0, '2025-01': 0, '2025-02': 0, '2025-03': 0, '2025-04': 0, '2025-05': 0, '2025-06': 0, '2025-07': 0, '2025-08': 0}";15439;3951

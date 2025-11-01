@@ -1,0 +1,1 @@
+Ceci est un document de test pour le framework RAG. Il contient des informations de conformité RGPD.

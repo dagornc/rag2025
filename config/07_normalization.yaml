@@ -1,0 +1,32 @@
+# =============================================================================
+# ÉTAPE 7 : NORMALISATION DES DONNÉES
+# =============================================================================
+# NOTE: L'activation de cette étape est contrôlée dans config/global.yaml
+#       via le paramètre steps.normalization_enabled
+# =============================================================================
+
+vector_normalization:
+  # Normalisation des embeddings
+  normalize_l2: true
+  scale: false
+  center: false
+
+metadata_normalization:
+  # Normalisation des métadonnées
+  lowercase_keys: false
+  snake_case_keys: true
+  remove_null_values: true
+  flatten_nested: false
+
+text_normalization:
+  # Normalisation finale du texte
+  unicode_normalization: "NFC"  # Options: NFC, NFKC, NFD, NFKD
+  remove_accents: false
+  remove_punctuation: false
+  standardize_quotes: true
+
+validation:
+  validate_embeddings: true
+  validate_metadata: true
+  reject_invalid: false
+  log_validation_errors: true

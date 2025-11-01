@@ -1,0 +1,234 @@
+# =============================================================================
+# ÉTAPE 5 : AUDIT LOGGING ET TRAÇABILITÉ
+# =============================================================================
+# Cette étape journalise toutes les opérations pour conformité et audit.
+# Peut utiliser un LLM pour générer des résumés d'audit (optionnel).
+#
+# NOTE: L'activation de cette étape est contrôlée dans config/global.yaml
+#       via le paramètre steps.audit_enabled
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# CONFIGURATION LLM (optionnelle - pour résumés d'audit intelligents)
+# -----------------------------------------------------------------------------
+# Si llm.enabled = true, utilise un LLM pour générer des résumés narratifs
+# des opérations d'audit. Utile pour rapports de conformité destinés aux humains.
+#
+# IMPORTANT: Le provider doit être configuré dans config/global.yaml > llm_providers
+#
+llm:
+  # Activation du LLM pour génération de résumés d'audit
+  enabled: true  # false = logs bruts uniquement | true = logs + résumés narratifs
+
+  # Configuration du provider LLM
+  # Le provider doit exister dans config/global.yaml > llm_providers
+  # Providers disponibles : openai, anthropic, lm_studio, ollama, vllm, huggingface, mistral_ai, generic_api
+  provider: "mistral_ai"  # Provider depuis global.yaml
+
+  # Modèle spécifique à utiliser
+  # Exemples par provider :
+  # • mistral_ai : mistral-small-latest, mistral-medium-latest, mistral-large-latest
+  # • openai     : gpt-4, gpt-4-turbo, gpt-3.5-turbo
+  # • anthropic  : claude-3-opus-20240229, claude-3-sonnet-20240229
+  # • ollama     : llama3, mistral, mixtral, gemma2
+  # • lm_studio  : (dépend du modèle chargé localement)
+  model: "mistral-small-latest"
+
+  # Paramètres de génération
+  temperature: 0.3  # Légèrement créatif pour narratifs professionnels (0.0 = déterministe, 1.0 = créatif)
+  max_tokens: 1000  # Longueur maximale du résumé généré
+
+  # Fallback : Si le LLM échoue, que faire ?
+  fallback_on_error: "log_only"  # Options: log_only (logs sans résumé), retry (réessayer), skip (ignorer audit)
+  retry_count: 2  # Nombre de tentatives si fallback_on_error = "retry"
+
+  # Prompts configurables pour génération de résumés d'audit
+  prompts:
+    # Résumé d'opération d'audit standard
+    audit_summary: |
+      Génère un résumé narratif professionnel de cette opération d'audit.
+
+      Timestamp: {timestamp}
+      Opération: {operation}
+      Documents traités: {documents_processed}
+      Chunks créés: {chunks_created}
+
+      Fichiers traités:
+      {files_list}
+
+      Rédige un résumé concis (2-3 phrases) adapté pour un rapport de conformité.
+      Le résumé doit être factuel, professionnel et sans interprétation subjective.
+
+    # Résumé d'incident ou d'erreur
+    incident_summary: |
+      Génère un résumé d'incident de sécurité ou d'erreur système.
+
+      Timestamp: {timestamp}
+      Type d'incident: {incident_type}
+      Gravité: {severity}
+      Fichiers concernés: {files}
+      Message d'erreur: {error_message}
+
+      Rédige un résumé factuel de l'incident incluant :
+      - Nature de l'incident
+      - Impact potentiel
+      - Actions correctives recommandées (si applicable)
+
+      Le ton doit être professionnel et adapté à un rapport d'incident de sécurité.
+
+    # Résumé périodique (quotidien, hebdomadaire)
+    periodic_summary: |
+      Génère un résumé périodique des opérations d'audit.
+
+      Période: {period}
+      Nombre total d'opérations: {total_operations}
+      Documents traités: {total_documents}
+      Chunks créés: {total_chunks}
+      Erreurs rencontrées: {total_errors}
+
+      Statistiques détaillées:
+      {detailed_stats}
+
+      Rédige un résumé exécutif (3-5 phrases) mettant en évidence :
+      - Volume d'activité
+      - Tendances observées
+      - Points d'attention éventuels
+
+      Le résumé doit être adapté pour un rapport de conformité périodique.
+
+# -----------------------------------------------------------------------------
+# JOURNALISATION D'AUDIT
+# -----------------------------------------------------------------------------
+audit_logging:
+  log_all_operations: true
+  log_file: "logs/audit_trail.jsonl"
+  structured_format: true
+  include_stack_trace: false
+
+# -----------------------------------------------------------------------------
+# SAUVEGARDE DES RÉSUMÉS D'AUDIT
+# -----------------------------------------------------------------------------
+# Configuration pour sauvegarder les résumés d'audit générés par LLM
+# dans des fichiers séparés pour consultation facile.
+#
+output:
+  save_summaries: true                       # Activer la sauvegarde des résumés
+  summaries_dir: "./data/output/audit_summaries"  # Répertoire pour les résumés
+  format: "json"                             # Format : json, txt, markdown
+
+  # Options de nommage
+  add_timestamp: true                        # Ajouter timestamp au nom du fichier
+  filename_template: "audit_summary_{timestamp}.{format}"  # Template du nom de fichier
+
+  # Contenu à inclure
+  include_metadata: true                     # Inclure métadonnées de l'audit
+  include_llm_summary: true                  # Inclure résumé généré par LLM
+  include_raw_data: false                    # Inclure données brutes (audit_record complet)
+  pretty_print: true                         # Formater le JSON (indentation)
+
+traceability:
+  # Traçabilité des documents
+  document_hash: true
+  hash_algorithm: "sha256"
+  timestamp_format: "iso8601"
+  immutable_timestamp: true
+
+  # Traçabilité des opérations
+  log_user: true
+  log_operation_type: true
+  log_input_output: true
+  log_duration: true
+
+security_events:
+  log_access_attempts: true
+  log_modifications: true
+  log_deletions: true
+  log_failures: true
+
+retention:
+  retention_days: 365
+  archive_after_days: 90
+  compression: true
+
+export:
+  formats:
+    - "jsonl"
+    - "csv"
+  include_metadata: true
+
+compliance_reporting:
+  enabled: true
+  report_frequency: "monthly"
+  report_format: "pdf"
+  include_statistics: true
+
+# -----------------------------------------------------------------------------
+# CONFIGURATION DE CONFORMITÉ RÉGLEMENTAIRE
+# -----------------------------------------------------------------------------
+# Paramètres pour assurer la conformité aux normes et réglementations.
+# Ces paramètres influencent l'audit, le stockage et la traçabilité des données.
+#
+compliance:
+  # Activation globale de la conformité réglementaire
+  enabled: true
+
+  # Mode RGPD (Règlement Général sur la Protection des Données)
+  gdpr_compliant: true  # Active anonymisation, droit à l'oubli, etc.
+
+  # Durée de conservation des données
+  data_retention_days: 365  # 1 an par défaut (ajuster selon réglementation)
+
+  # Chiffrement des données au repos
+  encryption_at_rest: true  # Chiffrement des logs et données stockées
+
+  # Détection automatique des données personnelles (PII)
+  pii_detection:
+    enabled: true  # Détecter et marquer les PII dans les documents
+    anonymize_in_logs: true  # Anonymiser PII dans les logs d'audit
+    categories:  # Types de PII à détecter
+      - "email"          # Adresses email
+      - "phone"          # Numéros de téléphone
+      - "ssn"            # Numéros de sécurité sociale
+      - "credit_card"    # Numéros de carte bancaire
+      - "passport"       # Numéros de passeport
+      - "address"        # Adresses postales
+      - "name"           # Noms de personnes
+
+  # IMPORTANT: Les frameworks réglementaires sont maintenant définis de manière
+  # centralisée dans config/global.yaml > regulatory_frameworks
+  #
+  # Le système d'audit adapte automatiquement son comportement selon les frameworks
+  # activés dans global.yaml (enabled: true).
+  #
+  # Frameworks disponibles : RGPD, SOC2, ISO27001, NIS2, IGI1300, IGI901
+  # Voir config/global.yaml pour activer/désactiver et configurer chaque framework.
+
+  # Contrôles d'audit spécifiques à la conformité
+  audit_controls:
+    # Journalisation exhaustive
+    log_all_data_access: true      # Logger TOUS les accès aux données
+    log_data_modifications: true   # Logger TOUTES les modifications
+    log_data_deletions: true       # Logger TOUTES les suppressions
+    log_failed_attempts: true      # Logger tentatives échouées
+
+    # Traçabilité des utilisateurs
+    track_user_actions: true       # Qui a fait quoi, quand
+    require_user_authentication: false  # Authentification utilisateur requise
+    log_ip_addresses: false        # Logger adresses IP (RGPD: attention)
+
+    # Intégrité des logs
+    tamper_proof_logs: true        # Logs infalsifiables (hash chaîné)
+    sign_audit_logs: false         # Signature cryptographique des logs
+
+  # Notifications de conformité
+  notifications:
+    # Alertes en cas de problème de conformité
+    alert_on_pii_detected: true    # Alerter si PII détectées
+    alert_on_retention_exceeded: true  # Alerter si rétention dépassée
+    alert_on_access_violation: true    # Alerter accès non autorisé
+
+    # Destinataires des alertes
+    email_alerts: false
+    alert_recipients:
+      - "compliance@example.com"
+      - "security@example.com"

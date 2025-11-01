@@ -1,0 +1,58 @@
+# =============================================================================
+# .gitignore - Framework RAG Audit & Conformité
+# =============================================================================
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+
+# Environnements virtuels
+.venv/
+venv/
+.env
+
+# Rye
+.rye/
+.python-version
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Tests et Couverture
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Logs
+*.log
+logs/*.log
+!logs/.gitkeep
+
+# Données
+data/input/**/*
+!data/input/.gitkeep
+!data/input/**/.gitkeep
+data/output/**/*
+!data/output/.gitkeep
+!data/output/**/.gitkeep
+
+# Base de données vectorielle
+chroma_db/
+
+# Fichiers de Synchronisation Git
+.git_sync.pid
+
+# Backup
+*.backup
+*.bak

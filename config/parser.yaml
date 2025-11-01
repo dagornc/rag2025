@@ -1,0 +1,562 @@
+# Configuration du système de prétraitement avec fallback
+# Basé sur le cahier des charges RAG Parser Fallback
+
+preprocessing:
+  # Mode d'optimisation global (modifiable à l'exécution)
+  optimization_mode: "quality"  # speed | memory | compromise | quality | custom
+
+  # Définition des 5 modes d'optimisation prédéfinis
+  optimization_modes:
+    speed:
+      description: "Optimisé pour vitesse maximale"
+      target_speed_docs_per_second: 30
+      max_memory_gb: 4.0
+      quality_target_percent: 80
+      prefer_lightweight_libraries: true
+      enable_ocr: false
+      enable_semantic_chunking: false
+
+    memory:
+      description: "Optimisé pour faible empreinte mémoire"
+      target_speed_docs_per_second: 10
+      max_memory_gb: 2.0
+      quality_target_percent: 85
+      prefer_lightweight_libraries: true
+      enable_ocr: true
+      enable_semantic_chunking: false
+      streaming_enabled: true
+
+    compromise:
+      description: "Équilibre entre vitesse, mémoire et qualité"
+      target_speed_docs_per_second: 20
+      max_memory_gb: 3.0
+      quality_target_percent: 90
+      prefer_lightweight_libraries: false
+      enable_ocr: true
+      enable_semantic_chunking: false
+
+    quality:
+      description: "Qualité maximale d'extraction"
+      target_speed_docs_per_second: 5
+      max_memory_gb: 8.0
+      quality_target_percent: 98
+      prefer_lightweight_libraries: false
+      enable_ocr: true
+      enable_semantic_chunking: true
+      max_retries: 3
+
+    custom:
+      description: "Configuration personnalisée"
+      target_speed_docs_per_second: 15
+      max_memory_gb: 4.0
+      quality_target_percent: 92
+      prefer_lightweight_libraries: false
+      enable_ocr: true
+      enable_semantic_chunking: true
+
+  # Configuration par catégorie de documents
+  file_categories:
+    # ============================================
+    # PDF : 6 parsers avec fallback
+    # ============================================
+    pdf:
+      enabled: true
+      extensions:
+        - ".pdf"
+
+      # Chaîne de fallback (ordre de priorité)
+      fallback_chain:
+        - library: "marker"
+          priority: 1
+          description: "Parser Marker - Haute qualité avec structure"
+          timeout_seconds: 30
+          max_file_size_mb: 100
+          config:
+            extract_images: true
+            extract_tables: true
+            preserve_layout: true
+
+        - library: "docling"
+          priority: 2
+          description: "Parser Docling - Multiformat IBM"
+          timeout_seconds: 45
+          max_file_size_mb: 150
+          config:
+            extract_images: true
+            extract_tables: true
+
+        - library: "pymupdf"
+          priority: 3
+          description: "PyMuPDF - Rapide et léger"
+          timeout_seconds: 20
+          max_file_size_mb: 200
+          config:
+            extract_images: false
+            extract_text_only: true
+
+        - library: "unstructured"
+          priority: 4
+          description: "Unstructured - Parser universel"
+          timeout_seconds: 60
+          max_file_size_mb: 100
+          config:
+            strategy: "hi_res"
+            extract_images: true
+
+        - library: "pypdf"
+          priority: 5
+          description: "PyPDF - Simple et robuste"
+          timeout_seconds: 15
+          max_file_size_mb: 200
+          config:
+            extract_text_only: true
+
+        - library: "pdfplumber"
+          priority: 6
+          description: "PDFPlumber - Extraction de tables"
+          timeout_seconds: 25
+          max_file_size_mb: 100
+          config:
+            extract_tables: true
+
+      # Fallback OCR si le texte extrait est insuffisant
+      ocr_fallback:
+        enabled: true
+        trigger_on_empty_text: true
+        min_text_length: 100
+        min_text_density: 0.5  # chars per page
+
+        # Chaîne de fallback OCR
+        chain:
+          - engine: "tesseract"
+            priority: 1
+            description: "Tesseract OCR - Standard open source"
+            language: "fra+eng"
+            config: "--psm 3 --oem 3"
+            timeout_seconds: 60
+
+          - engine: "easyocr"
+            priority: 2
+            description: "EasyOCR - Précis mais lent"
+            gpu: false
+            languages: ["fr", "en"]
+            timeout_seconds: 120
+
+          - engine: "paddleocr"
+            priority: 3
+            description: "PaddleOCR - Rapide et efficace"
+            lang: "fr"
+            use_gpu: false
+            timeout_seconds: 90
+
+          - engine: "rapidocr"
+            priority: 4
+            description: "RapidOCR - Ultra rapide"
+            use_onnx: true
+            timeout_seconds: 45
+
+          - engine: "surya"
+            priority: 5
+            description: "Surya - Multilingue moderne"
+            languages: ["fr", "en"]
+            timeout_seconds: 90
+
+    # ============================================
+    # Documents Office (DOCX, PPTX, XLSX)
+    # ============================================
+    office:
+      enabled: true
+      extensions:
+        - ".docx"
+        - ".pptx"
+        - ".xlsx"
+        - ".doc"
+        - ".ppt"
+        - ".xls"
+        - ".docm"  # Word avec macros (traité comme .docx)
+        - ".pptm"  # PowerPoint avec macros (traité comme .pptx)
+        - ".xlsm"  # Excel avec macros (traité comme .xlsx)
+
+      fallback_chain:
+        - library: "python-docx"
+          priority: 1
+          description: "python-docx pour .docx"
+          timeout_seconds: 15
+          max_file_size_mb: 50
+          config:
+            extract_images: false
+            extract_styles: true
+
+        - library: "python-pptx"
+          priority: 1
+          description: "python-pptx pour .pptx"
+          timeout_seconds: 20
+          max_file_size_mb: 100
+          config:
+            extract_speaker_notes: true
+
+        - library: "openpyxl"
+          priority: 1
+          description: "openpyxl pour .xlsx"
+          timeout_seconds: 10
+          max_file_size_mb: 30
+          config:
+            read_only: true
+            data_only: true
+
+        - library: "unstructured"
+          priority: 2
+          description: "Unstructured - Fallback universel Office"
+          timeout_seconds: 30
+          max_file_size_mb: 100
+
+    # ============================================
+    # Documents Google/LibreOffice (ODT, ODS, ODP)
+    # ============================================
+    libreoffice:
+      enabled: true
+      extensions:
+        - ".odt"
+        - ".ods"
+        - ".odp"
+
+      fallback_chain:
+        - library: "unstructured"
+          priority: 1
+          description: "Unstructured pour formats OpenDocument"
+          timeout_seconds: 30
+          max_file_size_mb: 100
+
+    # ============================================
+    # Images (PNG, JPG, TIFF) - OCR direct
+    # ============================================
+    images:
+      enabled: true
+      extensions:
+        - ".png"
+        - ".jpg"
+        - ".jpeg"
+        - ".tiff"
+        - ".tif"
+        - ".bmp"
+        - ".webp"
+        - ".gif"
+
+      # Pas de parser, directement OCR
+      ocr_chain:
+        - engine: "tesseract"
+          priority: 1
+          language: "fra+eng"
+          config: "--psm 3 --oem 3"
+          timeout_seconds: 60
+
+        - engine: "easyocr"
+          priority: 2
+          gpu: false
+          languages: ["fr", "en"]
+          timeout_seconds: 120
+
+        - engine: "surya"
+          priority: 3
+          languages: ["fr", "en"]
+          timeout_seconds: 90
+
+    # ============================================
+    # HTML - Extraction de texte structuré
+    # ============================================
+    html:
+      enabled: true
+      extensions:
+        - ".html"
+        - ".htm"
+
+      library: "beautifulsoup4"
+      parser: "lxml"  # ou "html.parser"
+      config:
+        extract_text_only: true
+        remove_scripts: true
+        remove_styles: true
+        preserve_links: false
+      timeout_seconds: 10
+      max_file_size_mb: 20
+
+    # ============================================
+    # Markdown - Parsing simple
+    # ============================================
+    markdown:
+      enabled: true
+      extensions:
+        - ".md"
+        - ".markdown"
+
+      library: "markdown"
+      config:
+        extensions:
+          - "extra"
+          - "codehilite"
+          - "tables"
+          - "toc"
+      timeout_seconds: 5
+      max_file_size_mb: 10
+
+    # ============================================
+    # TXT - Fichiers texte brut
+    # ============================================
+    text:
+      enabled: true
+      extensions:
+        - ".txt"
+        - ".log"
+
+      fallback_chain:
+        - library: "text"
+          priority: 1
+          description: "Lecture texte brut avec détection encoding"
+          timeout_seconds: 5
+          max_file_size_mb: 50
+
+    # ============================================
+    # CSV - Fichiers tabulaires
+    # ============================================
+    csv:
+      enabled: true
+      extensions:
+        - ".csv"
+        - ".tsv"
+
+      fallback_chain:
+        - library: "pandas"
+          priority: 1
+          description: "Pandas pour CSV avec analyse statistique"
+          timeout_seconds: 10
+          max_file_size_mb: 100
+
+    # ============================================
+    # XML - Fichiers XML
+    # ============================================
+    xml:
+      enabled: true
+      extensions:
+        - ".xml"
+
+      fallback_chain:
+        - library: "lxml"
+          priority: 1
+          description: "Parser XML avec lxml"
+          timeout_seconds: 10
+          max_file_size_mb: 50
+
+    # ============================================
+    # RTF - Rich Text Format
+    # ============================================
+    rtf:
+      enabled: true
+      extensions:
+        - ".rtf"
+
+      fallback_chain:
+        - library: "striprtf"
+          priority: 1
+          description: "Parser RTF avec striprtf"
+          timeout_seconds: 10
+          max_file_size_mb: 20
+
+    # ============================================
+    # EPUB - eBooks
+    # ============================================
+    epub:
+      enabled: true
+      extensions:
+        - ".epub"
+
+      fallback_chain:
+        - library: "ebooklib"
+          priority: 1
+          description: "Parser EPUB avec ebooklib"
+          timeout_seconds: 30
+          max_file_size_mb: 50
+
+    # ============================================
+    # TEX - LaTeX (STUB - Complexe)
+    # ============================================
+    tex:
+      enabled: false  # Désactivé par défaut (complexe)
+      extensions:
+        - ".tex"
+
+      fallback_chain:
+        - library: "tex"  # Stub
+          priority: 1
+          description: "Parser LaTeX (non implémenté)"
+          timeout_seconds: 20
+          max_file_size_mb: 10
+
+    # ============================================
+    # SVG - Images Vectorielles (STUB)
+    # ============================================
+    svg:
+      enabled: false  # Désactivé par défaut (rare)
+      extensions:
+        - ".svg"
+
+      fallback_chain:
+        - library: "svg"  # Stub
+          priority: 1
+          description: "Extraction texte SVG (non implémenté)"
+          timeout_seconds: 5
+          max_file_size_mb: 5
+
+    # ============================================
+    # PS - PostScript (STUB)
+    # ============================================
+    ps:
+      enabled: false  # Désactivé par défaut (obsolète)
+      extensions:
+        - ".ps"
+
+      fallback_chain:
+        - library: "ps"  # Stub
+          priority: 1
+          description: "Parser PostScript (non implémenté)"
+          timeout_seconds: 20
+          max_file_size_mb: 50
+
+  # ============================================
+  # Configuration du Chunking
+  # ============================================
+  chunking:
+    # Stratégie par défaut
+    strategy: "adaptive"  # fixed | recursive | semantic | adaptive
+
+    # Configuration des 4 stratégies
+    strategies:
+      # Découpage à taille fixe
+      fixed:
+        chunk_size: 1000
+        overlap: 200
+        separator: "\n\n"
+
+      # Découpage récursif avec séparateurs hiérarchiques
+      recursive:
+        chunk_size: 1000
+        overlap: 200
+        separators:
+          - "\n\n\n"  # Triple saut (sections)
+          - "\n\n"    # Double saut (paragraphes)
+          - "\n"      # Simple saut (lignes)
+          - ". "      # Phrases
+          - " "       # Mots
+          - ""        # Caractères
+        keep_separator: false
+
+      # Découpage sémantique (basé sur embeddings)
+      semantic:
+        provider: "sentence_transformers"  # Référence à embedding_providers dans global.yaml
+        model: "paraphrase-multilingual-MiniLM-L12-v2"  # Modèle multilingue français/anglais
+        similarity_threshold: 0.7
+        min_chunk_size: 500
+        max_chunk_size: 2000
+        buffer_size: 1  # Nombre de phrases de contexte
+        breakpoint_percentile_threshold: 95
+
+      # Découpage adaptatif (hybride)
+      adaptive:
+        base_chunk_size: 1000
+        min_chunk_size: 500
+        max_chunk_size: 2000
+        overlap: 200
+        respect_boundaries: true  # Respecter paragraphes et sections
+        boundary_markers:
+          - "\n\n\n"  # Section
+          - "\n\n"    # Paragraphe
+          - ". "      # Phrase
+        density_threshold: 0.8  # Ajuster taille selon densité sémantique
+
+  # ============================================
+  # Optimisation Mémoire
+  # ============================================
+  memory_optimization:
+    enabled: true
+
+    strategies:
+      # Streaming pour gros fichiers
+      streaming:
+        enabled: true
+        buffer_size_mb: 10
+        chunk_by_chunk_processing: true
+
+      # Lazy loading
+      lazy_loading:
+        enabled: true
+        load_on_demand: true
+
+      # Memory mapping pour fichiers > threshold
+      memory_mapping:
+        enabled: true
+        threshold_mb: 50  # Utiliser mmap pour fichiers > 50MB
+
+      # Garbage collection agressif
+      garbage_collection:
+        enabled: true
+        frequency: "per_document"  # per_document | per_batch | manual
+        force_collect_threshold_mb: 500  # Force GC si usage > 500MB
+
+  # ============================================
+  # Gestion des Erreurs et Retry
+  # ============================================
+  error_handling:
+    max_retries: 2
+    retry_delay_seconds: 2
+    continue_on_error: true
+    fallback_to_raw_text: true  # Si tout échoue, retourner texte brut
+    log_errors: true
+
+    # Comportement par type d'erreur
+    error_behaviors:
+      timeout: "retry_once"  # retry_once | skip | fail
+      memory_error: "reduce_chunk_size"  # reduce_chunk_size | skip | fail
+      parsing_error: "try_next_parser"  # try_next_parser | skip | fail
+      ocr_error: "try_next_engine"  # try_next_engine | skip | fail
+
+  # ============================================
+  # Métriques et Monitoring
+  # ============================================
+  metrics:
+    enabled: true
+
+    # Métriques à collecter
+    collect:
+      - "processing_time"      # Temps de traitement total
+      - "parser_time"          # Temps par parser
+      - "ocr_time"             # Temps OCR
+      - "chunking_time"        # Temps chunking
+      - "memory_usage"         # Pic mémoire
+      - "success_rate"         # Taux de succès par parser
+      - "fallback_usage"       # Fréquence d'utilisation des fallbacks
+      - "ocr_trigger_rate"     # Taux de déclenchement OCR
+      - "chunk_count"          # Nombre de chunks générés
+      - "text_length"          # Longueur texte extrait
+      - "file_size"            # Taille fichier traité
+      - "error_count"          # Nombre d'erreurs
+
+    # Agrégation et export
+    aggregation:
+      window_size: 100  # Agréger par batch de 100 documents
+      compute_percentiles: true  # P50, P95, P99
+
+    export_format: "json"
+    export_path: "logs/preprocessing_metrics.json"
+    export_frequency: "per_batch"  # per_document | per_batch | on_shutdown
+
+  # ============================================
+  # Logging
+  # ============================================
+  logging:
+    level: "INFO"  # DEBUG | INFO | WARNING | ERROR
+    structured: true
+    format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    log_file: "logs/preprocessing.log"
+    log_to_console: true
+    log_to_file: true
+    max_log_size_mb: 100
+    backup_count: 5
