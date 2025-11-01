@@ -104,9 +104,11 @@ def main() -> None:
             iteration = 0
             while not stop_watch:
                 iteration += 1
-                logger.info(f"{'='*60}")
-                logger.info(f"📊 Itération {iteration} - Scan des répertoires surveillés")
-                logger.info(f"{'='*60}")
+                logger.info(f"{'=' * 60}")
+                logger.info(
+                    f"📊 Itération {iteration} - Scan des répertoires surveillés"
+                )
+                logger.info(f"{'=' * 60}")
 
                 try:
                     # Exécution du pipeline
@@ -132,17 +134,23 @@ def main() -> None:
 
                         if result.get("storage_result"):
                             storage = result["storage_result"]
-                            print(f"💾 {storage.get('stored_count', 0)} chunk(s) stocké(s)")
+                            print(
+                                f"💾 {storage.get('stored_count', 0)} chunk(s) stocké(s)"
+                            )
                     else:
                         logger.info("Aucun nouveau fichier détecté")
 
                 except Exception as e:
-                    logger.error(f"Erreur durant l'itération {iteration}: {e}", exc_info=True)
+                    logger.error(
+                        f"Erreur durant l'itération {iteration}: {e}", exc_info=True
+                    )
                     # Continue la surveillance même en cas d'erreur
 
                 # Attente avant le prochain scan
                 if not stop_watch:
-                    logger.info(f"\n⏳ Attente de {args.watch_interval}s avant le prochain scan...\n")
+                    logger.info(
+                        f"\n⏳ Attente de {args.watch_interval}s avant le prochain scan...\n"
+                    )
                     time.sleep(args.watch_interval)
 
             logger.info("\n✅ Surveillance arrêtée proprement")

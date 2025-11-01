@@ -120,8 +120,7 @@ class MarkerExtractor(BaseExtractor):
 
         except ImportError:
             error_msg = (
-                "Marker n'est pas installé. "
-                "Installez avec: pip install marker-pdf"
+                "Marker n'est pas installé. Installez avec: pip install marker-pdf"
             )
             logger.error(error_msg)
             return ExtractionResult(

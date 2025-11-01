@@ -11,14 +11,15 @@ from rag_framework.steps.step_03_chunking import ChunkingStep
 
 def test_langchain_import():
     """Teste que LangChain est correctement importé."""
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("TEST D'IMPORT DE LANGCHAIN")
-    print("="*70)
+    print("=" * 70)
 
     # Test 1 : Import direct
     print("\n[1/3] Test d'import direct de langchain_text_splitters...")
     try:
         from langchain_text_splitters import RecursiveCharacterTextSplitter
+
         print("✅ langchain_text_splitters importé avec succès")
         print(f"    Module: {RecursiveCharacterTextSplitter.__module__}")
     except ImportError as e:
@@ -47,7 +48,8 @@ def test_langchain_import():
 
     chunking_step = ChunkingStep(config)
 
-    test_text = """
+    test_text = (
+        """
     Le Règlement Général sur la Protection des Données (RGPD) est un règlement
     de l'Union européenne qui constitue le texte de référence en matière de
     protection des données à caractère personnel.
@@ -58,7 +60,9 @@ def test_langchain_import():
 
     Les entreprises doivent mettre en œuvre des mesures techniques et
     organisationnelles appropriées pour garantir la sécurité des données.
-    """ * 10  # Répéter pour avoir un texte plus long
+    """
+        * 10
+    )  # Répéter pour avoir un texte plus long
 
     test_doc = {
         "text": test_text,
@@ -71,9 +75,11 @@ def test_langchain_import():
         result = chunking_step.execute(data)
         chunks = result.get("chunks", [])
 
-        print(f"✅ ChunkingStep exécuté avec succès")
+        print("✅ ChunkingStep exécuté avec succès")
         print(f"    Chunks créés: {len(chunks)}")
-        print(f"    Taille moyenne: {sum(len(c['text']) for c in chunks) / len(chunks):.0f} caractères")
+        print(
+            f"    Taille moyenne: {sum(len(c['text']) for c in chunks) / len(chunks):.0f} caractères"
+        )
 
         # Vérifier que LangChain a bien été utilisé (pas de warning)
         # Le test précédent aurait affiché un warning si LangChain n'était pas disponible
@@ -82,6 +88,7 @@ def test_langchain_import():
     except Exception as e:
         print(f"❌ Échec execution ChunkingStep: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -89,11 +96,11 @@ def test_langchain_import():
 if __name__ == "__main__":
     success = test_langchain_import()
 
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     if success:
         print("✅ TOUS LES TESTS PASSÉS - LangChain fonctionne correctement")
     else:
         print("❌ ÉCHEC - Problèmes détectés")
-    print("="*70 + "\n")
+    print("=" * 70 + "\n")
 
     sys.exit(0 if success else 1)

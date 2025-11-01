@@ -40,7 +40,7 @@ class PdfPlumberExtractor(BaseExtractor):
         - min_text_length : int (défaut: 10)
         - extract_metadata : bool (défaut: True)
 
-    Notes
+    Notes:
     -----
     pdfplumber est idéal pour les documents avec tableaux complexes,
     formulaires, ou mises en page multi-colonnes. Pour des PDF simples,
@@ -57,12 +57,12 @@ class PdfPlumberExtractor(BaseExtractor):
         file_path : Path
             Chemin vers le fichier.
 
-        Returns
+        Returns:
         -------
         bool
             True si le fichier a l'extension .pdf.
 
-        Examples
+        Examples:
         --------
         >>> extractor = PdfPlumberExtractor(config={})
         >>> extractor.can_extract(Path("rapport.pdf"))
@@ -80,12 +80,12 @@ class PdfPlumberExtractor(BaseExtractor):
         file_path : Path
             Chemin vers le fichier PDF.
 
-        Returns
+        Returns:
         -------
         ExtractionResult
             Résultat de l'extraction.
 
-        Notes
+        Notes:
         -----
         L'extraction combine le texte normal et les tableaux détectés.
         Les tableaux sont formatés selon table_format (markdown par défaut).
@@ -244,7 +244,7 @@ class PdfPlumberExtractor(BaseExtractor):
         table_num : int
             Numéro du tableau sur la page.
 
-        Returns
+        Returns:
         -------
         str
             Tableau formaté.

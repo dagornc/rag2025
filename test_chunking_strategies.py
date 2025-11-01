@@ -18,9 +18,9 @@ def test_strategy(strategy_name: str) -> None:
     strategy_name : str
         Nom de la stratégie à tester (recursive, semantic, fixed, llm_guided).
     """
-    print(f"\n{'='*70}")
+    print(f"\n{'=' * 70}")
     print(f"TEST DE LA STRATÉGIE: {strategy_name.upper()}")
-    print(f"{'='*70}")
+    print(f"{'=' * 70}")
 
     # Texte de test
     test_text = """
@@ -74,33 +74,34 @@ def test_strategy(strategy_name: str) -> None:
         result = chunking_step.execute(data)
         chunks = result.get("chunks", [])
 
-        print(f"✓ Chunking exécuté avec succès")
+        print("✓ Chunking exécuté avec succès")
         print(f"  Nombre de chunks créés: {len(chunks)}")
 
         # Afficher les chunks
         for i, chunk in enumerate(chunks[:3], 1):  # Afficher max 3 chunks
             print(f"\n  Chunk #{i} ({len(chunk['text'])} caractères):")
-            preview = chunk['text'][:100].replace("\n", " ")
+            preview = chunk["text"][:100].replace("\n", " ")
             print(f"    {preview}...")
 
         if len(chunks) > 3:
             print(f"\n  ... et {len(chunks) - 3} chunks supplémentaires")
 
         # Statistiques
-        avg_length = sum(len(c['text']) for c in chunks) / len(chunks) if chunks else 0
+        avg_length = sum(len(c["text"]) for c in chunks) / len(chunks) if chunks else 0
         print(f"\n  Longueur moyenne des chunks: {avg_length:.0f} caractères")
 
     except Exception as e:
         print(f"✗ ERREUR lors de l'exécution: {e}")
         import traceback
+
         traceback.print_exc()
 
 
 def main() -> None:
     """Fonction principale."""
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("TEST DE TOUTES LES STRATÉGIES DE CHUNKING")
-    print("="*70)
+    print("=" * 70)
 
     strategies = ["recursive", "fixed", "semantic", "llm_guided"]
 
@@ -113,12 +114,12 @@ def main() -> None:
             results[strategy] = f"✗ ÉCHEC: {e}"
 
     # Résumé final
-    print(f"\n{'='*70}")
+    print(f"\n{'=' * 70}")
     print("RÉSUMÉ DES TESTS")
-    print(f"{'='*70}")
+    print(f"{'=' * 70}")
     for strategy, result in results.items():
         print(f"{strategy:15} : {result}")
-    print(f"{'='*70}\n")
+    print(f"{'=' * 70}\n")
 
 
 if __name__ == "__main__":

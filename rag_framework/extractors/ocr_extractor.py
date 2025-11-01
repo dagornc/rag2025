@@ -44,7 +44,7 @@ class OCRExtractor(BaseExtractor):
         - min_confidence : float (défaut: 0.4) - Confiance minimale
         - min_text_length : int (défaut: 10)
 
-    Notes
+    Notes:
     -----
     PSM (Page Segmentation Mode) important:
     - 3: Automatic (défaut) - détection auto de layout
@@ -81,12 +81,12 @@ class OCRExtractor(BaseExtractor):
         file_path : Path
             Chemin vers le fichier.
 
-        Returns
+        Returns:
         -------
         bool
             True si le fichier a une extension supportée.
 
-        Examples
+        Examples:
         --------
         >>> extractor = OCRExtractor(config={})
         >>> extractor.can_extract(Path("scan.png"))
@@ -106,12 +106,12 @@ class OCRExtractor(BaseExtractor):
         file_path : Path
             Chemin vers le fichier.
 
-        Returns
+        Returns:
         -------
         ExtractionResult
             Résultat de l'extraction.
 
-        Notes
+        Notes:
         -----
         Pour les PDF, chaque page est convertie en image puis traitée par OCR.
         Pour les grandes images, un prétraitement est appliqué pour améliorer
@@ -197,7 +197,7 @@ class OCRExtractor(BaseExtractor):
         min_confidence : float
             Confiance minimale.
 
-        Returns
+        Returns:
         -------
         ExtractionResult
             Résultat de l'extraction.
@@ -300,7 +300,7 @@ class OCRExtractor(BaseExtractor):
         min_confidence : float
             Confiance minimale.
 
-        Returns
+        Returns:
         -------
         ExtractionResult
             Résultat de l'extraction.
@@ -401,12 +401,12 @@ class OCRExtractor(BaseExtractor):
         image : PIL.Image
             Image à prétraiter.
 
-        Returns
+        Returns:
         -------
         PIL.Image
             Image prétraitée.
 
-        Notes
+        Notes:
         -----
         Applique:
         - Conversion en niveaux de gris

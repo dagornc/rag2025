@@ -40,7 +40,7 @@ class PandasExtractor(BaseExtractor):
         - detect_encoding : bool (défaut: True)
         - min_text_length : int (défaut: 10)
 
-    Notes
+    Notes:
     -----
     Pour les fichiers Excel avec mises en page complexes, formules
     ou macros, python-openpyxl ou Docling peuvent être utilisés en fallback.
@@ -63,12 +63,12 @@ class PandasExtractor(BaseExtractor):
         file_path : Path
             Chemin vers le fichier.
 
-        Returns
+        Returns:
         -------
         bool
             True si le fichier a une extension supportée.
 
-        Examples
+        Examples:
         --------
         >>> extractor = PandasExtractor(config={})
         >>> extractor.can_extract(Path("data.csv"))
@@ -88,12 +88,12 @@ class PandasExtractor(BaseExtractor):
         file_path : Path
             Chemin vers le fichier.
 
-        Returns
+        Returns:
         -------
         ExtractionResult
             Résultat de l'extraction.
 
-        Notes
+        Notes:
         -----
         L'extraction détecte automatiquement le format et l'encodage.
         Les données sont formatées selon output_format (markdown par défaut).
@@ -149,9 +149,7 @@ class PandasExtractor(BaseExtractor):
 
             elif file_extension == ".ods":
                 # OpenDocument Spreadsheet
-                df = pd.read_excel(
-                    str(file_path), engine="odf", sheet_name=None
-                )  # type: ignore
+                df = pd.read_excel(str(file_path), engine="odf", sheet_name=None)  # type: ignore
                 # Note: sheet_name=None retourne un dict de DataFrames
                 if isinstance(df, dict):
                     sheets_data = list(df.items())
@@ -228,13 +226,11 @@ class PandasExtractor(BaseExtractor):
         max_rows_display : int | None
             Nombre maximum de lignes à afficher.
 
-        Returns
+        Returns:
         -------
         ExtractionResult
             Résultat de l'extraction.
         """
-        import pandas as pd
-
         text_parts = []
 
         # Limitation du nombre de lignes si spécifié
@@ -323,7 +319,7 @@ class PandasExtractor(BaseExtractor):
         max_rows_display : int | None
             Nombre maximum de lignes par feuille.
 
-        Returns
+        Returns:
         -------
         ExtractionResult
             Résultat de l'extraction.
@@ -408,7 +404,7 @@ class PandasExtractor(BaseExtractor):
         df : pandas.DataFrame
             DataFrame à analyser.
 
-        Returns
+        Returns:
         -------
         str
             Statistiques formatées.

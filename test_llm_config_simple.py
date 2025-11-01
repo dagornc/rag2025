@@ -10,6 +10,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 # Import direct du module config uniquement (pas de pipeline ni steps)
 from rag_framework.config import load_yaml_config
 
+
 def main() -> None:
     """Test simplifié de la configuration."""
     print("\n" + "=" * 70)
@@ -43,8 +44,8 @@ def main() -> None:
                 print(f"\n✓ Provider '{provider}' trouvé:")
                 print(f"  - access_method: {config.get('access_method')}")
                 print(f"  - base_url: {config.get('base_url')}")
-                api_key = config.get('api_key', '')
-                if api_key.startswith('${'):
+                api_key = config.get("api_key", "")
+                if api_key.startswith("${"):
                     print(f"  - api_key: {api_key} (variable d'environnement)")
                 else:
                     print(f"  - api_key: {api_key[:20]}...")
@@ -54,6 +55,7 @@ def main() -> None:
     except Exception as e:
         print(f"✗ Erreur: {e}")
         import traceback
+
         traceback.print_exc()
         return
 

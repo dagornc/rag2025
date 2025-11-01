@@ -41,7 +41,7 @@ class DocxExtractor(BaseExtractor):
         - min_text_length : int (défaut: 10)
         - extract_metadata : bool (défaut: True)
 
-    Notes
+    Notes:
     -----
     Pour les documents Word complexes avec images, OCR ou mise en page
     sophistiquée, Docling peut être utilisé en fallback.
@@ -57,12 +57,12 @@ class DocxExtractor(BaseExtractor):
         file_path : Path
             Chemin vers le fichier.
 
-        Returns
+        Returns:
         -------
         bool
             True si le fichier a l'extension .docx ou .docm.
 
-        Examples
+        Examples:
         --------
         >>> extractor = DocxExtractor(config={})
         >>> extractor.can_extract(Path("rapport.docx"))
@@ -80,12 +80,12 @@ class DocxExtractor(BaseExtractor):
         file_path : Path
             Chemin vers le fichier Word.
 
-        Returns
+        Returns:
         -------
         ExtractionResult
             Résultat de l'extraction.
 
-        Notes
+        Notes:
         -----
         L'extraction combine les paragraphes, tableaux, en-têtes et
         pieds de page pour reconstituer le document complet.
@@ -211,9 +211,7 @@ class DocxExtractor(BaseExtractor):
             )
 
         except ImportError:
-            error_msg = (
-                "python-docx n'est pas installé. Installez avec: pip install python-docx"
-            )
+            error_msg = "python-docx n'est pas installé. Installez avec: pip install python-docx"
             logger.error(error_msg)
             return ExtractionResult(
                 text="",
@@ -244,7 +242,7 @@ class DocxExtractor(BaseExtractor):
         header_or_footer : HeaderPart or FooterPart
             Objet en-tête ou pied de page de python-docx.
 
-        Returns
+        Returns:
         -------
         str
             Texte extrait.
@@ -264,7 +262,7 @@ class DocxExtractor(BaseExtractor):
         table : Table
             Objet tableau de python-docx.
 
-        Returns
+        Returns:
         -------
         str
             Tableau formaté en Markdown.
@@ -290,12 +288,12 @@ class DocxExtractor(BaseExtractor):
         para : Paragraph
             Objet paragraphe de python-docx.
 
-        Returns
+        Returns:
         -------
         str
             Texte formaté avec marqueurs Markdown.
 
-        Notes
+        Notes:
         -----
         Cette fonction est utilisée uniquement si preserve_formatting=True.
         """

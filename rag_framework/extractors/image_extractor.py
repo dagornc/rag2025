@@ -179,9 +179,7 @@ class ImageExtractor(BaseExtractor):
 
             # Extraction du texte de la réponse
             if response.choices and response.choices[0].message.content:
-                extracted_text: str = str(
-                    response.choices[0].message.content
-                ).strip()
+                extracted_text: str = str(response.choices[0].message.content).strip()
 
                 # Vérifier si aucun texte trouvé
                 if extracted_text.upper() == "NO_TEXT_FOUND":

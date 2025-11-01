@@ -36,9 +36,8 @@ class ChunkingStep(BaseStep):
 
         # Initialisation du LLM si la stratégie est llm_guided
         self.llm_client = None
-        if (
-            config.get("strategy") == "llm_guided"
-            and self.llm_config.get("enabled", False)
+        if config.get("strategy") == "llm_guided" and self.llm_config.get(
+            "enabled", False
         ):
             self._initialize_llm()
 
@@ -72,9 +71,7 @@ class ChunkingStep(BaseStep):
             logger.info(f"LLM initialisé pour chunking guidé: {provider}/{model}")
 
         except Exception as e:
-            logger.error(
-                f"Erreur initialisation LLM pour chunking: {e}", exc_info=True
-            )
+            logger.error(f"Erreur initialisation LLM pour chunking: {e}", exc_info=True)
             self.llm_client = None
 
     def _initialize_embeddings(self) -> None:
@@ -110,9 +107,7 @@ class ChunkingStep(BaseStep):
                 )
 
         except Exception as e:
-            logger.error(
-                f"Erreur initialisation embeddings: {e}", exc_info=True
-            )
+            logger.error(f"Erreur initialisation embeddings: {e}", exc_info=True)
             self.embeddings_model = None
 
     def validate_config(self) -> None:
@@ -176,7 +171,8 @@ class ChunkingStep(BaseStep):
                     all_chunks.append(
                         {
                             "text": chunk_text,
-                            "source_file": doc.get("file_path") or doc.get("source_file", "unknown"),
+                            "source_file": doc.get("file_path")
+                            or doc.get("source_file", "unknown"),
                             "chunk_index": idx,
                             "total_chunks": len(chunks),
                             "chunking_strategy": strategy,
@@ -254,9 +250,7 @@ class ChunkingStep(BaseStep):
         config = self.config.get("recursive", {})
         chunk_size = config.get("chunk_size", 1000)
         chunk_overlap = config.get("chunk_overlap", 200)
-        separators = config.get(
-            "separators", ["\n\n\n", "\n\n", "\n", " ", ""]
-        )
+        separators = config.get("separators", ["\n\n\n", "\n\n", "\n", " ", ""])
 
         try:
             # Import LangChain RecursiveCharacterTextSplitter
@@ -470,7 +464,7 @@ class ChunkingStep(BaseStep):
         prompt : str
             Prompt à envoyer au LLM.
 
-        Returns
+        Returns:
         -------
         Optional[str]
             Réponse du LLM, ou None en cas d'échec après tous les retries.
@@ -518,7 +512,9 @@ class ChunkingStep(BaseStep):
                             f"Nouvelle tentative dans {delay}s..."
                         )
                         time.sleep(delay)
-                        logger.info(f"🔄 Retry tentative {attempt + 2}/{max_retries + 1}...")
+                        logger.info(
+                            f"🔄 Retry tentative {attempt + 2}/{max_retries + 1}..."
+                        )
                         continue
                     else:
                         logger.error(
@@ -608,7 +604,9 @@ class ChunkingStep(BaseStep):
 
             # Prétraitement : Extraire le JSON des code blocks markdown si présent
             # Format : ```json\n{...}\n``` ou ```\n{...}\n```
-            markdown_match = re.search(r'```(?:json)?\s*\n?({.*?})\s*\n?```', response, re.DOTALL)
+            markdown_match = re.search(
+                r"```(?:json)?\s*\n?({.*?})\s*\n?```", response, re.DOTALL
+            )
             if markdown_match:
                 response = markdown_match.group(1)
                 logger.debug("JSON extrait depuis code block markdown")
@@ -644,10 +642,14 @@ class ChunkingStep(BaseStep):
             json_match = re.search(r"\{[^{}]*\}", response, re.DOTALL)
             if not json_match:
                 # Stratégie 3: Chercher un JSON plus complexe (avec nested braces)
-                json_match = re.search(r'\{.*?"boundaries".*?\[.*?\].*?\}', response, re.DOTALL)
+                json_match = re.search(
+                    r'\{.*?"boundaries".*?\[.*?\].*?\}', response, re.DOTALL
+                )
 
             if not json_match:
-                logger.warning(f"Pas de JSON trouvé dans réponse LLM: {response[:100]}...")
+                logger.warning(
+                    f"Pas de JSON trouvé dans réponse LLM: {response[:100]}..."
+                )
                 return []
 
             json_str = json_match.group()
@@ -822,7 +824,7 @@ class ChunkingStep(BaseStep):
         documents : list[dict[str, Any]]
             Liste des documents sources.
 
-        Examples
+        Examples:
         --------
         >>> step = ChunkingStep(config)
         >>> chunks = [{"text": "...", "source_file": "...", ...}, ...]

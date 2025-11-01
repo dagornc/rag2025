@@ -42,17 +42,17 @@ def test_json_parsing():
         },
         {
             "name": "JSON avec texte avant/après",
-            "response": '''Voici l'analyse du texte :
+            "response": """Voici l'analyse du texte :
 {"boundaries": [500, 1200, 2400]}
-Bonne journée!''',
+Bonne journée!""",
             "expected": [500, 1200, 2400],
         },
         {
             "name": "JSON avec commentaires //",
-            "response": '''{
+            "response": """{
   // Points de découpage optimaux
   "boundaries": [500, 1200, 2400]
-}''',
+}""",
             "expected": [500, 1200, 2400],
         },
         {
@@ -67,13 +67,13 @@ Bonne journée!''',
         },
         {
             "name": "JSON avec espaces et newlines",
-            "response": '''{
+            "response": """{
   "boundaries": [
     500,
     1200,
     2400
   ]
-}''',
+}""",
             "expected": [500, 1200, 2400],
         },
         {
@@ -109,7 +109,7 @@ Bonne journée!''',
                 print(f"✅ PASS - Résultat: {result}")
                 passed += 1
             else:
-                print(f"❌ FAIL")
+                print("❌ FAIL")
                 print(f"   Attendu: {expected}")
                 print(f"   Obtenu:  {result}")
                 failed += 1

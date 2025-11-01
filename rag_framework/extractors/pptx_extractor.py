@@ -41,7 +41,7 @@ class PptxExtractor(BaseExtractor):
         - min_text_length : int (défaut: 10)
         - extract_metadata : bool (défaut: True)
 
-    Notes
+    Notes:
     -----
     Pour les présentations avec images complexes ou mise en page sophistiquée,
     Docling ou VLM peuvent être utilisés en fallback.
@@ -57,12 +57,12 @@ class PptxExtractor(BaseExtractor):
         file_path : Path
             Chemin vers le fichier.
 
-        Returns
+        Returns:
         -------
         bool
             True si le fichier a l'extension .pptx ou .pptm.
 
-        Examples
+        Examples:
         --------
         >>> extractor = PptxExtractor(config={})
         >>> extractor.can_extract(Path("presentation.pptx"))
@@ -80,12 +80,12 @@ class PptxExtractor(BaseExtractor):
         file_path : Path
             Chemin vers le fichier PowerPoint.
 
-        Returns
+        Returns:
         -------
         ExtractionResult
             Résultat de l'extraction.
 
-        Notes
+        Notes:
         -----
         L'extraction traite chaque diapositive en incluant:
         - Titre et sous-titre
@@ -128,9 +128,7 @@ class PptxExtractor(BaseExtractor):
                             placeholder = shape.placeholder_format
                             if placeholder.type == 1:  # PP_PLACEHOLDER.TITLE
                                 text_parts.append(f"# {shape.text.strip()}")
-                            elif (
-                                placeholder.type == 3
-                            ):  # PP_PLACEHOLDER.CENTER_TITLE
+                            elif placeholder.type == 3:  # PP_PLACEHOLDER.CENTER_TITLE
                                 text_parts.append(f"# {shape.text.strip()}")
                             elif placeholder.type == 2:  # PP_PLACEHOLDER.SUBTITLE
                                 text_parts.append(f"## {shape.text.strip()}")
@@ -251,7 +249,7 @@ class PptxExtractor(BaseExtractor):
         table_num : int
             Numéro du tableau dans la présentation.
 
-        Returns
+        Returns:
         -------
         str
             Tableau formaté en Markdown.

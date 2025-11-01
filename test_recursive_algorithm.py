@@ -114,21 +114,27 @@ Recursive (hiérarchique):
         # Vérifier si coupe au milieu d'un mot
         first_char = chunk[0] if chunk else ""
         last_char = chunk[-1] if chunk else ""
-        print(f"  Chunk {i}: Commence par '{first_char}' | Se termine par '{last_char}'")
+        print(
+            f"  Chunk {i}: Commence par '{first_char}' | Se termine par '{last_char}'"
+        )
         if last_char not in ["\n", " ", ".", "!"]:
-            print(f"    ⚠️ Coupe probablement au milieu d'un mot")
+            print("    ⚠️ Coupe probablement au milieu d'un mot")
 
     print("\nRecursive (respecte les séparateurs):")
     for i, chunk in enumerate(chunks_recursive[:3], 1):
         first_chars = chunk[:20] if len(chunk) >= 20 else chunk
         last_chars = chunk[-20:] if len(chunk) >= 20 else chunk
         print(f"  Chunk {i}:")
-        print(f"    Début: {repr(first_chars)}")
-        print(f"    Fin: {repr(last_chars)}")
+        print(f"    Début: {first_chars!r}")
+        print(f"    Fin: {last_chars!r}")
 
         # Vérifier si découpe sur séparateur hiérarchique
-        if chunk.startswith("\n\n\n") or chunk.startswith("\n\n") or chunk.startswith("\n"):
-            print(f"    ✅ Découpe sur séparateur hiérarchique")
+        if (
+            chunk.startswith("\n\n\n")
+            or chunk.startswith("\n\n")
+            or chunk.startswith("\n")
+        ):
+            print("    ✅ Découpe sur séparateur hiérarchique")
 
     # Test 5: Algorithme récursif expliqué
     print("\n" + "=" * 80)

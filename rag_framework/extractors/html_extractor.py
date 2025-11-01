@@ -42,7 +42,7 @@ class HTMLExtractor(BaseExtractor):
         - preserve_structure : bool (défaut: False)
         - min_text_length : int (défaut: 10)
 
-    Notes
+    Notes:
     -----
     Parsers disponibles:
     - html.parser : Intégré Python, rapide, pas de dépendance
@@ -65,12 +65,12 @@ class HTMLExtractor(BaseExtractor):
         file_path : Path
             Chemin vers le fichier.
 
-        Returns
+        Returns:
         -------
         bool
             True si le fichier a une extension HTML/XML.
 
-        Examples
+        Examples:
         --------
         >>> extractor = HTMLExtractor(config={})
         >>> extractor.can_extract(Path("page.html"))
@@ -90,12 +90,12 @@ class HTMLExtractor(BaseExtractor):
         file_path : Path
             Chemin vers le fichier.
 
-        Returns
+        Returns:
         -------
         ExtractionResult
             Résultat de l'extraction.
 
-        Notes
+        Notes:
         -----
         L'extraction:
         1. Parse le document avec BeautifulSoup
@@ -227,7 +227,7 @@ class HTMLExtractor(BaseExtractor):
         soup : BeautifulSoup
             Objet BeautifulSoup.
 
-        Returns
+        Returns:
         -------
         dict[str, Any]
             Métadonnées extraites.
@@ -267,7 +267,7 @@ class HTMLExtractor(BaseExtractor):
         soup : BeautifulSoup
             Objet BeautifulSoup.
 
-        Returns
+        Returns:
         -------
         str
             Texte structuré avec marqueurs Markdown.
@@ -320,7 +320,7 @@ class HTMLExtractor(BaseExtractor):
         soup : BeautifulSoup
             Objet BeautifulSoup.
 
-        Returns
+        Returns:
         -------
         list[str]
             Liste des liens au format "Texte: URL".
@@ -341,7 +341,7 @@ class HTMLExtractor(BaseExtractor):
         soup : BeautifulSoup
             Objet BeautifulSoup.
 
-        Returns
+        Returns:
         -------
         list[str]
             Liste des images au format "Alt: URL".

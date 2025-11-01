@@ -229,7 +229,7 @@ class VLMExtractor(BaseExtractor):
             image_paths = []
 
             for i, image in enumerate(images):
-                image_path = temp_dir / f"page_{i+1}.png"
+                image_path = temp_dir / f"page_{i + 1}.png"
                 image.save(str(image_path), "PNG")
                 image_paths.append(image_path)
 

@@ -3,7 +3,7 @@
 import sys
 import time
 from pathlib import Path
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 # Ajouter le répertoire racine au PYTHONPATH
 sys.path.insert(0, str(Path(__file__).parent))
@@ -39,7 +39,9 @@ class MockLLMClient:
         current_time = time.time()
         self.call_times.append(current_time)
 
-        print(f"\n  📞 Appel #{self.call_count} au LLM (fail_count restant: {self.fail_count})")
+        print(
+            f"\n  📞 Appel #{self.call_count} au LLM (fail_count restant: {self.fail_count})"
+        )
 
         # Simuler erreur 429 si on n'a pas encore atteint le nombre de succès
         if self.fail_count > 0:
@@ -50,7 +52,7 @@ class MockLLMClient:
                 "'type': 'service_tier_capacity_exceeded', "
                 "'param': None, 'code': '3505'}"
             )
-            print(f"  ❌ Simulation erreur 429")
+            print("  ❌ Simulation erreur 429")
             raise Exception(error_msg)
 
         elif self.fail_count == -1:
@@ -61,11 +63,11 @@ class MockLLMClient:
                 "'type': 'service_tier_capacity_exceeded', "
                 "'param': None, 'code': '3505'}"
             )
-            print(f"  ❌ Simulation erreur 429 (échec permanent)")
+            print("  ❌ Simulation erreur 429 (échec permanent)")
             raise Exception(error_msg)
 
         # Succès
-        print(f"  ✅ Succès")
+        print("  ✅ Succès")
         mock_response = Mock()
         mock_response.choices = [Mock(message=Mock(content="confidentiel"))]
         return mock_response
@@ -90,15 +92,19 @@ def test_scenario(
     expected_success : bool
         Résultat attendu (True = succès, False = échec).
     """
-    print(f"\n{'='*70}")
+    print(f"\n{'=' * 70}")
     print(f"SCÉNARIO: {scenario_name}")
-    print(f"{'='*70}")
-    print(f"Configuration:")
+    print(f"{'=' * 70}")
+    print("Configuration:")
     print(f"  - Erreurs 429 simulées: {fail_count if fail_count >= 0 else 'infini'}")
     print(f"  - Max retries: {rate_limiting_config.get('max_retries', 3)}")
     print(f"  - Delay base: {rate_limiting_config.get('retry_delay_base', 2)}s")
-    print(f"  - Backoff exponentiel: {rate_limiting_config.get('exponential_backoff', True)}")
-    print(f"  - Délai entre requêtes: {rate_limiting_config.get('delay_between_requests', 0.5)}s")
+    print(
+        f"  - Backoff exponentiel: {rate_limiting_config.get('exponential_backoff', True)}"
+    )
+    print(
+        f"  - Délai entre requêtes: {rate_limiting_config.get('delay_between_requests', 0.5)}s"
+    )
 
     # Charger la configuration
     config = load_step_config("04_enrichment.yaml")
@@ -144,10 +150,10 @@ def test_scenario(
 
         # Vérifier les délais entre appels
         if len(mock_client.call_times) > 1:
-            print(f"\n  Délais observés entre les appels:")
+            print("\n  Délais observés entre les appels:")
             for i in range(1, len(mock_client.call_times)):
                 delay = mock_client.call_times[i] - mock_client.call_times[i - 1]
-                print(f"    Appel {i} → {i+1}: {delay:.2f}s")
+                print(f"    Appel {i} → {i + 1}: {delay:.2f}s")
 
     except Exception as e:
         success = False
@@ -162,18 +168,18 @@ def test_scenario(
 
     # Vérification du résultat attendu
     if success == expected_success:
-        print(f"\n  ✓ Comportement conforme aux attentes")
+        print("\n  ✓ Comportement conforme aux attentes")
     else:
-        print(f"\n  ✗ ALERTE: Comportement inattendu!")
+        print("\n  ✗ ALERTE: Comportement inattendu!")
         print(f"    Attendu: {'succès' if expected_success else 'échec'}")
         print(f"    Obtenu: {'succès' if success else 'échec'}")
 
 
 def main():
     """Fonction principale de test."""
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("TEST DU SYSTÈME DE RATE LIMITING")
-    print("="*70)
+    print("=" * 70)
 
     # Configuration de base
     base_config = {
@@ -245,16 +251,16 @@ def main():
     )
 
     # Résumé
-    print(f"\n{'='*70}")
+    print(f"\n{'=' * 70}")
     print("RÉSUMÉ DES TESTS")
-    print(f"{'='*70}")
+    print(f"{'=' * 70}")
     print("\n✅ Tous les scénarios testés avec succès!")
     print("\nLe système de rate limiting fonctionne correctement:")
     print("  • Délai préventif entre requêtes")
     print("  • Détection automatique des erreurs 429")
     print("  • Retry avec backoff exponentiel")
     print("  • Fallback sur mots-clés après échec")
-    print(f"\n{'='*70}\n")
+    print(f"\n{'=' * 70}\n")
 
 
 if __name__ == "__main__":

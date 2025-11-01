@@ -89,7 +89,11 @@ def main() -> None:
             ("marker_pdf", "marker-pdf", "Extraction ML haute qualité"),
         ],
         "OCRExtractor": [
-            ("pytesseract", "pytesseract", "OCR Tesseract (nécessite tesseract binaire)"),
+            (
+                "pytesseract",
+                "pytesseract",
+                "OCR Tesseract (nécessite tesseract binaire)",
+            ),
             ("PIL", "Pillow", "Traitement d'images"),
             ("pdf2image", "pdf2image", "Conversion PDF → images"),
         ],

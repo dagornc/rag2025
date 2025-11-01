@@ -20,7 +20,7 @@ def test_global_config_loading() -> None:
 
     global_config = load_config(Path("config"))
 
-    print(f"\n✓ Configuration globale chargée avec succès")
+    print("\n✓ Configuration globale chargée avec succès")
     print(f"  Providers LLM disponibles: {list(global_config.llm_providers.keys())}")
 
     # Vérification des 6 providers attendus
@@ -60,7 +60,7 @@ def test_step_config_loading() -> None:
     enrichment_config = load_step_config("04_enrichment.yaml")
 
     llm_config = enrichment_config.get("llm", {})
-    print(f"\n✓ Configuration de l'étape 4 (enrichment) chargée")
+    print("\n✓ Configuration de l'étape 4 (enrichment) chargée")
     print(f"  LLM activé: {llm_config.get('enabled', False)}")
     print(f"  Provider: {llm_config.get('provider', 'N/A')}")
     print(f"  Modèle: {llm_config.get('model', 'N/A')}")
@@ -71,7 +71,7 @@ def test_step_config_loading() -> None:
     audit_config = load_step_config("05_audit.yaml")
 
     llm_config = audit_config.get("llm", {})
-    print(f"\n✓ Configuration de l'étape 5 (audit) chargée")
+    print("\n✓ Configuration de l'étape 5 (audit) chargée")
     print(f"  LLM activé: {llm_config.get('enabled', False)}")
     print(f"  Provider: {llm_config.get('provider', 'N/A')}")
     print(f"  Modèle: {llm_config.get('model', 'N/A')}")
@@ -82,7 +82,7 @@ def test_step_config_loading() -> None:
     chunking_config = load_step_config("03_chunking.yaml")
 
     semantic_config = chunking_config.get("semantic", {})
-    print(f"\n✓ Configuration de l'étape 3 (chunking sémantique) chargée")
+    print("\n✓ Configuration de l'étape 3 (chunking sémantique) chargée")
     print(f"  Provider: {semantic_config.get('provider', 'N/A')}")
     print(f"  Modèle: {semantic_config.get('model', 'N/A')}")
 

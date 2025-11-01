@@ -92,9 +92,7 @@ class NormalizationStep(BaseStep):
             log_errors = validation_config.get("log_validation_errors", True)
             if validation_errors and log_errors:
                 error_count = len(validation_errors)
-                logger.warning(
-                    f"Normalization: {error_count} erreurs de validation"
-                )
+                logger.warning(f"Normalization: {error_count} erreurs de validation")
                 for error in validation_errors[:5]:  # Log max 5 erreurs
                     logger.warning(f"  - {error}")
 
@@ -183,7 +181,7 @@ class NormalizationStep(BaseStep):
         # Standardisation des guillemets
         if text_config.get("standardize_quotes", False):
             # Remplace tous les types de guillemets par des guillemets simples
-            text = re.sub(r"[""«»'']", '"', text)
+            text = re.sub(r"[" "«»'']", '"', text)
             text = re.sub(r"['']", "'", text)
 
         return text

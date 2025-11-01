@@ -127,9 +127,7 @@ class TextExtractor(BaseExtractor):
             )
 
         # Nettoyage optionnel pour HTML
-        if file_path.suffix.lower() == ".html" and self.config.get(
-            "strip_html", True
-        ):
+        if file_path.suffix.lower() == ".html" and self.config.get("strip_html", True):
             text = self._strip_html_tags(text)
 
         # Métadonnées

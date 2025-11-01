@@ -52,12 +52,12 @@ class PyMuPDFExtractor(BaseExtractor):
         file_path : Path
             Chemin vers le fichier.
 
-        Returns
+        Returns:
         -------
         bool
             True si le fichier a l'extension .pdf.
 
-        Examples
+        Examples:
         --------
         >>> extractor = PyMuPDFExtractor(config={})
         >>> extractor.can_extract(Path("document.pdf"))
@@ -75,12 +75,12 @@ class PyMuPDFExtractor(BaseExtractor):
         file_path : Path
             Chemin vers le fichier PDF.
 
-        Returns
+        Returns:
         -------
         ExtractionResult
             Résultat de l'extraction.
 
-        Notes
+        Notes:
         -----
         PyMuPDF extrait le texte page par page en préservant l'ordre
         de lecture naturel. Les options de configuration permettent
@@ -164,9 +164,7 @@ class PyMuPDFExtractor(BaseExtractor):
 
             # Calcul du score de confiance basé sur la densité de texte
             # PyMuPDF est généralement très fiable pour les PDF textuels
-            char_per_page = (
-                len(full_text) / len(doc) if len(doc) > 0 else 0
-            )  # type: ignore
+            char_per_page = len(full_text) / len(doc) if len(doc) > 0 else 0  # type: ignore
 
             # Score élevé si bonne densité de texte (> 200 chars/page = 0.9)
             if char_per_page > 200:

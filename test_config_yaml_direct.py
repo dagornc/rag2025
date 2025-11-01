@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """Test direct de la configuration YAML sans imports du framework."""
 
-import yaml
 from pathlib import Path
+
+import yaml
 
 
 def load_yaml_file(filepath: Path) -> dict:
     """Charge un fichier YAML."""
-    with open(filepath, "r", encoding="utf-8") as f:
+    with open(filepath, encoding="utf-8") as f:
         return yaml.safe_load(f) or {}
 
 
@@ -24,7 +25,7 @@ def main() -> None:
     global_config = load_yaml_file(Path("config/global.yaml"))
 
     llm_providers = global_config.get("llm_providers", {})
-    print(f"\n✓ Fichier chargé avec succès")
+    print("\n✓ Fichier chargé avec succès")
     print(f"  Providers LLM trouvés: {len(llm_providers)}")
 
     expected_providers = [
@@ -44,8 +45,8 @@ def main() -> None:
             print(f"    - access_method: {config.get('access_method')}")
             print(f"    - base_url: {config.get('base_url')}")
 
-            api_key = config.get('api_key', '')
-            if api_key.startswith('${'):
+            api_key = config.get("api_key", "")
+            if api_key.startswith("${"):
                 print(f"    - api_key: {api_key} (variable d'environnement)")
             elif len(api_key) > 20:
                 print(f"    - api_key: {api_key[:20]}...")
@@ -75,10 +76,12 @@ def main() -> None:
     print(f"  Temperature: {llm_config.get('temperature', 'N/A')}")
     print(f"  Max tokens: {llm_config.get('max_tokens', 'N/A')}")
 
-    if llm_config.get('provider') in llm_providers:
+    if llm_config.get("provider") in llm_providers:
         print(f"  ✓ Provider '{llm_config.get('provider')}' existe dans global.yaml")
     else:
-        print(f"  ✗ Provider '{llm_config.get('provider')}' introuvable dans global.yaml")
+        print(
+            f"  ✗ Provider '{llm_config.get('provider')}' introuvable dans global.yaml"
+        )
 
     # Étape 5 - Audit
     print("\n📄 config/05_audit.yaml")
@@ -91,10 +94,12 @@ def main() -> None:
     print(f"  Temperature: {llm_config.get('temperature', 'N/A')}")
     print(f"  Max tokens: {llm_config.get('max_tokens', 'N/A')}")
 
-    if llm_config.get('provider') in llm_providers:
+    if llm_config.get("provider") in llm_providers:
         print(f"  ✓ Provider '{llm_config.get('provider')}' existe dans global.yaml")
     else:
-        print(f"  ✗ Provider '{llm_config.get('provider')}' introuvable dans global.yaml")
+        print(
+            f"  ✗ Provider '{llm_config.get('provider')}' introuvable dans global.yaml"
+        )
 
     # Étape 3 - Chunking sémantique
     print("\n📄 config/03_chunking.yaml")
@@ -104,7 +109,9 @@ def main() -> None:
     print(f"  Strategy: {chunking_config.get('strategy', 'N/A')}")
     print(f"  Semantic provider: {semantic_config.get('provider', 'N/A')}")
     print(f"  Semantic model: {semantic_config.get('model', 'N/A')}")
-    print(f"  Similarity threshold: {semantic_config.get('similarity_threshold', 'N/A')}")
+    print(
+        f"  Similarity threshold: {semantic_config.get('similarity_threshold', 'N/A')}"
+    )
 
     # Test 3: Validation de l'architecture
     print("\n\nTEST 3: Validation de l'architecture à deux niveaux")
@@ -172,6 +179,7 @@ Scénario: Activer LLM pour classification intelligente dans enrichment
    3. Choisir le provider adapté (local pour dev, cloud pour prod)
    4. Ajuster la température selon la tâche (0.0 = déterministe, 0.7 = créatif)
 """)
+
 
 if __name__ == "__main__":
     main()

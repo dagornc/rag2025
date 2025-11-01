@@ -10,4 +10,4 @@ Modules:
 
 from rag_framework.git_sync.sync_manager import GitSyncError, GitSyncManager
 
-__all__ = ["GitSyncManager", "GitSyncError"]
+__all__ = ["GitSyncError", "GitSyncManager"]

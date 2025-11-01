@@ -20,7 +20,7 @@ Version: 1.0.0
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Optional, cast
+from typing import Any, Optional
 
 import git
 from git import GitCommandError, InvalidGitRepositoryError, Repo

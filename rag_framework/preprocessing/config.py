@@ -115,8 +115,12 @@ class ChunkingStrategyConfig(BaseModel):
     separator: str | None = None
     separators: list[str] | None = None
     keep_separator: bool | None = None
-    provider: str | None = None  # Référence au provider d'embeddings (ex: "sentence_transformers")
-    model: str | None = None  # Nom du modèle (ex: "paraphrase-multilingual-MiniLM-L12-v2")
+    provider: str | None = (
+        None  # Référence au provider d'embeddings (ex: "sentence_transformers")
+    )
+    model: str | None = (
+        None  # Nom du modèle (ex: "paraphrase-multilingual-MiniLM-L12-v2")
+    )
     similarity_threshold: float | None = Field(default=None, ge=0, le=1)
     min_chunk_size: int | None = Field(default=None, gt=0)
     max_chunk_size: int | None = Field(default=None, gt=0)

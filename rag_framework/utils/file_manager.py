@@ -22,7 +22,7 @@ class FileManager:
     config : dict[str, Any]
         Configuration file_management depuis monitoring config.
 
-    Attributes
+    Attributes:
     ----------
     enabled : bool
         Active/désactive la gestion des fichiers.
@@ -92,12 +92,12 @@ class FileManager:
         base_watch_path : Path | None
             Chemin de base surveillé (pour préserver la structure).
 
-        Returns
+        Returns:
         -------
         Path | None
             Nouveau chemin du fichier déplacé, ou None si désactivé/erreur.
 
-        Examples
+        Examples:
         --------
         >>> manager = FileManager(config)
         >>> source = Path("data/input/docs/rapport.pdf")
@@ -151,12 +151,12 @@ class FileManager:
         error_msg : str
             Message d'erreur à logger.
 
-        Returns
+        Returns:
         -------
         Path | None
             Nouveau chemin du fichier déplacé, ou None si désactivé/erreur.
 
-        Examples
+        Examples:
         --------
         >>> manager = FileManager(config)
         >>> source = Path("data/input/docs/corrupt.pdf")
@@ -222,7 +222,7 @@ class FileManager:
         base_watch_path : Path | None
             Chemin de base surveillé.
 
-        Returns
+        Returns:
         -------
         Path
             Chemin de destination complet.
@@ -290,7 +290,7 @@ class FileManager:
         watch_paths : list[str]
             Liste des chemins surveillés.
 
-        Returns
+        Returns:
         -------
         Path | None
             Chemin de base surveillé, ou None si non trouvé.
