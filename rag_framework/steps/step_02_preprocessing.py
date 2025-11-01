@@ -2,7 +2,9 @@
 
 import json
 import re
-from datetime import datetime
+import statistics
+import time
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -15,6 +17,257 @@ from rag_framework.utils.file_manager import FileManager
 from rag_framework.utils.logger import get_logger
 
 logger = get_logger(__name__)
+
+
+class MetricsCollector:
+    """Collecteur de métriques de performance pour le preprocessing.
+
+    Collecte les métriques configurées dans 02_preprocessing.yaml > metrics.
+
+    Métriques disponibles:
+    - processing_time: Temps de traitement total et par document
+    - parser_time: Temps par parser utilisé
+    - memory_usage: Pic d'utilisation mémoire
+    - success_rate: Taux de succès d'extraction
+    - fallback_usage: Fréquence d'utilisation des fallbacks
+    - text_length: Longueur du texte extrait
+    - file_size: Taille des fichiers traités
+    - error_count: Nombre d'erreurs rencontrées
+    """
+
+    def __init__(self, metrics_config: dict[str, Any]) -> None:
+        """Initialise le collecteur de métriques.
+
+        Parameters
+        ----------
+        metrics_config : dict[str, Any]
+            Configuration des métriques depuis 02_preprocessing.yaml > metrics.
+        """
+        self.enabled = metrics_config.get("enabled", False)
+        self.metrics_to_collect = set(metrics_config.get("collect", []))
+        self.export_config = metrics_config.get("aggregation", {})
+        self.export_path = metrics_config.get(
+            "export_path", "logs/preprocessing_metrics.json"
+        )
+        self.export_frequency = metrics_config.get("export_frequency", "per_batch")
+
+        # Métriques collectées
+        self.metrics: dict[str, Any] = {
+            "session_start": datetime.now(timezone.utc).isoformat(),
+            "documents_processed": 0,
+            "documents_succeeded": 0,
+            "documents_failed": 0,
+            "processing_times": [],
+            "parser_usage": {},
+            "memory_usage_mb": [],
+            "text_lengths": [],
+            "file_sizes": [],
+            "errors": [],
+        }
+
+    def record_document(
+        self,
+        success: bool,
+        processing_time: float,
+        parser_used: str,
+        text_length: int,
+        file_size: int,
+        error: str | None = None,
+    ) -> None:
+        """Enregistre les métriques d'un document traité.
+
+        Parameters
+        ----------
+        success : bool
+            True si l'extraction a réussi, False sinon.
+        processing_time : float
+            Temps de traitement en secondes.
+        parser_used : str
+            Nom du parser utilisé (ex: "marker", "docling", "pymupdf").
+        text_length : int
+            Longueur du texte extrait (en caractères).
+        file_size : int
+            Taille du fichier en octets.
+        error : str | None, optional
+            Message d'erreur si échec.
+        """
+        if not self.enabled:
+            return
+
+        self.metrics["documents_processed"] += 1
+
+        if success:
+            self.metrics["documents_succeeded"] += 1
+        else:
+            self.metrics["documents_failed"] += 1
+            if error and "error_count" in self.metrics_to_collect:
+                self.metrics["errors"].append(error)
+
+        if "processing_time" in self.metrics_to_collect:
+            self.metrics["processing_times"].append(processing_time)
+
+        if (
+            "parser_time" in self.metrics_to_collect
+            or "fallback_usage" in self.metrics_to_collect
+        ):
+            if parser_used not in self.metrics["parser_usage"]:
+                self.metrics["parser_usage"][parser_used] = {"count": 0, "times": []}
+            self.metrics["parser_usage"][parser_used]["count"] += 1
+            self.metrics["parser_usage"][parser_used]["times"].append(processing_time)
+
+        if "text_length" in self.metrics_to_collect:
+            self.metrics["text_lengths"].append(text_length)
+
+        if "file_size" in self.metrics_to_collect:
+            self.metrics["file_sizes"].append(file_size)
+
+        if "memory_usage" in self.metrics_to_collect:
+            # Mesure de la mémoire RSS du processus (en MB)
+            try:
+                import resource
+
+                usage_mb = (
+                    resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024 / 1024
+                )
+                self.metrics["memory_usage_mb"].append(usage_mb)
+            except Exception:
+                # Fallback si resource n'est pas disponible (Windows)
+                pass
+
+    def get_summary(self) -> dict[str, Any]:
+        """Génère un résumé statistique des métriques collectées.
+
+        Returns:
+        -------
+        dict[str, Any]
+            Dictionnaire contenant les statistiques agrégées.
+        """
+        summary = {
+            "session_start": self.metrics["session_start"],
+            "session_end": datetime.now(timezone.utc).isoformat(),
+            "total_documents": self.metrics["documents_processed"],
+            "successful_documents": self.metrics["documents_succeeded"],
+            "failed_documents": self.metrics["documents_failed"],
+            "success_rate": (
+                round(
+                    self.metrics["documents_succeeded"]
+                    / self.metrics["documents_processed"]
+                    * 100,
+                    2,
+                )
+                if self.metrics["documents_processed"] > 0
+                else 0.0
+            ),
+        }
+
+        # Statistiques de temps de traitement
+        if self.metrics["processing_times"]:
+            times = self.metrics["processing_times"]
+            summary["processing_time"] = {
+                "total_seconds": round(sum(times), 2),
+                "mean_seconds": round(statistics.mean(times), 2),
+                "median_seconds": round(statistics.median(times), 2),
+                "min_seconds": round(min(times), 2),
+                "max_seconds": round(max(times), 2),
+            }
+
+            # Calcul des percentiles si configuré
+            if self.export_config.get("compute_percentiles", False) and len(times) >= 2:
+                sorted_times = sorted(times)
+                summary["processing_time"]["p50"] = round(
+                    statistics.median(sorted_times), 2
+                )
+                p95_idx = int(len(sorted_times) * 0.95)
+                p99_idx = int(len(sorted_times) * 0.99)
+                summary["processing_time"]["p95"] = round(sorted_times[p95_idx], 2)
+                summary["processing_time"]["p99"] = round(sorted_times[p99_idx], 2)
+
+        # Statistiques d'utilisation des parsers
+        if self.metrics["parser_usage"]:
+            summary["parser_usage"] = {}
+            for parser, data in self.metrics["parser_usage"].items():
+                summary["parser_usage"][parser] = {
+                    "count": data["count"],
+                    "percentage": round(
+                        data["count"] / self.metrics["documents_processed"] * 100, 2
+                    )
+                    if self.metrics["documents_processed"] > 0
+                    else 0.0,
+                    "mean_time_seconds": round(statistics.mean(data["times"]), 2)
+                    if data["times"]
+                    else 0.0,
+                }
+
+        # Statistiques de mémoire
+        if self.metrics["memory_usage_mb"]:
+            memory = self.metrics["memory_usage_mb"]
+            summary["memory_usage_mb"] = {
+                "peak": round(max(memory), 2),
+                "mean": round(statistics.mean(memory), 2),
+            }
+
+        # Statistiques de longueur de texte
+        if self.metrics["text_lengths"]:
+            lengths = self.metrics["text_lengths"]
+            summary["text_length_stats"] = {
+                "total_chars": sum(lengths),
+                "mean_chars": round(statistics.mean(lengths), 2),
+                "median_chars": round(statistics.median(lengths), 2),
+                "min_chars": min(lengths),
+                "max_chars": max(lengths),
+            }
+
+        # Statistiques de taille de fichier
+        if self.metrics["file_sizes"]:
+            sizes = self.metrics["file_sizes"]
+            summary["file_size_stats"] = {
+                "total_bytes": sum(sizes),
+                "mean_bytes": round(statistics.mean(sizes), 2),
+                "median_bytes": round(statistics.median(sizes), 2),
+                "min_bytes": min(sizes),
+                "max_bytes": max(sizes),
+            }
+
+        # Statistiques d'erreurs
+        if self.metrics["errors"]:
+            summary["errors"] = {
+                "count": len(self.metrics["errors"]),
+                "samples": self.metrics["errors"][:5],  # 5 premières erreurs
+            }
+
+        return summary
+
+    def export_metrics(self) -> None:
+        """Exporte les métriques vers le fichier JSON configuré."""
+        if not self.enabled:
+            return
+
+        try:
+            export_path = Path(self.export_path)
+            export_path.parent.mkdir(parents=True, exist_ok=True)
+
+            summary = self.get_summary()
+
+            # Lecture des métriques existantes si le fichier existe
+            if export_path.exists():
+                with open(export_path, encoding="utf-8") as f:
+                    existing_metrics = json.load(f)
+                    if not isinstance(existing_metrics, list):
+                        existing_metrics = [existing_metrics]
+            else:
+                existing_metrics = []
+
+            # Ajout de la nouvelle session
+            existing_metrics.append(summary)
+
+            # Écriture
+            with open(export_path, "w", encoding="utf-8") as f:
+                json.dump(existing_metrics, f, indent=2, ensure_ascii=False)
+
+            logger.info(f"Métriques exportées vers {export_path}")
+
+        except Exception as e:
+            logger.error(f"Erreur lors de l'export des métriques: {e}")
 
 
 class PreprocessingStep(BaseStep):
@@ -59,10 +312,18 @@ class PreprocessingStep(BaseStep):
         # Note: output config vient de monitoring_config
         self.output_config = config.get("output", {"save_extracted_text": False})
 
+        # Initialisation du collecteur de métriques (Feature #7)
+        preprocessing_config = config.get("preprocessing", {})
+        metrics_config = preprocessing_config.get("metrics", {"enabled": False})
+        self.metrics_collector = MetricsCollector(metrics_config)
+
         logger.info(
             f"PreprocessingStep initialisé avec extracteurs: "
             f"{self.fallback_manager.get_available_extractors()}"
         )
+
+        if self.metrics_collector.enabled:
+            logger.info("Collecte de métriques activée")
 
     def validate_config(self) -> None:
         """Valide la configuration de l'étape.
@@ -112,6 +373,10 @@ class PreprocessingStep(BaseStep):
             for file_path_str in file_paths:
                 file_path = Path(file_path_str)
 
+                # Mesure de performance pour métriques (Feature #7)
+                start_time = time.time()
+                file_size = file_path.stat().st_size if file_path.exists() else 0
+
                 try:
                     # Extraction avec fallback automatique
                     result, extractor_name = (
@@ -140,7 +405,10 @@ class PreprocessingStep(BaseStep):
                             self.file_manager.move_file_to_errors(
                                 file_path,
                                 base_path,
-                                error_msg=f"Texte trop court: {len(cleaned_text)} < {min_length} chars",
+                                error_msg=(
+                                    f"Texte trop court: "
+                                    f"{len(cleaned_text)} < {min_length} chars"
+                                ),
                             )
 
                         continue
@@ -201,8 +469,29 @@ class PreprocessingStep(BaseStep):
                             document_record["original_file_path"] = str(file_path)
                             document_record["processed_file_path"] = str(new_path)
 
+                    # Enregistrement des métriques de succès (Feature #7)
+                    processing_time = time.time() - start_time
+                    self.metrics_collector.record_document(
+                        success=True,
+                        processing_time=processing_time,
+                        parser_used=extractor_name,
+                        text_length=len(cleaned_text),
+                        file_size=file_size,
+                    )
+
                 except Exception as e:
                     logger.error(f"✗ Erreur extraction {file_path.name}: {e}")
+
+                    # Enregistrement des métriques d'échec (Feature #7)
+                    processing_time = time.time() - start_time
+                    self.metrics_collector.record_document(
+                        success=False,
+                        processing_time=processing_time,
+                        parser_used="error",
+                        text_length=0,
+                        file_size=file_size,
+                        error=str(e),
+                    )
 
                     # Déplacement vers errors
                     if self.file_manager.enabled:
@@ -234,6 +523,15 @@ class PreprocessingStep(BaseStep):
                 f"Preprocessing: {len(extracted_documents)} documents traités "
                 f"avec succès (sur {len(file_paths)} tentatives)"
             )
+
+            # Export des métriques si activé (Feature #7)
+            if self.metrics_collector.enabled:
+                summary = self.metrics_collector.get_summary()
+                logger.info(
+                    f"📊 Métriques: {summary['success_rate']}% succès, "
+                    f"{summary.get('processing_time', {}).get('mean_seconds', 0)} s/doc"
+                )
+                self.metrics_collector.export_metrics()
 
             return data
 
@@ -323,12 +621,12 @@ class PreprocessingStep(BaseStep):
         base_watch_path : Path | None
             Chemin de base surveillé (pour préserver la structure).
 
-        Returns
+        Returns:
         -------
         Path | None
             Chemin du fichier JSON créé, ou None si désactivé/erreur.
 
-        Examples
+        Examples:
         --------
         >>> step = PreprocessingStep(config)
         >>> record = {"file_path": "...", "text": "...", ...}
@@ -348,7 +646,7 @@ class PreprocessingStep(BaseStep):
 
             # Nom du fichier JSON (avec timestamp optionnel)
             if self.output_config.get("add_timestamp", True):
-                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
                 stem = file_path.stem
                 json_filename = f"{stem}_{timestamp}.json"
             else:
