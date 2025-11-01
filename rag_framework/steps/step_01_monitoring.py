@@ -1,9 +1,12 @@
 """Étape 1 : Surveillance de fichiers sources."""
 
+import json
+import shutil
 import time
 from collections.abc import Callable
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 from watchdog.events import FileSystemEvent, FileSystemEventHandler
 from watchdog.observers import Observer
@@ -32,7 +35,7 @@ class FileEventHandler(FileSystemEventHandler):
     def on_created(self, event: FileSystemEvent) -> None:
         """Handle file creation events."""
         if not event.is_directory:
-            file_path = Path(event.src_path)
+            file_path = Path(str(event.src_path))
             if self._match_pattern(file_path):
                 logger.info(f"Fichier détecté: {file_path}")
                 self.detected_files.append(file_path)
@@ -40,7 +43,7 @@ class FileEventHandler(FileSystemEventHandler):
     def on_modified(self, event: FileSystemEvent) -> None:
         """Handle file modification events."""
         if not event.is_directory:
-            file_path = Path(event.src_path)
+            file_path = Path(str(event.src_path))
             if self._match_pattern(file_path):
                 logger.info(f"Fichier modifié: {file_path}")
                 self.detected_files.append(file_path)
@@ -87,6 +90,7 @@ class MonitoringStep(BaseStep):
         try:
             watch_paths = self.config["watch_paths"]
             file_patterns = self.config["file_patterns"]
+            exclude_patterns = self.config.get("exclude_patterns", [])
 
             # Scan initial des fichiers existants
             detected_files: list[Path] = []
@@ -94,7 +98,10 @@ class MonitoringStep(BaseStep):
                 path_obj = Path(watch_path)
                 if path_obj.exists():
                     for pattern in file_patterns:
-                        detected_files.extend(path_obj.rglob(pattern))
+                        for file_path in path_obj.rglob(pattern):
+                            # Filtrer les fichiers exclus
+                            if not self._is_excluded(file_path, exclude_patterns):
+                                detected_files.append(file_path)
 
             logger.info(
                 f"Monitoring: {len(detected_files)} fichiers détectés "
@@ -112,6 +119,26 @@ class MonitoringStep(BaseStep):
                 message=f"Erreur lors de la surveillance: {e!s}",
                 details={"error": str(e)},
             ) from e
+
+    def _is_excluded(self, file_path: Path, exclude_patterns: list[str]) -> bool:
+        """Vérifie si un fichier correspond à un pattern d'exclusion.
+
+        Parameters
+        ----------
+        file_path : Path
+            Chemin du fichier à vérifier.
+        exclude_patterns : list[str]
+            Liste des patterns d'exclusion (glob).
+
+        Returns:
+        -------
+        bool
+            True si le fichier doit être exclu, False sinon.
+        """
+        for pattern in exclude_patterns:
+            if file_path.match(pattern):
+                return True
+        return False
 
     def watch_continuously(
         self,
@@ -136,19 +163,154 @@ class MonitoringStep(BaseStep):
         for watch_path in watch_paths:
             path_obj = Path(watch_path)
             if path_obj.exists():
-                observer.schedule(  # type: ignore[no-untyped-call]
+                observer.schedule(
                     event_handler,
                     str(path_obj),
                     recursive=self.config.get("recursive", True),
                 )
 
-        observer.start()  # type: ignore[no-untyped-call]
+        observer.start()
         logger.info(f"Surveillance active pour {duration_seconds} secondes...")
 
         try:
             time.sleep(duration_seconds)
         finally:
-            observer.stop()  # type: ignore[no-untyped-call]
+            observer.stop()
             observer.join()
 
         return event_handler.detected_files
+
+    def move_processed_file(
+        self, file_path: Path, success: bool = True
+    ) -> Optional[Path]:
+        """Déplace un fichier traité vers le répertoire approprié.
+
+        Parameters
+        ----------
+        file_path : Path
+            Chemin du fichier à déplacer.
+        success : bool
+            True si traitement réussi (→ processed), False si erreur (→ errors).
+
+        Returns:
+        -------
+        Optional[Path]
+            Chemin du fichier déplacé, None si désactivé ou erreur.
+        """
+        file_mgmt = self.config.get("file_management", {})
+
+        if not file_mgmt.get("enabled", False):
+            return None
+
+        if success and not file_mgmt.get("move_processed", True):
+            return None
+
+        if not success and not file_mgmt.get("move_errors", True):
+            return None
+
+        try:
+            # Déterminer le répertoire de destination
+            target_dir_key = "processed_dir" if success else "errors_dir"
+            target_dir = Path(file_mgmt.get(target_dir_key, ""))
+
+            if not target_dir:
+                return None
+
+            # Créer le répertoire cible s'il n'existe pas
+            target_dir.mkdir(parents=True, exist_ok=True)
+
+            # Construire le nom du fichier cible
+            target_name = file_path.name
+
+            # Ajouter timestamp si demandé
+            if file_mgmt.get("add_timestamp", False):
+                timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+                stem = file_path.stem
+                suffix = file_path.suffix
+                target_name = f"{stem}_{timestamp}{suffix}"
+
+            target_path = target_dir / target_name
+
+            # Déplacer le fichier
+            shutil.move(str(file_path), str(target_path))
+
+            status = "processed" if success else "error"
+            logger.info(f"Fichier {status} déplacé: {file_path} → {target_path}")
+
+            return target_path
+
+        except Exception as e:
+            logger.error(f"Erreur déplacement fichier {file_path}: {e}")
+            return None
+
+    def save_extracted_text(
+        self,
+        file_path: Path,
+        extracted_text: str,
+        metadata: Optional[dict[str, Any]] = None,
+    ) -> Optional[Path]:
+        """Sauvegarde le texte extrait dans un fichier JSON.
+
+        Parameters
+        ----------
+        file_path : Path
+            Chemin du fichier source.
+        extracted_text : str
+            Texte extrait du document.
+        metadata : Optional[dict[str, Any]]
+            Métadonnées additionnelles (méthode, confidence, etc.).
+
+        Returns:
+        -------
+        Optional[Path]
+            Chemin du fichier JSON créé, None si désactivé ou erreur.
+        """
+        output_config = self.config.get("output", {})
+
+        if not output_config.get("save_extracted_text", False):
+            return None
+
+        try:
+            # Répertoire de destination
+            extracted_dir = Path(output_config.get("extracted_dir", ""))
+
+            if not extracted_dir:
+                return None
+
+            # Créer le répertoire s'il n'existe pas
+            extracted_dir.mkdir(parents=True, exist_ok=True)
+
+            # Construire le nom du fichier JSON
+            json_name = file_path.stem
+
+            # Ajouter timestamp si demandé
+            if output_config.get("add_timestamp", False):
+                timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+                json_name = f"{json_name}_{timestamp}"
+
+            json_path = extracted_dir / f"{json_name}.json"
+
+            # Construire le document JSON
+            document = {
+                "source_file": str(file_path),
+                "extraction_timestamp": datetime.now(timezone.utc).isoformat(),
+                "extracted_text": extracted_text,
+            }
+
+            # Ajouter métadonnées si demandé
+            if output_config.get("include_metadata", True) and metadata:
+                document["metadata"] = metadata  # type: ignore[assignment]
+
+            # Sauvegarder avec pretty print si demandé
+            indent = 2 if output_config.get("pretty_print", True) else None
+
+            with open(json_path, "w", encoding="utf-8") as f:
+                json.dump(document, f, ensure_ascii=False, indent=indent)
+
+            logger.info(f"Texte extrait sauvegardé: {json_path}")
+
+            return json_path
+
+        except Exception as e:
+            logger.error(f"Erreur sauvegarde texte extrait {file_path}: {e}")
+            return None
