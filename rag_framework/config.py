@@ -14,6 +14,28 @@ from rag_framework.exceptions import ConfigurationError
 ConfigValue = Union[str, int, float, bool, dict[str, Any], list[Any], None]
 
 
+class RegulatoryFramework(BaseModel):
+    """Configuration d'un framework réglementaire."""
+
+    enabled: bool = False
+    full_name: str = ""
+    description: str = ""
+    scope: str = ""
+    region: str = ""
+    articles: list[str] = Field(default_factory=list)
+    requirements: list[str] = Field(default_factory=list)
+    controls: list[str] = Field(default_factory=list)
+    notification_delay_hours: int = 0
+
+
+class PerformanceConfig(BaseModel):
+    """Configuration de performance."""
+
+    batch_size: int = 10
+    max_workers: int = 4
+    timeout_seconds: int = 300
+
+
 class GlobalConfig(BaseModel):
     """Configuration globale du framework."""
 
@@ -26,7 +48,9 @@ class GlobalConfig(BaseModel):
     compliance: dict[str, Any] = Field(default_factory=dict)
     logging: dict[str, Any] = Field(default_factory=dict)
     security: dict[str, Any] = Field(default_factory=dict)
-    performance: dict[str, Any] = Field(default_factory=dict)
+    performance: PerformanceConfig = Field(default_factory=PerformanceConfig)
+    # Nouveau: frameworks réglementaires (RGPD, SOC2, ISO27001, etc.)
+    regulatory_frameworks: dict[str, RegulatoryFramework] = Field(default_factory=dict)
 
 
 class StepConfig(BaseModel):
@@ -358,3 +382,167 @@ def get_llm_client(
             f"Installez avec: rye add {access_method}",
             details={"error": str(e)},
         ) from e
+
+
+def get_enabled_regulatory_frameworks(global_config: GlobalConfig) -> list[str]:
+    """Retourne la liste des noms de frameworks réglementaires activés.
+
+    Parameters
+    ----------
+    global_config : GlobalConfig
+        Configuration globale contenant les frameworks réglementaires.
+
+    Returns
+    -------
+    list[str]
+        Liste des noms de frameworks activés (ex: ["RGPD", "SOC2"]).
+
+    Examples
+    --------
+    >>> global_config = load_config()
+    >>> frameworks = get_enabled_regulatory_frameworks(global_config)
+    >>> print(frameworks)
+    ['RGPD', 'ISO27001']
+    """
+    return [
+        name
+        for name, framework in global_config.regulatory_frameworks.items()
+        if framework.enabled
+    ]
+
+
+def get_regulatory_framework(
+    global_config: GlobalConfig,
+    framework_name: str,
+) -> RegulatoryFramework:
+    """Récupère la configuration d'un framework réglementaire spécifique.
+
+    Parameters
+    ----------
+    global_config : GlobalConfig
+        Configuration globale contenant les frameworks réglementaires.
+    framework_name : str
+        Nom du framework (ex: "RGPD", "SOC2", "ISO27001").
+
+    Returns
+    -------
+    RegulatoryFramework
+        Configuration du framework réglementaire.
+
+    Raises
+    ------
+    ConfigurationError
+        Si le framework n'existe pas ou n'est pas activé.
+
+    Examples
+    --------
+    >>> global_config = load_config()
+    >>> rgpd = get_regulatory_framework(global_config, "RGPD")
+    >>> print(rgpd.notification_delay_hours)
+    72
+    """
+    # Vérification de l'existence du framework
+    framework = global_config.regulatory_frameworks.get(framework_name)
+
+    if framework is None:
+        available = list(global_config.regulatory_frameworks.keys())
+        raise ConfigurationError(
+            f"Framework réglementaire '{framework_name}' introuvable",
+            details={
+                "framework": framework_name,
+                "available_frameworks": available,
+            },
+        )
+
+    # Vérification de l'activation du framework
+    if not framework.enabled:
+        raise ConfigurationError(
+            f"Framework réglementaire '{framework_name}' désactivé",
+            details={"framework": framework_name, "enabled": False},
+        )
+
+    return framework
+
+
+def validate_regulatory_compliance(
+    global_config: GlobalConfig,
+    required_frameworks: list[str],
+) -> dict[str, bool]:
+    """Valide que les frameworks réglementaires requis sont activés.
+
+    Cette fonction vérifie qu'un ensemble de frameworks réglementaires
+    requis sont bien configurés et activés. Utile pour valider la conformité
+    d'un document ou d'un processus.
+
+    Parameters
+    ----------
+    global_config : GlobalConfig
+        Configuration globale contenant les frameworks réglementaires.
+    required_frameworks : list[str]
+        Liste des noms de frameworks requis (ex: ["RGPD", "SOC2"]).
+
+    Returns
+    -------
+    dict[str, bool]
+        Dictionnaire indiquant pour chaque framework s'il est activé.
+        Exemple: {"RGPD": True, "SOC2": False}
+
+    Examples
+    --------
+    >>> global_config = load_config()
+    >>> compliance = validate_regulatory_compliance(global_config, ["RGPD", "SOC2"])
+    >>> if all(compliance.values()):
+    ...     print("Tous les frameworks requis sont activés")
+    """
+    result = {}
+
+    for framework_name in required_frameworks:
+        framework = global_config.regulatory_frameworks.get(framework_name)
+        result[framework_name] = framework is not None and framework.enabled
+
+    return result
+
+
+def get_framework_requirements(
+    global_config: GlobalConfig,
+    framework_name: str,
+) -> list[str]:
+    """Retourne les exigences d'un framework réglementaire.
+
+    Parameters
+    ----------
+    global_config : GlobalConfig
+        Configuration globale contenant les frameworks réglementaires.
+    framework_name : str
+        Nom du framework (ex: "RGPD", "SOC2").
+
+    Returns
+    -------
+    list[str]
+        Liste des exigences/requirements du framework.
+        Pour RGPD: ["lawfulness_fairness", "purpose_limitation", ...]
+        Pour SOC2: ["CC6.1", "CC6.6", "CC7.2", ...]
+
+    Raises
+    ------
+    ConfigurationError
+        Si le framework n'existe pas ou n'est pas activé.
+
+    Examples
+    --------
+    >>> global_config = load_config()
+    >>> requirements = get_framework_requirements(global_config, "RGPD")
+    >>> print(len(requirements))
+    8
+    """
+    framework = get_regulatory_framework(global_config, framework_name)
+
+    # RGPD utilise 'requirements', SOC2 utilise 'controls', ISO27001 utilise 'controls'
+    if framework.requirements:
+        return framework.requirements
+    elif framework.controls:
+        return framework.controls
+    elif framework.articles:
+        return framework.articles
+    else:
+        return []
