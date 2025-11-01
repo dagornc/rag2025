@@ -198,7 +198,7 @@ summary_generation:
 
   # Niveaux de résumé à générer
   document_level: true   # Résumé du document complet (2-5 phrases)
-  chunk_level: false     # Résumé de chaque chunk individuel (1-2 phrases)
+  chunk_level: true     # Résumé de chaque chunk individuel (1-2 phrases)
 
   # Paramètres de génération
   max_length_words: 200  # Longueur maximale du résumé document (en mots)

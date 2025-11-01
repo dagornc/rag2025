@@ -3,7 +3,7 @@
 
 preprocessing:
   # Mode d'optimisation global (modifiable à l'exécution)
-  optimization_mode: "quality"  # speed | memory | compromise | quality | custom
+  optimization_mode: "memory"  # speed | memory | compromise | quality | custom
 
   # Définition des 5 modes d'optimisation prédéfinis
   optimization_modes:
