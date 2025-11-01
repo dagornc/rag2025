@@ -69,11 +69,18 @@ def substitute_env_vars(value: ConfigValue) -> ConfigValue:
             env_value = os.getenv(var_name)
 
             # Validation : la variable DOIT être définie
+            # SAUF pour les clés API optionnelles (finissent par _API_KEY ou _TOKEN)
             if env_value is None:
-                raise ConfigurationError(
-                    f"Variable d'environnement non définie: {var_name}",
-                    details={"variable": var_name},
-                )
+                if var_name.endswith("_API_KEY") or var_name.endswith("_TOKEN"):
+                    # Pour les clés API, retourner une valeur placeholder
+                    # Le code utilisateur devra vérifier si la clé est valide
+                    return f"{var_name}_NOT_SET"
+                else:
+                    # Pour les autres variables, lever une erreur
+                    raise ConfigurationError(
+                        f"Variable d'environnement non définie: {var_name}",
+                        details={"variable": var_name},
+                    )
             return env_value
 
         # Chaîne normale sans substitution
