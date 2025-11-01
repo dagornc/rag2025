@@ -5,3 +5,7 @@ Ce module contient les scripts en ligne de commande pour le framework RAG.
 Auteur: RAG Framework Team
 Version: 1.0.0
 """
+
+from rag_framework.cli.main import main
+
+__all__ = ["main"]

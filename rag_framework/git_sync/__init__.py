@@ -5,8 +5,9 @@ synchronisation automatique des fichiers vers GitHub.
 
 Modules:
     watcher: Point d'entrée CLI pour lancer la surveillance
-    config_loader: Chargement de synchrogithub.yaml
-    file_handler: Handler watchdog pour détecter les modifications
+    sync_manager: GitSyncManager pour opérations Git
 """
 
-__all__ = []  # type: list[str]
+from rag_framework.git_sync.sync_manager import GitSyncError, GitSyncManager
+
+__all__ = ["GitSyncManager", "GitSyncError"]

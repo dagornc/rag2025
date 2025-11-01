@@ -24,12 +24,8 @@ import yaml
 from watchdog.events import FileSystemEvent, FileSystemEventHandler
 from watchdog.observers import Observer
 
-# Import du GitSyncManager depuis le module parent
-# Note: GitSyncManager est défini dans rag_framework/git_sync.py (module)
-# pas dans rag_framework/git_sync/ (package git_sync/)
-from rag_framework import git_sync as git_sync_module
-
-GitSyncManager = git_sync_module.GitSyncManager
+# Import du GitSyncManager depuis le même package
+from rag_framework.git_sync import GitSyncManager
 
 
 def load_config(config_path: str) -> dict[str, Any]:
