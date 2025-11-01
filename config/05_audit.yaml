@@ -145,10 +145,48 @@ security_events:
   log_deletions: true
   log_failures: true
 
+# NOTE TECHNIQUE: Cette section retention: est l'ancienne configuration
+# Elle est conservée pour compatibilité ascendante mais n'est plus utilisée.
+# La nouvelle section log_retention: (ci-dessous) est celle utilisée par le code.
 retention:
   retention_days: 365
   archive_after_days: 90
   compression: true
+
+# -----------------------------------------------------------------------------
+# GESTION AUTOMATIQUE DE LA RÉTENTION DES LOGS (Feature #4)
+# -----------------------------------------------------------------------------
+# Conforme RGPD Article 5.1.e - Limitation de la conservation
+#
+# Stratégie de rétention des logs d'audit :
+# • Phase 1 (Archive) : Logs > archive_after_days → compression gzip
+# • Phase 2 (Suppression) : Archives > delete_after_days → suppression définitive
+#
+# IMPORTANT: Cette fonctionnalité nécessite les permissions d'écriture sur:
+#   - logs/audit_trail.jsonl (fichier principal)
+#   - logs/*.jsonl (autres logs JSONL)
+#   - logs/archive/ (répertoire d'archives)
+#
+log_retention:
+  enabled: true  # Activer la gestion automatique de rétention
+
+  # Paramètres de rétention
+  archive_after_days: 90   # Archiver les logs après 90 jours (défaut RGPD)
+  delete_after_days: 365   # Supprimer les archives après 365 jours (1 an)
+
+  # Compression des archives
+  compression_enabled: true  # Compresser avec gzip (économie d'espace ~70-90%)
+  compression_level: 6       # Niveau compression gzip (1-9, défaut: 6)
+
+  # Fréquence d'exécution
+  # La rétention s'exécute à chaque appel de l'étape d'audit
+  # Pour éviter une surcharge, vous pouvez ajouter une logique de throttling
+  # (ex: ne s'exécuter qu'une fois par jour)
+  run_on_every_execution: true  # Exécuter à chaque audit (défaut)
+
+  # Logging de la rétention
+  log_retention_operations: true  # Logger les opérations d'archivage/suppression
+  verbose_logging: true           # Logs détaillés (utile pour debug)
 
 export:
   formats:

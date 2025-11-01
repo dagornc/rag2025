@@ -1,8 +1,10 @@
 """Étape 5 : Audit logging et traçabilité."""
 
+import gzip
 import json
 import re
-from datetime import datetime, timezone
+import shutil
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Optional
 
@@ -211,6 +213,29 @@ class AuditStep(BaseStep):
                         f"Erreur lors de la génération du résumé d'audit: {e}"
                     )
                     audit_record["llm_summary"] = None
+
+            # === GESTION DE LA RÉTENTION DES LOGS ===
+            # Si activée, archive les logs anciens et supprime les archives expirées
+            retention_config = self.config.get("log_retention", {})
+            if retention_config.get("enabled", False):
+                logger.info("🔄 Gestion rétention logs activée")
+                try:
+                    retention_report = self._manage_log_retention(audit_config)
+                    audit_record["log_retention"] = retention_report
+
+                    # Log du résultat
+                    if retention_report.get("logs_archived", 0) > 0:
+                        logger.info(
+                            f"📦 {retention_report['logs_archived']} logs archivés"
+                        )
+                    if retention_report.get("logs_deleted", 0) > 0:
+                        logger.info(
+                            f"🗑️ {retention_report['logs_deleted']} archives supprimées"
+                        )
+
+                except Exception as e:
+                    logger.error(f"Erreur gestion rétention logs: {e}", exc_info=True)
+                    audit_record["log_retention"] = {"error": str(e)}
 
             data["audit_record"] = audit_record
             logger.info("Audit: Enregistrement créé avec succès")
@@ -715,5 +740,173 @@ Le résumé doit être factuel, professionnel et sans interprétation subjective
             ),
             "recommendations": recommendations,
         }
+
+        return report
+
+    def _manage_log_retention(self, audit_config: dict[str, Any]) -> dict[str, Any]:
+        """Gère la rétention et l'archivage des logs d'audit.
+
+        Conforme RGPD Article 5.1.e - Limitation de la conservation.
+
+        Stratégie de rétention:
+        - Archive: logs > 90 jours → compression gzip dans logs/archive/
+        - Suppression: archives > 365 jours → suppression définitive
+
+        Parameters
+        ----------
+        audit_config : dict[str, Any]
+            Configuration de l'audit contenant les paramètres de rétention.
+
+        Returns:
+        -------
+        dict[str, Any]
+            Rapport de rétention avec statistiques des opérations effectuées.
+        """
+        retention_config = audit_config.get("log_retention", {})
+
+        # Vérifier si la rétention est activée
+        if not retention_config.get("enabled", False):
+            return {
+                "retention_enabled": False,
+                "message": "Rétention des logs désactivée",
+            }
+
+        # Paramètres de rétention
+        log_file = audit_config.get("log_file", "logs/audit_trail.jsonl")
+        log_dir = Path(log_file).parent
+        archive_dir = log_dir / "archive"
+
+        archive_after_days = retention_config.get("archive_after_days", 90)
+        delete_after_days = retention_config.get("delete_after_days", 365)
+
+        # Créer le répertoire d'archive si nécessaire
+        archive_dir.mkdir(parents=True, exist_ok=True)
+
+        now = datetime.now(timezone.utc)
+        archive_threshold = now - timedelta(days=archive_after_days)
+        delete_threshold = now - timedelta(days=delete_after_days)
+
+        report = {
+            "retention_enabled": True,
+            "timestamp": now.isoformat(),
+            "archive_threshold": archive_threshold.isoformat(),
+            "delete_threshold": delete_threshold.isoformat(),
+            "logs_archived": 0,
+            "logs_deleted": 0,
+            "archived_files": [],
+            "deleted_files": [],
+            "errors": [],
+        }
+
+        # === PHASE 1: ARCHIVAGE DES LOGS ANCIENS ===
+        # Rechercher les logs JSONL non archivés dans le répertoire principal
+        try:
+            for log_path in log_dir.glob("*.jsonl"):
+                # Ignorer le fichier principal actif
+                if log_path == Path(log_file):
+                    continue
+
+                # Vérifier l'âge du fichier
+                file_mtime = datetime.fromtimestamp(
+                    log_path.stat().st_mtime, tz=timezone.utc
+                )
+
+                if file_mtime < archive_threshold:
+                    # Archiver ce fichier avec compression gzip
+                    try:
+                        archive_path = archive_dir / f"{log_path.name}.gz"
+
+                        # Compression avec gzip
+                        with open(log_path, "rb") as f_in:
+                            with gzip.open(archive_path, "wb") as f_out:
+                                shutil.copyfileobj(f_in, f_out)
+
+                        # Supprimer le fichier original après compression
+                        log_path.unlink()
+
+                        report["logs_archived"] += 1
+                        report["archived_files"].append(
+                            {
+                                "file": log_path.name,
+                                "archive": archive_path.name,
+                                "size_original": log_path.stat().st_size
+                                if log_path.exists()
+                                else 0,
+                                "size_compressed": archive_path.stat().st_size,
+                                "compression_ratio": round(
+                                    archive_path.stat().st_size
+                                    / log_path.stat().st_size
+                                    * 100,
+                                    2,
+                                )
+                                if log_path.exists()
+                                else 0,
+                            }
+                        )
+
+                        logger.info(
+                            f"📦 Log archivé: {log_path.name} → {archive_path.name}"
+                        )
+
+                    except Exception as e:
+                        error_msg = f"Erreur archivage {log_path.name}: {e}"
+                        report["errors"].append(error_msg)
+                        logger.error(error_msg)
+
+        except Exception as e:
+            error_msg = f"Erreur parcours logs pour archivage: {e}"
+            report["errors"].append(error_msg)
+            logger.error(error_msg)
+
+        # === PHASE 2: SUPPRESSION DES ARCHIVES ANCIENNES ===
+        # Rechercher les archives compressées trop anciennes
+        try:
+            for archive_path in archive_dir.glob("*.gz"):
+                # Vérifier l'âge de l'archive
+                file_mtime = datetime.fromtimestamp(
+                    archive_path.stat().st_mtime, tz=timezone.utc
+                )
+
+                if file_mtime < delete_threshold:
+                    # Supprimer définitivement ce fichier
+                    try:
+                        file_size = archive_path.stat().st_size
+                        archive_path.unlink()
+
+                        report["logs_deleted"] += 1
+                        report["deleted_files"].append(
+                            {
+                                "file": archive_path.name,
+                                "age_days": (now - file_mtime).days,
+                                "size": file_size,
+                            }
+                        )
+
+                        logger.info(
+                            f"🗑️ Archive supprimée: {archive_path.name} "
+                            f"(âge: {(now - file_mtime).days} jours)"
+                        )
+
+                    except Exception as e:
+                        error_msg = f"Erreur suppression {archive_path.name}: {e}"
+                        report["errors"].append(error_msg)
+                        logger.error(error_msg)
+
+        except Exception as e:
+            error_msg = f"Erreur parcours archives pour suppression: {e}"
+            report["errors"].append(error_msg)
+            logger.error(error_msg)
+
+        # === RAPPORT FINAL ===
+        if report["logs_archived"] > 0 or report["logs_deleted"] > 0:
+            logger.info(
+                f"✅ Rétention logs: {report['logs_archived']} archivés, "
+                f"{report['logs_deleted']} supprimés"
+            )
+        else:
+            logger.debug("Rétention logs: aucune action nécessaire")
+
+        if report["errors"]:
+            logger.warning(f"⚠️ Rétention logs: {len(report['errors'])} erreurs")
 
         return report
