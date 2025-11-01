@@ -3,13 +3,14 @@
 import gc
 import json
 import os
-import psutil
 import re
 import statistics
 import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+import psutil
 
 from rag_framework.config_adapter import convert_parser_to_fallback_config
 from rag_framework.exceptions import StepExecutionError, ValidationError
@@ -484,9 +485,8 @@ class PreprocessingStep(BaseStep):
         # Configuration de l'optimisation mémoire (Feature #6)
         self.memory_opt_config = config.get("memory_optimization", {"enabled": False})
         if self.memory_opt_config.get("enabled", False):
-            gc_config = (
-                self.memory_opt_config.get("strategies", {})
-                .get("garbage_collection", {})
+            gc_config = self.memory_opt_config.get("strategies", {}).get(
+                "garbage_collection", {}
             )
             self.gc_enabled = gc_config.get("enabled", False)
             self.gc_frequency = gc_config.get("frequency", "per_document")
@@ -621,6 +621,10 @@ class PreprocessingStep(BaseStep):
 
                     extracted_documents.append(document_record)
 
+                    # Garbage collection si fréquence=per_document (Feature #6)
+                    if self.gc_enabled and self.gc_frequency == "per_document":
+                        self._check_and_collect_garbage()
+
                     logger.info(
                         f"✓ Document extrait: {file_path.name} "
                         f"(méthode: {extractor_name}, "
@@ -716,6 +720,10 @@ class PreprocessingStep(BaseStep):
                     f"{summary.get('processing_time', {}).get('mean_seconds', 0)} s/doc"
                 )
                 self.metrics_collector.export_metrics()
+
+            # Garbage collection en fin de batch si configuré (Feature #6)
+            if self.gc_enabled and self.gc_frequency == "per_batch":
+                self._check_and_collect_garbage()
 
             return data
 
