@@ -272,41 +272,67 @@ def get_llm_client(
             },
         )
 
-    # Extraction des paramètres de connexion (infrastructure)
-    base_url = provider_config.get("base_url")
-    api_key = provider_config.get("api_key")
+    # Extraction de la méthode d'accès
     access_method = provider_config.get("access_method", "openai_compatible")
 
-    # Validation des paramètres obligatoires
-    if not base_url or not api_key:
-        raise ConfigurationError(
-            f"Configuration incomplète pour le provider '{provider_name}'",
-            details={
-                "provider": provider_name,
-                "missing_fields": [
-                    f for f in ["base_url", "api_key"]
-                    if not provider_config.get(f)
-                ],
-            },
-        )
-
     # Création du client selon la méthode d'accès
-    # Pour le MVP, on supporte uniquement openai_compatible et huggingface_inference_api
     try:
-        if access_method in ("openai_compatible", "huggingface_inference_api"):
-            # Import tardif pour éviter dépendances inutiles si LLM non utilisé
+        # === PROVIDERS LOCAUX (sentence-transformers) ===
+        if access_method == "local":
+            library = provider_config.get("library")
+            if library == "sentence-transformers":
+                # Import tardif pour éviter dépendances inutiles
+                from sentence_transformers import SentenceTransformer
+
+                # Création du modèle sentence-transformers
+                # Le modèle est téléchargé automatiquement si nécessaire
+                client = SentenceTransformer(model)
+
+                # Stockage des paramètres fonctionnels
+                client._model = model  # type: ignore[attr-defined]
+                client._temperature = temperature  # type: ignore[attr-defined]
+
+                return client
+            else:
+                raise ConfigurationError(
+                    f"Library non supportée pour access_method='local': {library}",
+                    details={
+                        "provider": provider_name,
+                        "library": library,
+                        "supported_libraries": ["sentence-transformers"],
+                    },
+                )
+
+        # === PROVIDERS API (OpenAI-compatible, HuggingFace) ===
+        elif access_method in ("openai_compatible", "huggingface_inference_api"):
+            # Extraction des paramètres de connexion
+            base_url = provider_config.get("base_url")
+            api_key = provider_config.get("api_key")
+
+            # Validation des paramètres obligatoires pour les providers API
+            if not base_url or not api_key:
+                raise ConfigurationError(
+                    f"Configuration incomplète pour le provider '{provider_name}'",
+                    details={
+                        "provider": provider_name,
+                        "missing_fields": [
+                            f
+                            for f in ["base_url", "api_key"]
+                            if not provider_config.get(f)
+                        ],
+                    },
+                )
+
+            # Import tardif pour éviter dépendances inutiles
             from openai import OpenAI
 
             # Création du client OpenAI compatible
-            # La plupart des providers modernes (Ollama, vLLM, Mistral, etc.)
-            # exposent une API compatible OpenAI
             client = OpenAI(
                 base_url=base_url,
                 api_key=api_key,
             )
 
-            # Stockage des paramètres fonctionnels pour utilisation ultérieure
-            # Ces paramètres ne sont pas dans __init__ mais utilisés lors des appels
+            # Stockage des paramètres fonctionnels
             client._model = model  # type: ignore[attr-defined]
             client._temperature = temperature  # type: ignore[attr-defined]
 
@@ -319,6 +345,7 @@ def get_llm_client(
                     "provider": provider_name,
                     "access_method": access_method,
                     "supported_methods": [
+                        "local",
                         "openai_compatible",
                         "huggingface_inference_api",
                     ],
@@ -327,6 +354,7 @@ def get_llm_client(
 
     except ImportError as e:
         raise ConfigurationError(
-            "Librairie 'openai' non installée. Exécutez: pip install openai",
+            f"Librairie manquante pour '{provider_name}'. "
+            f"Installez avec: rye add {access_method}",
             details={"error": str(e)},
         ) from e
