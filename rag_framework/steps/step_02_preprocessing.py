@@ -6,6 +6,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from rag_framework.config_adapter import convert_parser_to_fallback_config
 from rag_framework.exceptions import StepExecutionError, ValidationError
 from rag_framework.extractors.fallback_manager import FallbackManager
 from rag_framework.steps.base_step import BaseStep
@@ -30,7 +31,7 @@ class PreprocessingStep(BaseStep):
     Parameters
     ----------
     config : dict[str, Any]
-        Configuration de l'étape depuis 02_preprocessing.yaml.
+        Configuration de l'étape depuis parser.yaml.
     """
 
     def __init__(self, config: dict[str, Any]) -> None:
@@ -39,12 +40,15 @@ class PreprocessingStep(BaseStep):
         Parameters
         ----------
         config : dict[str, Any]
-            Configuration de l'étape.
+            Configuration de l'étape depuis parser.yaml.
         """
         super().__init__(config)
 
+        # Conversion de la config parser.yaml vers format FallbackManager
+        fallback_config = convert_parser_to_fallback_config(config)
+
         # Initialisation du gestionnaire de fallback
-        self.fallback_manager = FallbackManager(config)
+        self.fallback_manager = FallbackManager(fallback_config)
 
         # Initialisation du gestionnaire de fichiers
         # Note: file_management config vient de monitoring_config
@@ -61,10 +65,19 @@ class PreprocessingStep(BaseStep):
         )
 
     def validate_config(self) -> None:
-        """Valide la configuration de l'étape."""
-        if "fallback" not in self.config:
+        """Valide la configuration de l'étape.
+
+        Accepte deux formats:
+        - Ancien: {"fallback": {...}}
+        - Nouveau: {"preprocessing": {"file_categories": {...}}}
+        """
+        # Vérifier format nouveau (parser.yaml) ou ancien (02_preprocessing.yaml)
+        has_preprocessing = "preprocessing" in self.config
+        has_fallback = "fallback" in self.config
+
+        if not has_preprocessing and not has_fallback:
             raise ValidationError(
-                "Clé 'fallback' manquante dans la configuration",
+                "Clé 'preprocessing' ou 'fallback' manquante dans la configuration",
                 details={"step": "PreprocessingStep"},
             )
 
