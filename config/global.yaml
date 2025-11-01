@@ -10,25 +10,23 @@
 # =============================================================================
 
 # -----------------------------------------------------------------------------
-# CONFIGURATION DES MODEL PROVIDERS (LLM + Embeddings + Vision)
+# CONFIGURATION DES PROVIDERS LLM (LLM + Embeddings + Vision)
 # -----------------------------------------------------------------------------
-# Configuration unifiée de TOUS les providers de modèles :
-# - LLM (Large Language Models) : génération de texte, enrichissement, audit
-# - Embeddings : chunking sémantique, vector stores, recherche sémantique
-# - VLM (Vision Language Models) : extraction d'images, PDF avec vision
+# Configuration simplifiée des providers de modèles.
+# Cette section contient UNIQUEMENT les paramètres de connexion (credentials).
+# Les modèles spécifiques sont sélectionnés dans les fichiers de configuration
+# des étapes individuelles (ex: 06_embedding.yaml, 03_chunking.yaml, etc.).
 #
-# ARCHITECTURE UNIFIÉE :
-# Chaque provider définit :
-#   - Les paramètres de connexion (api_key, base_url, library)
-#   - Une liste de modèles avec leur type ("llm" ou "embedding")
-#   - Les métadonnées spécifiques à chaque modèle
+# ARCHITECTURE :
+# - global.yaml : Définit les providers (api_key, base_url, access_method)
+# - XX_step.yaml : Sélectionne provider + modèle spécifique pour cette étape
 #
 # AVANTAGES :
-# - Configuration DRY : api_key définie une seule fois par provider
-# - Extensible : facile d'ajouter reranker, classifier, etc.
-# - Cohérent : même pattern pour tous types de modèles
+# - Maintenance simplifiée : ajout d'un provider = 4 lignes
+# - Flexibilité : chaque étape choisit son modèle optimal
+# - DRY : credentials définis une seule fois
 #
-model_providers:
+llm_providers:
   # ========================================
   # OpenAI - LLM + Embeddings + Vision
   # ========================================
@@ -38,82 +36,14 @@ model_providers:
     api_key: "${OPENAI_API_KEY}"
     # ATTENTION: Service payant, suivre usage sur https://platform.openai.com
 
-    models:
-      # === LLM Models ===
-      - name: "gpt-4"
-        type: "llm"
-        context_window: 8192
-        max_output_tokens: 4096
-        cost_per_1m_input_tokens: 30.0
-        cost_per_1m_output_tokens: 60.0
-        description: "Modèle le plus performant, multimodal (texte + vision)"
-
-      - name: "gpt-4-turbo"
-        type: "llm"
-        context_window: 128000
-        max_output_tokens: 4096
-        cost_per_1m_input_tokens: 10.0
-        cost_per_1m_output_tokens: 30.0
-        description: "Contexte étendu, vision, JSON mode"
-
-      - name: "gpt-3.5-turbo"
-        type: "llm"
-        context_window: 16385
-        max_output_tokens: 4096
-        cost_per_1m_input_tokens: 0.5
-        cost_per_1m_output_tokens: 1.5
-        description: "Rapide et économique"
-
-      # === Embedding Models ===
-      - name: "text-embedding-3-large"
-        type: "embedding"
-        dimensions: 3072
-        cost_per_1m_tokens: 0.13
-        description: "Meilleure qualité, grandes dimensions"
-
-      - name: "text-embedding-3-small"
-        type: "embedding"
-        dimensions: 1536
-        cost_per_1m_tokens: 0.02
-        description: "Rapide et économique"
-
-      - name: "text-embedding-ada-002"
-        type: "embedding"
-        dimensions: 1536
-        cost_per_1m_tokens: 0.10
-        description: "Version précédente, stable"
-
   # ========================================
-  # OpenRouter - Agrégateur Multi-Modèles (NOUVEAU)
+  # OpenRouter - Agrégateur Multi-Modèles
   # ========================================
-  # Accès unifié à 100+ modèles (GPT-4, Claude, Llama, Mistral, etc.)
   openrouter:
     access_method: "openai_compatible"
     base_url: "https://openrouter.ai/api/v1"
     api_key: "${OPENROUTER_API_KEY}"
     # Avantage: Un seul compte, accès à tous les modèles, fallback automatique
-
-    models:
-      # === LLM Models (exemples populaires) ===
-      - name: "openai/gpt-4-turbo"
-        type: "llm"
-        context_window: 128000
-        description: "GPT-4 Turbo via OpenRouter"
-
-      - name: "anthropic/claude-3-opus"
-        type: "llm"
-        context_window: 200000
-        description: "Claude 3 Opus via OpenRouter"
-
-      - name: "meta-llama/llama-3-70b-instruct"
-        type: "llm"
-        context_window: 8192
-        description: "Llama 3 70B via OpenRouter"
-
-      - name: "mistralai/mixtral-8x7b-instruct"
-        type: "llm"
-        context_window: 32768
-        description: "Mixtral 8x7B via OpenRouter"
 
   # ========================================
   # Anthropic - LLM + Vision (Claude 3)
@@ -123,25 +53,6 @@ model_providers:
     base_url: "https://api.anthropic.com/v1"
     api_key: "${ANTHROPIC_API_KEY}"
 
-    models:
-      - name: "claude-3-opus"
-        type: "llm"
-        context_window: 200000
-        max_output_tokens: 4096
-        description: "Plus performant, analyse visuelle"
-
-      - name: "claude-3-sonnet"
-        type: "llm"
-        context_window: 200000
-        max_output_tokens: 4096
-        description: "Équilibre performance/coût"
-
-      - name: "claude-3-haiku"
-        type: "llm"
-        context_window: 200000
-        max_output_tokens: 4096
-        description: "Rapide et économique"
-
   # ========================================
   # Mistral AI - LLM Français
   # ========================================
@@ -149,22 +60,6 @@ model_providers:
     access_method: "openai_compatible"
     base_url: "https://api.mistral.ai/v1"
     api_key: "76cwpvjZqnFw1U0jLCEBKOHh5FprX2OJ"
-
-    models:
-      - name: "mistral-large"
-        type: "llm"
-        context_window: 32768
-        description: "Modèle le plus performant"
-
-      - name: "mistral-medium"
-        type: "llm"
-        context_window: 32768
-        description: "Équilibre qualité/vitesse"
-
-      - name: "mistral-small"
-        type: "llm"
-        context_window: 32768
-        description: "Rapide et économique"
 
   # ========================================
   # Ollama - LLM + Embeddings Locaux
@@ -174,39 +69,6 @@ model_providers:
     base_url: "http://127.0.0.1:11434/v1"
     api_key: "ollama"
 
-    models:
-      # === LLM Models ===
-      - name: "llama3"
-        type: "llm"
-        context_window: 8192
-        description: "Llama 3 8B/70B, excellent gratuit"
-
-      - name: "mistral"
-        type: "llm"
-        context_window: 8192
-        description: "Mistral 7B, rapide"
-
-      - name: "llava"
-        type: "llm"
-        context_window: 4096
-        description: "Vision + texte (VLM)"
-
-      # === Embedding Models ===
-      - name: "nomic-embed-text"
-        type: "embedding"
-        dimensions: 768
-        description: "Excellent modèle open-source"
-
-      - name: "mxbai-embed-large"
-        type: "embedding"
-        dimensions: 1024
-        description: "Grande dimension, haute qualité"
-
-      - name: "all-minilm"
-        type: "embedding"
-        dimensions: 384
-        description: "Léger et rapide"
-
   # ========================================
   # Hugging Face - LLM + Embeddings API
   # ========================================
@@ -215,61 +77,12 @@ model_providers:
     base_url: "https://api-inference.huggingface.co/v1"
     api_key: "${HUGGINGFACE_API_KEY}"
 
-    models:
-      # === LLM Models ===
-      - name: "mistralai/Mistral-7B-Instruct-v0.2"
-        type: "llm"
-        context_window: 8192
-        description: "Mistral 7B via HF"
-
-      - name: "meta-llama/Llama-2-70b-chat-hf"
-        type: "llm"
-        context_window: 4096
-        description: "Llama 2 70B via HF"
-
-      # === Embedding Models ===
-      - name: "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
-        type: "embedding"
-        dimensions: 384
-        description: "Multilingual via API HF"
-
   # ========================================
   # Sentence Transformers - Embeddings Locaux
   # ========================================
   sentence_transformers:
     access_method: "local"
     library: "sentence-transformers"
-
-    models:
-      # Modèles multilingues
-      - name: "paraphrase-multilingual-MiniLM-L12-v2"
-        type: "embedding"
-        dimensions: 384
-        languages: ["fr", "en", "de", "es", "it"]
-        size_mb: 470
-        description: "Multilingual, équilibré vitesse/qualité"
-
-      - name: "distiluse-base-multilingual-cased-v2"
-        type: "embedding"
-        dimensions: 512
-        languages: ["50+"]
-        size_mb: 540
-        description: "Support 50+ langues"
-
-      # Modèles anglais
-      - name: "all-MiniLM-L6-v2"
-        type: "embedding"
-        dimensions: 384
-        languages: ["en"]
-        size_mb: 90
-        description: "Très rapide, léger"
-
-      - name: "all-mpnet-base-v2"
-        type: "embedding"
-        dimensions: 768
-        languages: ["en"]
-        size_mb: 420
-        description: "Meilleure qualité"
 
   # ========================================
   # LM Studio - Local LLM (Développement)
@@ -279,12 +92,6 @@ model_providers:
     base_url: "http://127.0.0.1:1234/v1"
     api_key: "lm-studio"
 
-    models:
-      - name: "local-model"
-        type: "llm"
-        context_window: 4096
-        description: "Modèle chargé dans LM Studio"
-
   # ========================================
   # vLLM - Serveur d'Inférence (Production)
   # ========================================
@@ -293,12 +100,6 @@ model_providers:
     base_url: "http://127.0.0.1:8000/v1"
     api_key: "vllm"
 
-    models:
-      - name: "deployed-model"
-        type: "llm"
-        context_window: 4096
-        description: "Modèle déployé sur vLLM"
-
   # ========================================
   # Generic API - Template OpenAI-Compatible
   # ========================================
@@ -306,12 +107,6 @@ model_providers:
     access_method: "openai_compatible"
     base_url: "https://api.example.com/v1"
     api_key: "${GENERIC_API_KEY}"
-
-    models:
-      - name: "custom-model"
-        type: "llm"
-        context_window: 4096
-        description: "Modèle personnalisé"
 
 # -----------------------------------------------------------------------------
 # CONFIGURATION DES ÉTAPES DU PIPELINE
