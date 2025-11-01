@@ -287,6 +287,130 @@ class PreprocessingStep(BaseStep):
         Configuration de l'étape depuis 02_preprocessing.yaml.
     """
 
+    def _apply_optimization_mode(self) -> None:
+        """Applique le mode d'optimisation configuré.
+
+        Modifie la configuration en fonction du mode d'optimisation sélectionné:
+        - speed: Vitesse maximale (OCR désactivé, parsers légers)
+        - memory: Faible empreinte mémoire (streaming, parsers légers)
+        - compromise: Équilibre entre vitesse, mémoire et qualité
+        - quality: Qualité maximale (OCR activé, chunking sémantique)
+        - custom: Configuration personnalisée
+
+        Le mode est défini dans preprocessing.optimization_mode
+        et les paramètres sont définis dans preprocessing.optimization_modes
+        """
+        # Récupération du mode actif
+        # Les clés sont sous preprocessing: dans 02_preprocessing.yaml
+        preprocessing_config = self.config.get("preprocessing", {})
+        optimization_mode = preprocessing_config.get("optimization_mode")
+        optimization_modes = preprocessing_config.get("optimization_modes", {})
+
+        # Si aucun mode n'est défini ou modes non configurés, ne rien faire
+        if not optimization_mode or not optimization_modes:
+            return
+
+        # Récupération des paramètres du mode
+        mode_config = optimization_modes.get(optimization_mode)
+
+        if not mode_config:
+            logger.warning(
+                f"Mode d'optimisation '{optimization_mode}' introuvable. "
+                "Configuration par défaut utilisée."
+            )
+            return
+
+        # Affichage du mode actif
+        mode_desc = mode_config.get("description", "")
+        logger.info(f"Mode d'optimisation: {optimization_mode} - {mode_desc}")
+
+        # Application des paramètres du mode
+        # Les paramètres du mode écrasent la configuration existante
+
+        # 1. Gestion OCR
+        if "enable_ocr" in mode_config:
+            enable_ocr = mode_config["enable_ocr"]
+            if not enable_ocr:
+                # Désactiver l'OCR dans file_categories > pdf
+                pdf_config = (
+                    self.config.get("file_categories", {})
+                    .get("pdf", {})
+                    .get("extractors", [])
+                )
+                # Filtrer les extracteurs OCR
+                if pdf_config:
+                    self.config.setdefault("file_categories", {}).setdefault("pdf", {})[
+                        "extractors"
+                    ] = [
+                        ext
+                        for ext in pdf_config
+                        if ext.get("name") not in ["docling", "marker", "tesseract"]
+                    ]
+                logger.info(f"  OCR: {'activé' if enable_ocr else 'désactivé'}")
+
+        # 2. Gestion parsers légers (prefer_lightweight_libraries)
+        if mode_config.get("prefer_lightweight_libraries", False):
+            # Prioriser pypdf2 et désactiver les parsers lourds
+            pdf_config = (
+                self.config.get("file_categories", {})
+                .get("pdf", {})
+                .get("extractors", [])
+            )
+            if pdf_config:
+                # Réorganiser pour mettre pypdf2 en premier
+                lightweight_first = []
+                others = []
+                for ext in pdf_config:
+                    if ext.get("name") in ["pypdf2", "pdfplumber"]:
+                        lightweight_first.append(ext)
+                    else:
+                        others.append(ext)
+
+                self.config.setdefault("file_categories", {}).setdefault("pdf", {})[
+                    "extractors"
+                ] = lightweight_first + others
+
+                logger.info("  Parsers: Priorité aux parsers légers (PyPDF2)")
+
+        # 3. Gestion chunking sémantique
+        if "enable_semantic_chunking" in mode_config:
+            enable_semantic = mode_config["enable_semantic_chunking"]
+            # Cette configuration sera utilisée par step_03_chunking
+            # On la stocke dans preprocessing pour accès ultérieur
+            self.config.setdefault("preprocessing", {})["semantic_chunking_enabled"] = (
+                enable_semantic
+            )
+            logger.info(
+                f"  Chunking sémantique: {'activé' if enable_semantic else 'désactivé'}"
+            )
+
+        # 4. Gestion streaming (pour optimisation mémoire)
+        if mode_config.get("streaming_enabled", False):
+            self.config.setdefault("preprocessing", {})["streaming_enabled"] = True
+            logger.info("  Streaming: activé (optimisation mémoire)")
+
+        # 5. Limites de ressources
+        if "max_memory_gb" in mode_config:
+            max_mem = mode_config["max_memory_gb"]
+            self.config.setdefault("preprocessing", {})["max_memory_gb"] = max_mem
+            logger.info(f"  Mémoire max: {max_mem} GB")
+
+        if "target_speed_docs_per_second" in mode_config:
+            target_speed = mode_config["target_speed_docs_per_second"]
+            self.config.setdefault("preprocessing", {})["target_speed"] = target_speed
+            logger.info(f"  Vitesse cible: {target_speed} docs/s")
+
+        if "quality_target_percent" in mode_config:
+            quality = mode_config["quality_target_percent"]
+            self.config.setdefault("preprocessing", {})["quality_target"] = quality
+            logger.info(f"  Qualité cible: {quality}%")
+
+        # 6. Gestion retries (pour mode quality)
+        if "max_retries" in mode_config:
+            max_retries = mode_config["max_retries"]
+            self.config.setdefault("preprocessing", {})["max_retries"] = max_retries
+            logger.info(f"  Retries max: {max_retries}")
+
     def __init__(self, config: dict[str, Any]) -> None:
         """Initialise l'étape de preprocessing.
 
@@ -296,6 +420,9 @@ class PreprocessingStep(BaseStep):
             Configuration de l'étape depuis 02_preprocessing.yaml.
         """
         super().__init__(config)
+
+        # Application du mode d'optimisation (Feature #5)
+        self._apply_optimization_mode()
 
         # Conversion de la config 02_preprocessing.yaml vers format FallbackManager
         fallback_config = convert_parser_to_fallback_config(config)
