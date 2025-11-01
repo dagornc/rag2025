@@ -557,9 +557,17 @@ class PreprocessingStep(BaseStep):
             for file_path_str in file_paths:
                 file_path = Path(file_path_str)
 
+                # Vérifier que le fichier existe avant traitement
+                if not file_path.exists():
+                    logger.warning(
+                        f"Fichier introuvable, ignoré: {file_path.name} "
+                        f"(probablement déjà traité ou déplacé)"
+                    )
+                    continue
+
                 # Mesure de performance pour métriques (Feature #7)
                 start_time = time.time()
-                file_size = file_path.stat().st_size if file_path.exists() else 0
+                file_size = file_path.stat().st_size
 
                 try:
                     # Extraction avec fallback automatique
