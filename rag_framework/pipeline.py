@@ -85,7 +85,7 @@ class RAGPipeline:
         # L'ordre est CRITIQUE : chaque étape dépend des sorties des précédentes
         step_classes = [
             (MonitoringStep, "01_monitoring.yaml", "monitoring_enabled"),
-            (PreprocessingStep, "parser.yaml", "preprocessing_enabled"),
+            (PreprocessingStep, "02_preprocessing.yaml", "preprocessing_enabled"),
             (ChunkingStep, "03_chunking.yaml", "chunking_enabled"),
             (EnrichmentStep, "04_enrichment.yaml", "enrichment_enabled"),
             (AuditStep, "05_audit.yaml", "audit_enabled"),

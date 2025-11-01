@@ -1,12 +1,12 @@
-"""Adaptateur de configuration pour convertir parser.yaml vers format fallback."""
+"""Adaptateur de configuration pour convertir 02_preprocessing.yaml vers format fallback."""
 
 from typing import Any
 
 
 def convert_parser_to_fallback_config(parser_config: dict[str, Any]) -> dict[str, Any]:
-    """Convertit parser.yaml vers le format attendu par FallbackManager.
+    """Convertit 02_preprocessing.yaml vers le format attendu par FallbackManager.
 
-    Parser.yaml utilise une structure orientée types de fichiers:
+    02_preprocessing.yaml utilise une structure orientée types de fichiers:
         preprocessing -> file_categories -> pdf/office/etc -> fallback_chain
 
     FallbackManager attend une structure plate avec profile et extractors:
@@ -18,7 +18,7 @@ def convert_parser_to_fallback_config(parser_config: dict[str, Any]) -> dict[str
     Parameters
     ----------
     parser_config : dict[str, Any]
-        Configuration complète depuis parser.yaml.
+        Configuration complète depuis 02_preprocessing.yaml.
 
     Returns:
     -------
@@ -27,14 +27,14 @@ def convert_parser_to_fallback_config(parser_config: dict[str, Any]) -> dict[str
 
     Examples:
     --------
-    >>> parser_cfg = load_yaml_config(Path("config/parser.yaml"))
+    >>> parser_cfg = load_yaml_config(Path("config/02_preprocessing.yaml"))
     >>> fallback_cfg = convert_parser_to_fallback_config(parser_cfg)
     >>> manager = FallbackManager(fallback_cfg)
     """
     preprocessing = parser_config.get("preprocessing", {})
 
     # Pour le moment, on considère que VLM n'est pas activé
-    # (parser.yaml n'a pas de flag use_vlm explicite)
+    # (02_preprocessing.yaml n'a pas de flag use_vlm explicite)
     use_vlm = False
 
     # Construction de la liste d'extracteurs depuis file_categories
@@ -42,7 +42,7 @@ def convert_parser_to_fallback_config(parser_config: dict[str, Any]) -> dict[str
 
     file_categories = preprocessing.get("file_categories", {})
 
-    # Mapping des noms de library dans parser.yaml vers les noms d'extracteurs
+    # Mapping des noms de library dans 02_preprocessing.yaml vers les noms d'extracteurs
     # utilisés par FallbackManager
     library_to_extractor: dict[str, str] = {
         "marker": "marker",

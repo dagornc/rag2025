@@ -31,7 +31,7 @@ class PreprocessingStep(BaseStep):
     Parameters
     ----------
     config : dict[str, Any]
-        Configuration de l'étape depuis parser.yaml.
+        Configuration de l'étape depuis 02_preprocessing.yaml.
     """
 
     def __init__(self, config: dict[str, Any]) -> None:
@@ -40,11 +40,11 @@ class PreprocessingStep(BaseStep):
         Parameters
         ----------
         config : dict[str, Any]
-            Configuration de l'étape depuis parser.yaml.
+            Configuration de l'étape depuis 02_preprocessing.yaml.
         """
         super().__init__(config)
 
-        # Conversion de la config parser.yaml vers format FallbackManager
+        # Conversion de la config 02_preprocessing.yaml vers format FallbackManager
         fallback_config = convert_parser_to_fallback_config(config)
 
         # Initialisation du gestionnaire de fallback
@@ -68,10 +68,10 @@ class PreprocessingStep(BaseStep):
         """Valide la configuration de l'étape.
 
         Accepte deux formats:
-        - Ancien: {"fallback": {...}}
-        - Nouveau: {"preprocessing": {"file_categories": {...}}}
+        - Format file_categories: {"preprocessing": {"file_categories": {...}}}
+        - Format fallback direct: {"fallback": {...}}
         """
-        # Vérifier format nouveau (parser.yaml) ou ancien (02_preprocessing.yaml)
+        # Vérifier format file_categories (02_preprocessing.yaml) ou fallback direct
         has_preprocessing = "preprocessing" in self.config
         has_fallback = "fallback" in self.config
 
