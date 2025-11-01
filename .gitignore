@@ -56,3 +56,11 @@ chroma_db/
 # Backup
 *.backup
 *.bak
+
+# Gemini CLI (contient des secrets OAuth)
+.gemini/
+
+# Credentials et tokens
+**/oauth_creds.json
+**/*token*.json
+**/*credentials*.json
