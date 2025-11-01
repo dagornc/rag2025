@@ -1,6 +1,9 @@
 """Étape 2 : Extraction et prétraitement de documents avec fallback robuste."""
 
+import gc
 import json
+import os
+import psutil
 import re
 import statistics
 import time
@@ -287,6 +290,40 @@ class PreprocessingStep(BaseStep):
         Configuration de l'étape depuis 02_preprocessing.yaml.
     """
 
+    def _check_and_collect_garbage(self) -> None:
+        """Vérifie l'utilisation mémoire et force le GC si nécessaire.
+
+        Si l'utilisation mémoire dépasse le seuil configuré (gc_threshold_mb),
+        force le garbage collection et log l'opération.
+
+        Cette méthode est appelée selon la fréquence configurée:
+        - per_document: Après chaque document traité
+        - per_batch: Après chaque batch de documents
+        - manual: Uniquement si seuil dépassé
+        """
+        if not self.gc_enabled:
+            return
+
+        # Mesure de l'utilisation mémoire actuelle
+        process = psutil.Process(os.getpid())
+        memory_mb = process.memory_info().rss / (1024 * 1024)
+
+        # Vérification du seuil
+        if memory_mb > self.gc_threshold_mb:
+            logger.warning(
+                f"Utilisation mémoire élevée: {memory_mb:.1f}MB "
+                f"(seuil: {self.gc_threshold_mb}MB). "
+                "Lancement garbage collection..."
+            )
+            # Force le GC de toutes les générations
+            collected = gc.collect()
+            memory_after = process.memory_info().rss / (1024 * 1024)
+            logger.info(
+                f"Garbage collection terminé: {collected} objets collectés. "
+                f"Mémoire: {memory_mb:.1f}MB → {memory_after:.1f}MB "
+                f"(économie: {memory_mb - memory_after:.1f}MB)"
+            )
+
     def _apply_optimization_mode(self) -> None:
         """Applique le mode d'optimisation configuré.
 
@@ -443,6 +480,26 @@ class PreprocessingStep(BaseStep):
         preprocessing_config = config.get("preprocessing", {})
         metrics_config = preprocessing_config.get("metrics", {"enabled": False})
         self.metrics_collector = MetricsCollector(metrics_config)
+
+        # Configuration de l'optimisation mémoire (Feature #6)
+        self.memory_opt_config = config.get("memory_optimization", {"enabled": False})
+        if self.memory_opt_config.get("enabled", False):
+            gc_config = (
+                self.memory_opt_config.get("strategies", {})
+                .get("garbage_collection", {})
+            )
+            self.gc_enabled = gc_config.get("enabled", False)
+            self.gc_frequency = gc_config.get("frequency", "per_document")
+            self.gc_threshold_mb = gc_config.get("force_collect_threshold_mb", 500)
+
+            if self.gc_enabled:
+                logger.info(
+                    f"Optimisation mémoire: GC activé "
+                    f"(fréquence={self.gc_frequency}, "
+                    f"seuil={self.gc_threshold_mb}MB)"
+                )
+        else:
+            self.gc_enabled = False
 
         logger.info(
             f"PreprocessingStep initialisé avec extracteurs: "
