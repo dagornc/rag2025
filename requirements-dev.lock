@@ -13,6 +13,8 @@
 accelerate==1.11.0
     # via docling
     # via docling-ibm-models
+aiofiles==25.1.0
+    # via unstructured-client
 aiohappyeyeballs==2.6.1
     # via aiohttp
 aiohttp==3.13.2
@@ -21,6 +23,8 @@ aiohttp==3.13.2
     # via langchain-community
 aiosignal==1.4.0
     # via aiohttp
+aistudio-sdk==0.3.8
+    # via paddlex
 annotated-types==0.7.0
     # via pydantic
 anthropic==0.46.0
@@ -43,12 +47,16 @@ attrs==25.4.0
     # via referencing
 backoff==2.2.1
     # via posthog
+    # via unstructured
+bce-python-sdk==0.9.46
+    # via aistudio-sdk
 bcrypt==5.0.0
     # via chromadb
 beautifulsoup4==4.14.2
     # via docling
     # via markdownify
     # via rag-framework
+    # via unstructured
 build==1.3.0
     # via chromadb
 cachetools==6.2.1
@@ -63,28 +71,37 @@ cffi==2.0.0
     # via cryptography
 cfgv==3.4.0
     # via pre-commit
+chardet==5.2.0
+    # via paddlex
 charset-normalizer==3.4.4
     # via pdfminer-six
     # via requests
+    # via unstructured
 chromadb==1.3.0
     # via rag-framework
 click==8.3.0
+    # via aistudio-sdk
     # via marker-pdf
+    # via nltk
     # via ocrmac
     # via pdftext
+    # via python-oxmsg
     # via surya-ocr
     # via typer
     # via uvicorn
 coloredlogs==15.0.1
     # via onnxruntime
 colorlog==6.10.1
+    # via paddlex
     # via rapidocr
 coverage==7.11.0
     # via pytest-cov
 cryptography==46.0.3
     # via pdfminer-six
+    # via unstructured-client
 dataclasses-json==0.6.7
     # via langchain-community
+    # via unstructured
 datasets==4.3.0
     # via ragas
 dill==0.4.0
@@ -114,8 +131,12 @@ docstring-parser==0.17.0
     # via instructor
 durationpy==0.10
     # via kubernetes
+easyocr==1.7.2
+    # via rag-framework
 einops==0.8.1
     # via surya-ocr
+emoji==2.15.0
+    # via unstructured
 et-xmlfile==2.0.0
     # via openpyxl
 faker==37.12.0
@@ -125,6 +146,8 @@ feedparser==6.0.12
 filelock==3.20.0
     # via datasets
     # via huggingface-hub
+    # via modelscope
+    # via paddlex
     # via torch
     # via transformers
     # via virtualenv
@@ -132,6 +155,7 @@ filetype==1.2.0
     # via docling
     # via marker-pdf
     # via surya-ocr
+    # via unstructured
 flatbuffers==25.9.23
     # via onnxruntime
 frozenlist==1.8.0
@@ -143,6 +167,8 @@ fsspec==2025.9.0
     # via torch
 ftfy==6.3.1
     # via marker-pdf
+future==1.0.0
+    # via bce-python-sdk
 gitdb==4.0.12
     # via gitpython
 gitpython==3.1.45
@@ -168,8 +194,11 @@ hf-xet==1.2.0
     # via huggingface-hub
 hpack==4.1.0
     # via h2
+html5lib==1.1
+    # via unstructured
 httpcore==1.0.9
     # via httpx
+    # via unstructured-client
 httptools==0.7.1
     # via uvicorn
 httpx==0.28.1
@@ -181,6 +210,7 @@ httpx==0.28.1
     # via langsmith
     # via openai
     # via qdrant-client
+    # via unstructured-client
 httpx-sse==0.4.3
     # via langchain-community
 huggingface-hub==0.36.0
@@ -188,6 +218,7 @@ huggingface-hub==0.36.0
     # via datasets
     # via docling
     # via docling-ibm-models
+    # via paddlex
     # via sentence-transformers
     # via tokenizers
     # via transformers
@@ -204,6 +235,10 @@ idna==3.11
     # via httpx
     # via requests
     # via yarl
+imageio==2.37.0
+    # via scikit-image
+imagesize==1.4.1
+    # via paddlex
 importlib-metadata==8.7.0
     # via opentelemetry-api
 importlib-resources==6.5.2
@@ -222,6 +257,7 @@ jiter==0.10.0
     # via instructor
     # via openai
 joblib==1.5.2
+    # via nltk
     # via scikit-learn
 jsonlines==4.0.0
     # via docling-ibm-models
@@ -262,6 +298,8 @@ langchain-openai==1.0.1
 langchain-text-splitters==1.0.0
     # via langchain-classic
     # via rag-framework
+langdetect==1.0.9
+    # via unstructured
 langgraph==1.0.2
     # via langchain
 langgraph-checkpoint==3.0.0
@@ -277,12 +315,17 @@ langsmith==0.4.38
     # via langchain-core
 latex2mathml==3.78.1
     # via docling-core
+lazy-loader==0.4
+    # via scikit-image
 llama-cpp-python==0.3.16
     # via rag-framework
 lxml==6.0.2
     # via docling
     # via python-docx
     # via python-pptx
+    # via rag-framework
+    # via unstructured
+markdown==3.9
     # via rag-framework
 markdown-it-py==4.0.0
     # via rich
@@ -304,6 +347,8 @@ mdurl==0.1.2
     # via markdown-it-py
 mmh3==5.2.0
     # via chromadb
+modelscope==1.31.0
+    # via paddlex
 mpire==2.10.2
     # via semchunk
 mpmath==1.3.0
@@ -323,7 +368,12 @@ nest-asyncio==1.6.0
     # via ragas
 networkx==3.5
     # via ragas
+    # via scikit-image
     # via torch
+ninja==1.13.0
+    # via easyocr
+nltk==3.9.2
+    # via unstructured
 nodeenv==1.9.1
     # via pre-commit
 numpy==2.3.4
@@ -331,40 +381,55 @@ numpy==2.3.4
     # via chromadb
     # via datasets
     # via docling-ibm-models
+    # via easyocr
+    # via imageio
     # via langchain-community
     # via llama-cpp-python
     # via onnxruntime
+    # via opencv-contrib-python
     # via opencv-python
     # via opencv-python-headless
+    # via paddlex
     # via pandas
     # via qdrant-client
     # via rag-framework
     # via ragas
     # via rapidocr
+    # via rapidocr-onnxruntime
     # via safetensors
+    # via scikit-image
     # via scikit-learn
     # via scikit-network
     # via scipy
     # via shapely
+    # via tifffile
     # via torchvision
     # via transformers
+    # via unstructured
 oauthlib==3.3.1
     # via requests-oauthlib
 ocrmac==1.0.0
     # via docling
+olefile==0.47
+    # via python-oxmsg
 omegaconf==2.3.0
     # via rapidocr
 onnxruntime==1.23.2
     # via chromadb
+    # via rapidocr-onnxruntime
 openai==1.109.1
     # via instructor
     # via langchain-openai
     # via marker-pdf
     # via rag-framework
     # via ragas
+opencv-contrib-python==4.10.0.84
+    # via paddlex
 opencv-python==4.11.0.86
     # via rapidocr
+    # via rapidocr-onnxruntime
 opencv-python-headless==4.11.0.86
+    # via easyocr
     # via surya-ocr
 openpyxl==3.1.5
     # via docling
@@ -401,15 +466,23 @@ packaging==25.0
     # via huggingface-hub
     # via langchain-core
     # via langsmith
+    # via lazy-loader
     # via marshmallow
     # via onnxruntime
+    # via paddlex
     # via pytesseract
     # via pytest
+    # via scikit-image
     # via transformers
+paddleocr==3.3.1
+    # via rag-framework
+paddlex==3.3.6
+    # via paddleocr
 pandas==2.3.3
     # via datasets
     # via docling
     # via docling-core
+    # via paddlex
     # via rag-framework
 pathspec==0.12.1
     # via mypy
@@ -428,8 +501,11 @@ pillow==10.4.0
     # via docling-core
     # via docling-ibm-models
     # via docling-parse
+    # via easyocr
+    # via imageio
     # via marker-pdf
     # via ocrmac
+    # via paddlex
     # via pdf2image
     # via pdfplumber
     # via pytesseract
@@ -437,6 +513,8 @@ pillow==10.4.0
     # via rag-framework
     # via ragas
     # via rapidocr
+    # via rapidocr-onnxruntime
+    # via scikit-image
     # via sentence-transformers
     # via surya-ocr
     # via torchvision
@@ -458,6 +536,9 @@ pre-commit==4.3.0
     # via marker-pdf
     # via rag-framework
     # via surya-ocr
+prettytable==3.16.0
+    # via aistudio-sdk
+    # via paddlex
 propcache==0.4.1
     # via aiohttp
     # via yarl
@@ -468,6 +549,11 @@ protobuf==6.33.0
     # via qdrant-client
 psutil==7.1.2
     # via accelerate
+    # via aistudio-sdk
+    # via rag-framework
+    # via unstructured
+py-cpuinfo==9.0.0
+    # via paddlex
 pyarrow==22.0.0
     # via datasets
 pyasn1==0.6.1
@@ -478,9 +564,14 @@ pyasn1-modules==0.4.2
 pybase64==1.4.2
     # via chromadb
 pyclipper==1.3.0.post6
+    # via easyocr
+    # via paddlex
     # via rapidocr
+    # via rapidocr-onnxruntime
 pycparser==2.23
     # via cffi
+pycryptodome==3.23.0
+    # via bce-python-sdk
 pydantic==2.12.3
     # via anthropic
     # via chromadb
@@ -497,12 +588,14 @@ pydantic==2.12.3
     # via langsmith
     # via marker-pdf
     # via openai
+    # via paddlex
     # via pdftext
     # via pydantic-settings
     # via qdrant-client
     # via rag-framework
     # via ragas
     # via surya-ocr
+    # via unstructured-client
 pydantic-core==2.41.4
     # via instructor
     # via pydantic
@@ -538,8 +631,10 @@ pyobjc-framework-vision==12.0
     # via ocrmac
 pypdf==6.1.3
     # via rag-framework
+    # via unstructured-client
 pypdfium2==4.30.0
     # via docling
+    # via paddlex
     # via pdfplumber
     # via pdftext
     # via surya-ocr
@@ -557,6 +652,9 @@ pytest-asyncio==1.2.0
     # via rag-framework
 pytest-cov==7.0.0
     # via rag-framework
+python-bidi==0.6.7
+    # via easyocr
+    # via paddlex
 python-dateutil==2.9.0.post0
     # via kubernetes
     # via pandas
@@ -569,25 +667,35 @@ python-dotenv==1.2.1
     # via pydantic-settings
     # via surya-ocr
     # via uvicorn
+python-iso639==2025.2.18
+    # via unstructured
+python-magic==0.4.27
+    # via unstructured
+python-oxmsg==0.0.2
+    # via unstructured
 python-pptx==1.0.2
     # via docling
     # via rag-framework
 pytz==2025.2
     # via pandas
-pyyaml==6.0.3
+pyyaml==6.0.2
     # via accelerate
     # via chromadb
     # via datasets
     # via docling-core
+    # via easyocr
     # via huggingface-hub
     # via kubernetes
     # via langchain-classic
     # via langchain-community
     # via langchain-core
     # via omegaconf
+    # via paddleocr
+    # via paddlex
     # via pre-commit
     # via rag-framework
     # via rapidocr
+    # via rapidocr-onnxruntime
     # via transformers
     # via uvicorn
 qdrant-client==1.15.1
@@ -596,16 +704,21 @@ ragas==0.3.8
     # via rag-framework
 rapidfuzz==3.14.2
     # via marker-pdf
+    # via unstructured
 rapidocr==3.4.2
     # via docling
+rapidocr-onnxruntime==1.4.4
+    # via rag-framework
 referencing==0.37.0
     # via jsonschema
     # via jsonschema-specifications
 regex==2024.11.6
     # via marker-pdf
+    # via nltk
     # via tiktoken
     # via transformers
 requests==2.32.5
+    # via aistudio-sdk
     # via datasets
     # via docling
     # via google-genai
@@ -615,6 +728,9 @@ requests==2.32.5
     # via langchain-classic
     # via langchain-community
     # via langsmith
+    # via modelscope
+    # via paddleocr
+    # via paddlex
     # via posthog
     # via rag-framework
     # via rapidocr
@@ -622,10 +738,12 @@ requests==2.32.5
     # via requests-toolbelt
     # via tiktoken
     # via transformers
+    # via unstructured
 requests-oauthlib==2.0.0
     # via kubernetes
 requests-toolbelt==1.0.0
     # via langsmith
+    # via unstructured-client
 rich==14.2.0
     # via chromadb
     # via instructor
@@ -639,12 +757,18 @@ rsa==4.9.1
 rtree==1.4.1
     # via docling
     # via docling-ibm-models
+ruamel-yaml==0.18.16
+    # via paddlex
+ruamel-yaml-clib==0.2.14
+    # via ruamel-yaml
 ruff==0.14.3
     # via rag-framework
 safetensors==0.6.2
     # via accelerate
     # via docling-ibm-models
     # via transformers
+scikit-image==0.25.2
+    # via easyocr
 scikit-learn==1.7.2
     # via marker-pdf
     # via sentence-transformers
@@ -652,6 +776,8 @@ scikit-network==0.33.3
     # via ragas
 scipy==1.16.3
     # via docling
+    # via easyocr
+    # via scikit-image
     # via scikit-learn
     # via scikit-network
     # via sentence-transformers
@@ -660,19 +786,27 @@ semchunk==2.2.2
 sentence-transformers==5.1.2
     # via rag-framework
 setuptools==80.9.0
+    # via modelscope
     # via torch
 sgmllib3k==1.0.0
     # via feedparser
 shapely==2.1.2
+    # via easyocr
+    # via paddlex
     # via rapidocr
+    # via rapidocr-onnxruntime
 shellingham==1.5.4
     # via typer
 six==1.17.0
+    # via bce-python-sdk
+    # via html5lib
     # via kubernetes
+    # via langdetect
     # via markdownify
     # via posthog
     # via python-dateutil
     # via rapidocr
+    # via rapidocr-onnxruntime
 smmap==5.0.2
     # via gitdb
 sniffio==1.3.1
@@ -702,6 +836,8 @@ tenacity==9.1.2
     # via langchain-core
 threadpoolctl==3.6.0
     # via scikit-learn
+tifffile==2025.10.16
+    # via scikit-image
 tiktoken==0.12.0
     # via langchain-openai
     # via ragas
@@ -711,6 +847,7 @@ tokenizers==0.22.1
 torch==2.9.0
     # via accelerate
     # via docling-ibm-models
+    # via easyocr
     # via marker-pdf
     # via safetensors
     # via sentence-transformers
@@ -718,20 +855,26 @@ torch==2.9.0
     # via torchvision
 torchvision==0.24.0
     # via docling-ibm-models
+    # via easyocr
 tqdm==4.67.1
+    # via aistudio-sdk
     # via chromadb
     # via datasets
     # via docling
     # via docling-ibm-models
     # via huggingface-hub
     # via marker-pdf
+    # via modelscope
     # via mpire
+    # via nltk
     # via openai
     # via ragas
     # via rapidocr
+    # via rapidocr-onnxruntime
     # via semchunk
     # via sentence-transformers
     # via transformers
+    # via unstructured
 transformers==4.57.1
     # via docling-core
     # via docling-ibm-models
@@ -766,11 +909,14 @@ typing-extensions==4.15.0
     # via opentelemetry-exporter-otlp-proto-grpc
     # via opentelemetry-sdk
     # via opentelemetry-semantic-conventions
+    # via paddleocr
+    # via paddlex
     # via polyfactory
     # via pydantic
     # via pydantic-core
     # via pytest-asyncio
     # via python-docx
+    # via python-oxmsg
     # via python-pptx
     # via referencing
     # via sentence-transformers
@@ -779,6 +925,7 @@ typing-extensions==4.15.0
     # via typer
     # via typing-inspect
     # via typing-inspection
+    # via unstructured
 typing-inspect==0.9.0
     # via dataclasses-json
 typing-inspection==0.4.2
@@ -787,8 +934,15 @@ typing-inspection==0.4.2
 tzdata==2025.2
     # via faker
     # via pandas
+ujson==5.11.0
+    # via paddlex
+unstructured==0.18.15
+    # via rag-framework
+unstructured-client==0.42.3
+    # via unstructured
 urllib3==2.3.0
     # via kubernetes
+    # via modelscope
     # via qdrant-client
     # via requests
     # via types-requests
@@ -804,11 +958,16 @@ watchfiles==1.1.1
     # via uvicorn
 wcwidth==0.2.14
     # via ftfy
+    # via prettytable
+webencodings==0.5.1
+    # via html5lib
 websocket-client==1.9.0
     # via kubernetes
 websockets==15.0.1
     # via google-genai
     # via uvicorn
+wrapt==2.0.0
+    # via unstructured
 xlsxwriter==3.2.9
     # via python-pptx
 xxhash==3.6.0
