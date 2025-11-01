@@ -392,12 +392,12 @@ def get_enabled_regulatory_frameworks(global_config: GlobalConfig) -> list[str]:
     global_config : GlobalConfig
         Configuration globale contenant les frameworks réglementaires.
 
-    Returns
+    Returns:
     -------
     list[str]
         Liste des noms de frameworks activés (ex: ["RGPD", "SOC2"]).
 
-    Examples
+    Examples:
     --------
     >>> global_config = load_config()
     >>> frameworks = get_enabled_regulatory_frameworks(global_config)
@@ -424,17 +424,17 @@ def get_regulatory_framework(
     framework_name : str
         Nom du framework (ex: "RGPD", "SOC2", "ISO27001").
 
-    Returns
+    Returns:
     -------
     RegulatoryFramework
         Configuration du framework réglementaire.
 
-    Raises
+    Raises:
     ------
     ConfigurationError
         Si le framework n'existe pas ou n'est pas activé.
 
-    Examples
+    Examples:
     --------
     >>> global_config = load_config()
     >>> rgpd = get_regulatory_framework(global_config, "RGPD")
@@ -481,13 +481,13 @@ def validate_regulatory_compliance(
     required_frameworks : list[str]
         Liste des noms de frameworks requis (ex: ["RGPD", "SOC2"]).
 
-    Returns
+    Returns:
     -------
     dict[str, bool]
         Dictionnaire indiquant pour chaque framework s'il est activé.
         Exemple: {"RGPD": True, "SOC2": False}
 
-    Examples
+    Examples:
     --------
     >>> global_config = load_config()
     >>> compliance = validate_regulatory_compliance(global_config, ["RGPD", "SOC2"])
@@ -516,19 +516,19 @@ def get_framework_requirements(
     framework_name : str
         Nom du framework (ex: "RGPD", "SOC2").
 
-    Returns
+    Returns:
     -------
     list[str]
         Liste des exigences/requirements du framework.
         Pour RGPD: ["lawfulness_fairness", "purpose_limitation", ...]
         Pour SOC2: ["CC6.1", "CC6.6", "CC7.2", ...]
 
-    Raises
+    Raises:
     ------
     ConfigurationError
         Si le framework n'existe pas ou n'est pas activé.
 
-    Examples
+    Examples:
     --------
     >>> global_config = load_config()
     >>> requirements = get_framework_requirements(global_config, "RGPD")

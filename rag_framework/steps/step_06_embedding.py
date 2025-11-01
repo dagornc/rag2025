@@ -46,18 +46,14 @@ class EmbeddingStep(BaseStep):
                         temperature=0.0,  # Pas utilisé pour embeddings
                         global_config=self.global_config,
                     )
-                    logger.info(
-                        f"Embedding client initialisé: {provider}/{model}"
-                    )
+                    logger.info(f"Embedding client initialisé: {provider}/{model}")
 
                 # Sentence Transformers (local)
                 elif provider == "sentence-transformers":
                     self._initialize_sentence_transformers(model)
 
                 else:
-                    logger.warning(
-                        f"Provider d'embeddings non supporté: {provider}"
-                    )
+                    logger.warning(f"Provider d'embeddings non supporté: {provider}")
 
             except Exception as e:
                 logger.warning(
@@ -130,7 +126,10 @@ class EmbeddingStep(BaseStep):
             embedded_chunks = []
 
             # Traitement par batch pour efficacité
-            batch_size = self.config.get("processing", {}).get("batch_size", 32)
+            # Priorité: config locale > config globale performance > défaut
+            batch_size = self.config.get("processing", {}).get(
+                "batch_size", self.global_config.performance.batch_size
+            )
 
             for i in range(0, len(chunks), batch_size):
                 batch = chunks[i : i + batch_size]
@@ -172,7 +171,7 @@ class EmbeddingStep(BaseStep):
         texts : list[str]
             Liste de textes à vectoriser.
 
-        Returns
+        Returns:
         -------
         list[list[float]]
             Liste d'embeddings (un par texte).
@@ -218,7 +217,7 @@ class EmbeddingStep(BaseStep):
         texts : list[str]
             Liste de textes à vectoriser.
 
-        Returns
+        Returns:
         -------
         list[list[float]]
             Liste d'embeddings.
@@ -245,7 +244,7 @@ class EmbeddingStep(BaseStep):
         texts : list[str]
             Liste de textes à vectoriser.
 
-        Returns
+        Returns:
         -------
         list[list[float]]
             Liste d'embeddings.
@@ -271,7 +270,7 @@ class EmbeddingStep(BaseStep):
         texts : list[str]
             Liste de textes à vectoriser.
 
-        Returns
+        Returns:
         -------
         list[list[float]]
             Liste d'embeddings simulés.
