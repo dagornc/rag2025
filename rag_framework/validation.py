@@ -161,6 +161,16 @@ class DependencyValidator:
             # Pour l'instant, on teste tous les providers configurés
             logger.debug(f"  Testing provider '{provider_name}'...")
 
+            # Sauter les providers locaux (pas besoin de validation de connexion)
+            access_method = provider_config.get("access_method", "openai_compatible")
+            if access_method == "local":
+                logger.debug(
+                    f"  ✓ Provider '{provider_name}' (local) - validation ignorée"
+                )
+                accessible_count += 1
+                tested_count += 1
+                continue
+
             try:
                 # Tentative de création d'un client
                 # Note: Ceci ne fait qu'initialiser le client, pas d'appel API
