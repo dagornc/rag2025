@@ -183,6 +183,43 @@ class ChunkingStep(BaseStep):
                         }
                     )
 
+            # Validation des chunks (min/max size)
+            validation_config = self.config.get("validation", {})
+            min_size = validation_config.get("min_chunk_size", 50)
+            max_size = validation_config.get("max_chunk_size", 5000)
+            reject_empty = validation_config.get("reject_empty_chunks", True)
+
+            valid_chunks = []
+            rejected_count = 0
+
+            for chunk in all_chunks:
+                chunk_text = chunk["text"]
+                chunk_len = len(chunk_text)
+
+                # Vérifier si le chunk est vide
+                if reject_empty and len(chunk_text.strip()) == 0:
+                    rejected_count += 1
+                    continue
+
+                # Vérifier taille min/max
+                if chunk_len < min_size or chunk_len > max_size:
+                    rejected_count += 1
+                    logger.debug(
+                        f"Chunk rejeté (len={chunk_len}, "
+                        f"min={min_size}, max={max_size})"
+                    )
+                    continue
+
+                valid_chunks.append(chunk)
+
+            # Log des chunks rejetés
+            if rejected_count > 0:
+                logger.warning(
+                    f"Chunking: {rejected_count} chunks rejetés (hors limites)"
+                )
+
+            all_chunks = valid_chunks
+
             data["chunks"] = all_chunks
             logger.info(
                 f"Chunking ({strategy}): {len(all_chunks)} chunks créés "
