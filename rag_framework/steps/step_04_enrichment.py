@@ -292,7 +292,8 @@ class EnrichmentStep(BaseStep):
                 "sensitivity_classification",
                 # Prompt par défaut si non configuré (fallback)
                 """Classifie le niveau de sensibilité du document suivant.
-Réponds UNIQUEMENT par l'un de ces mots: public, interne, confidentiel, secret
+Réponds UNIQUEMENT avec UN SEUL MOT parmi cette liste exacte (sans explication):
+public, interne, confidentiel, secret
 
 Critères:
 - public: Information accessible à tous
@@ -300,10 +301,13 @@ Critères:
 - confidentiel: Information sensible, accès restreint
 - secret: Information hautement sensible, accès très restreint
 
+IMPORTANT: Réponds UNIQUEMENT avec un mot de la liste ci-dessus.
+Ne donne AUCUNE explication, AUCUN commentaire.
+
 Document:
 {text}
 
-Niveau de sensibilité:""",
+Niveau de sensibilité (un seul mot):""",
             )
         )
 
@@ -320,30 +324,41 @@ Niveau de sensibilité:""",
             )
             return str(default_level)
 
-        # Extraire uniquement la première ligne
-        # (ignore les explications supplémentaires)
-        # Le LLM retourne souvent: "interne\n\nexplication: ..."
-        # On ne garde que le premier mot de la première ligne non-vide
+        # Extraire la première ligne et nettoyer
         first_line = content.strip().split("\n")[0].strip().lower()
 
-        # Extraire le premier mot (au cas où il y aurait du texte sur la même ligne)
-        classification: str = first_line.split()[0] if first_line.split() else ""
+        # Nettoyer les caractères parasites (guillemets, ponctuation)
+        classification: str = first_line.strip("'\".,;: ()")
 
-        # Validation: la réponse DOIT être l'une des valeurs attendues
+        # Extraire le premier mot si plusieurs mots
+        classification = classification.split()[0] if classification.split() else ""
+
+        # Validation stricte
         valid_levels = ["public", "interne", "confidentiel", "secret"]
+
+        # Vérification exacte
         if classification in valid_levels:
-            logger.debug(f"Classification LLM: '{classification}'")
+            logger.debug(f"Classification sensibilité LLM: '{classification}'")
             return classification
-        else:
-            logger.warning(
-                f"Classification LLM invalide: '{classification}' "
-                f"(réponse complète: '{content[:100]}...'). "
-                "Utilisation de la valeur par défaut."
-            )
-            default_level = self.config.get("sensitivity_classification", {}).get(
-                "default_level", "interne"
-            )
-            return str(default_level)
+
+        # Tentative de matching partiel si la classification contient un niveau valide
+        for valid_level in valid_levels:
+            if valid_level in first_line:
+                logger.warning(
+                    f"Classification sensibilité LLM verbose: '{first_line[:100]}...'. "
+                    f"Extraction de '{valid_level}'."
+                )
+                return valid_level
+
+        # Aucun match trouvé, utiliser le niveau par défaut
+        logger.warning(
+            f"Classification sensibilité LLM invalide: '{first_line[:100]}...'. "
+            "Utilisation de la valeur par défaut."
+        )
+        default_level = self.config.get("sensitivity_classification", {}).get(
+            "default_level", "interne"
+        )
+        return str(default_level)
 
     def _classify_document_type(self, text: str, file_path: str) -> str:
         """Classifie le type de document.
@@ -367,17 +382,66 @@ Niveau de sensibilité:""",
                     "Fallback sur nom de fichier."
                 )
 
-        # Fallback: classification par nom de fichier
+        # Fallback: classification par nom de fichier avec mots-clés enrichis
         file_lower = file_path.lower()
 
-        if "contrat" in file_lower:
+        # Réglementaire : textes de loi, règlements, normes
+        if any(keyword in file_lower for keyword in [
+            "reglementaire", "reglementation", "loi", "decret", "arrete",
+            "ordonnance", "circulaire", "norme", "standard", "regulation",
+            "legal", "legislatif", "juridique", "rgpd"
+        ]):
+            return "reglementaire"
+
+        # Contrat : accords, conventions, clauses
+        elif any(keyword in file_lower for keyword in [
+            "contrat", "contract", "accord", "convention", "engagement",
+            "agreement", "clause", "avenant", "annexe", "protocole",
+            "cession", "bail", "mandat", "partenariat"
+        ]):
             return "contrat"
-        elif "audit" in file_lower:
+
+        # Audit : rapports d'audit, vérifications, contrôles
+        elif any(keyword in file_lower for keyword in [
+            "audit", "controle", "verification", "inspection", "review",
+            "assessment", "evaluation", "examen", "analyse", "revue",
+            "diagnostic", "conformite_check", "assessment", "scrutiny"
+        ]):
             return "rapport_audit"
-        elif "politique" in file_lower:
+
+        # Politique interne : chartes, règlements internes, guidelines
+        elif any(keyword in file_lower for keyword in [
+            "politique", "policy", "charte", "reglement_interieur", "guideline",
+            "charter", "code_conduite", "principe", "orientation", "strategie",
+            "doctrine", "ligne_directrice", "framework", "governance"
+        ]):
             return "politique_interne"
-        elif "procedure" in file_lower:
+
+        # Procédure : processus, modes opératoires, workflows
+        elif any(keyword in file_lower for keyword in [
+            "procedure", "processus", "process", "mode_operatoire", "workflow",
+            "protocole", "methode", "instruction_travail", "sop", "operating",
+            "guide", "manuel", "fiche", "etapes"
+        ]):
             return "procedure"
+
+        # Conformité : rapports de conformité, certifications, attestations
+        elif any(keyword in file_lower for keyword in [
+            "conformite", "compliance", "certification", "attestation", "declaration",
+            "conformance", "adherence", "respect", "observance", "validation",
+            "approbation", "verification_conformite", "certified", "compliant"
+        ]):
+            return "rapport_conformite"
+
+        # Directive : instructions, consignes, ordres
+        elif any(keyword in file_lower for keyword in [
+            "directive", "instruction", "consigne", "ordre", "recommandation",
+            "prescription", "guideline", "guidance", "indication", "preconisation",
+            "orientation", "injonction", "directive_cadre", "mandate"
+        ]):
+            return "directive"
+
+        # Autre par défaut
         else:
             return "autre"
 
@@ -402,14 +466,17 @@ Niveau de sensibilité:""",
                 "document_type_classification",
                 # Prompt par défaut si non configuré
                 """Identifie le type de document parmi les catégories suivantes.
-Réponds UNIQUEMENT par l'une de ces catégories:
-contrat, rapport_audit, politique_interne, procedure,
-rapport_conformite, directive
+Réponds UNIQUEMENT avec UN SEUL MOT parmi cette liste exacte (sans explication):
+reglementaire, contrat, rapport_audit, politique_interne, procedure,
+rapport_conformite, directive, autre
+
+IMPORTANT: Réponds UNIQUEMENT avec un mot de la liste ci-dessus.
+Ne donne AUCUNE explication, AUCUN commentaire.
 
 Document:
 {text}
 
-Type de document:""",
+Type de document (un seul mot):""",
             )
         )
 
@@ -422,11 +489,15 @@ Type de document:""",
         if content is None:
             return "autre"
 
-        # Extraire la première ligne
+        # Extraire la première ligne et nettoyer
         classification: str = content.strip().split("\n")[0].strip().lower()
 
-        # Validation
+        # Nettoyer les éventuels caractères parasites (guillemets, ponctuation finale)
+        classification = classification.strip("'\".,;: ()")
+
+        # Validation stricte
         valid_types = [
+            "reglementaire",
             "contrat",
             "rapport_audit",
             "politique_interne",
@@ -435,15 +506,27 @@ Type de document:""",
             "directive",
             "autre",
         ]
+
+        # Vérification exacte
         if classification in valid_types:
             logger.debug(f"Classification type document LLM: '{classification}'")
             return classification
-        else:
-            logger.warning(
-                f"Classification type document LLM invalide: '{classification}'. "
-                "Utilisation de 'autre'."
-            )
-            return "autre"
+
+        # Tentative de matching partiel si la classification contient un type valide
+        for valid_type in valid_types:
+            if valid_type in classification:
+                logger.warning(
+                    f"Classification LLM verbose: '{classification[:100]}...'. "
+                    f"Extraction de '{valid_type}'."
+                )
+                return valid_type
+
+        # Aucun match trouvé
+        logger.warning(
+            f"Classification type document LLM invalide: '{classification[:100]}...'. "
+            "Utilisation de 'autre'."
+        )
+        return "autre"
 
     def _extract_regulatory_tags(self, text: str) -> list[str]:
         """Extrait les tags réglementaires (placeholder).

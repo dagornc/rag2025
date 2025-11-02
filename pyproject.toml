@@ -107,6 +107,18 @@ qdrant = [
     "qdrant-client>=1.7.0",
 ]
 
+pgvector = [
+    "psycopg2-binary>=2.9.9",
+]
+
+milvus = [
+    "pymilvus>=2.3.0",
+]
+
+weaviate = [
+    "weaviate-client>=4.5.0",
+]
+
 [project.scripts]
 rag-pipeline = "rag_framework.cli:main"
 
@@ -182,6 +194,11 @@ module = [
     "paddleocr.*",
     "rapidocr.*",
     "pytesseract.*",
+    # Vector stores
+    "psycopg2.*",
+    "pymilvus.*",
+    "weaviate.*",
+    "qdrant_client.*",
 ]
 ignore_missing_imports = true
 

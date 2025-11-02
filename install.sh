@@ -142,13 +142,23 @@ if ! check_command rye; then
             brew install rye
         else
             log_info "Installation via curl..."
-            curl -sSf https://rye-up.com/get | bash
+            curl -sSf https://rye-up.com/get | bash -s -- --yes
+
+            # Sourcer le fichier de configuration rye
+            if [[ -f "$HOME/.rye/env" ]]; then
+                source "$HOME/.rye/env"
+            fi
             export PATH="$HOME/.rye/shims:$PATH"
         fi
     elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
         # Linux
         log_info "Installation via curl..."
-        curl -sSf https://rye-up.com/get | bash
+        curl -sSf https://rye-up.com/get | bash -s -- --yes
+
+        # Sourcer le fichier de configuration rye
+        if [[ -f "$HOME/.rye/env" ]]; then
+            source "$HOME/.rye/env"
+        fi
         export PATH="$HOME/.rye/shims:$PATH"
     else
         log_error "Système d'exploitation non supporté: $OSTYPE"
@@ -158,8 +168,19 @@ if ! check_command rye; then
 
     # Vérification post-installation
     if ! check_command rye; then
-        log_error "L'installation de rye a échoué"
-        log_error "Installez manuellement: https://rye-up.com/"
+        log_error "L'installation de rye a échoué ou nécessite un rechargement du shell"
+        echo ""
+        log_warning "Installation manuelle requise:"
+        echo ""
+        echo "  1. Installer rye:"
+        echo "     curl -sSf https://rye-up.com/get | bash"
+        echo ""
+        echo "  2. Ajouter rye au PATH (exécutez dans votre terminal):"
+        echo "     source \"$HOME/.rye/env\""
+        echo ""
+        echo "  3. Relancer ce script:"
+        echo "     ./install.sh"
+        echo ""
         exit 1
     fi
 

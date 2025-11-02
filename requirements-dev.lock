@@ -45,6 +45,8 @@ attrs==25.4.0
     # via jsonlines
     # via jsonschema
     # via referencing
+authlib==1.6.5
+    # via weaviate-client
 backoff==2.2.1
     # via posthog
     # via unstructured
@@ -97,6 +99,7 @@ colorlog==6.10.1
 coverage==7.11.0
     # via pytest-cov
 cryptography==46.0.3
+    # via authlib
     # via pdfminer-six
     # via unstructured-client
 dataclasses-json==0.6.7
@@ -104,6 +107,8 @@ dataclasses-json==0.6.7
     # via unstructured
 datasets==4.3.0
     # via ragas
+deprecation==2.1.0
+    # via weaviate-client
 dill==0.4.0
     # via datasets
     # via multiprocess
@@ -184,7 +189,9 @@ googleapis-common-protos==1.71.0
 grpcio==1.76.0
     # via chromadb
     # via opentelemetry-exporter-otlp-proto-grpc
+    # via pymilvus
     # via qdrant-client
+    # via weaviate-client
 h11==0.16.0
     # via httpcore
     # via uvicorn
@@ -211,6 +218,7 @@ httpx==0.28.1
     # via openai
     # via qdrant-client
     # via unstructured-client
+    # via weaviate-client
 httpx-sse==0.4.3
     # via langchain-community
 huggingface-hub==0.36.0
@@ -455,6 +463,7 @@ orjson==3.11.4
     # via chromadb
     # via langgraph-sdk
     # via langsmith
+    # via pymilvus
 ormsgpack==1.11.0
     # via langgraph-checkpoint
 overrides==7.7.0
@@ -463,6 +472,7 @@ packaging==25.0
     # via accelerate
     # via build
     # via datasets
+    # via deprecation
     # via huggingface-hub
     # via langchain-core
     # via langsmith
@@ -483,6 +493,7 @@ pandas==2.3.3
     # via docling
     # via docling-core
     # via paddlex
+    # via pymilvus
     # via rag-framework
 pathspec==0.12.1
     # via mypy
@@ -546,12 +557,16 @@ protobuf==6.33.0
     # via googleapis-common-protos
     # via onnxruntime
     # via opentelemetry-proto
+    # via pymilvus
     # via qdrant-client
+    # via weaviate-client
 psutil==7.1.2
     # via accelerate
     # via aistudio-sdk
     # via rag-framework
     # via unstructured
+psycopg2-binary==2.9.11
+    # via rag-framework
 py-cpuinfo==9.0.0
     # via paddlex
 pyarrow==22.0.0
@@ -596,6 +611,7 @@ pydantic==2.12.3
     # via ragas
     # via surya-ocr
     # via unstructured-client
+    # via weaviate-client
 pydantic-core==2.41.4
     # via instructor
     # via pydantic
@@ -612,6 +628,8 @@ pygments==2.19.2
     # via rich
 pylatexenc==2.10
     # via docling
+pymilvus==2.6.3
+    # via rag-framework
 pymupdf==1.26.5
     # via rag-framework
 pyobjc-core==12.0
@@ -665,6 +683,7 @@ python-docx==1.2.0
 python-dotenv==1.2.1
     # via marker-pdf
     # via pydantic-settings
+    # via pymilvus
     # via surya-ocr
     # via uvicorn
 python-iso639==2025.2.18
@@ -787,6 +806,7 @@ sentence-transformers==5.1.2
     # via rag-framework
 setuptools==80.9.0
     # via modelscope
+    # via pymilvus
     # via torch
 sgmllib3k==1.0.0
     # via feedparser
@@ -887,6 +907,7 @@ typer==0.19.2
     # via docling-core
     # via instructor
     # via ragas
+types-psutil==7.0.0.20251001
 types-pyyaml==6.0.12.20250915
     # via rag-framework
 types-requests==2.32.4.20250913
@@ -950,6 +971,8 @@ uvicorn==0.38.0
     # via chromadb
 uvloop==0.22.1
     # via uvicorn
+validators==0.35.0
+    # via weaviate-client
 virtualenv==20.35.4
     # via pre-commit
 watchdog==6.0.0
@@ -959,6 +982,8 @@ watchfiles==1.1.1
 wcwidth==0.2.14
     # via ftfy
     # via prettytable
+weaviate-client==4.17.0
+    # via rag-framework
 webencodings==0.5.1
     # via html5lib
 websocket-client==1.9.0

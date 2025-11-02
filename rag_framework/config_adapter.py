@@ -1,4 +1,7 @@
-"""Adaptateur de configuration pour convertir 02_preprocessing.yaml vers format fallback."""
+"""Adaptateur de configuration pour convertir 02_preprocessing.yaml.
+
+Convertit la configuration vers le format fallback.
+"""
 
 from typing import Any
 
@@ -87,6 +90,10 @@ def convert_parser_to_fallback_config(parser_config: dict[str, Any]) -> dict[str
                 "config": parser_entry.get("config", {}),
             }
 
+            # Transférer timeout_seconds si présent dans parser_entry
+            if "timeout_seconds" in parser_entry:
+                extractor_entry["timeout_seconds"] = parser_entry["timeout_seconds"]
+
             # Ajouter uniquement si pas déjà dans la liste (éviter doublons)
             if not any(e["name"] == extractor_name for e in extractors):
                 extractors.append(extractor_entry)
@@ -110,6 +117,10 @@ def convert_parser_to_fallback_config(parser_config: dict[str, Any]) -> dict[str
                     },
                 }
 
+                # Transférer timeout_seconds si présent dans ocr_entry
+                if "timeout_seconds" in ocr_entry:
+                    extractor_entry["timeout_seconds"] = ocr_entry["timeout_seconds"]
+
                 if not any(e["name"] == extractor_name for e in extractors):
                     extractors.append(extractor_entry)
 
@@ -129,6 +140,10 @@ def convert_parser_to_fallback_config(parser_config: dict[str, Any]) -> dict[str
                     "min_confidence": 0.5,
                 },
             }
+
+            # Transférer timeout_seconds si présent dans ocr_entry
+            if "timeout_seconds" in ocr_entry:
+                extractor_entry["timeout_seconds"] = ocr_entry["timeout_seconds"]
 
             if not any(e["name"] == extractor_name for e in extractors):
                 extractors.append(extractor_entry)

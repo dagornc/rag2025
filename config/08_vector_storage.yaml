@@ -5,7 +5,7 @@
 #       via le paramètre steps.vector_storage_enabled
 # =============================================================================
 
-provider: "chromadb"  # Options: chromadb, qdrant
+provider: "chromadb"  # Options: chromadb, qdrant, pgvector, milvus, weaviate
 
 # Configuration ChromaDB
 chromadb:
@@ -31,9 +31,55 @@ qdrant:
     m: 16
     ef_construct: 100
 
+# Configuration pgvector (PostgreSQL)
+pgvector:
+  connection_string: "postgresql://user:password@localhost:5432/vectordb"
+  # Ou paramètres séparés:
+  host: "localhost"
+  port: 5432
+  database: "vectordb"
+  user: "postgres"
+  password: "password"  # Changez en production ou utilisez ${POSTGRES_PASSWORD}
+  table_name: "compliance_docs"
+  vector_dimension: 3072
+  distance_metric: "cosine"  # Options: cosine, l2, inner_product
+  create_table_if_not_exists: true
+  index_type: "ivfflat"  # Options: ivfflat, hnsw
+  index_lists: 100  # Pour IVFFlat
+
+# Configuration Milvus
+milvus:
+  host: "localhost"
+  port: 19530
+  collection_name: "compliance_docs"
+  vector_dimension: 3072
+  metric_type: "COSINE"  # Options: L2, IP, COSINE
+  index_type: "IVF_FLAT"  # Options: IVF_FLAT, IVF_SQ8, IVF_PQ, HNSW
+  index_params:
+    nlist: 128
+  consistency_level: "Strong"  # Options: Strong, Session, Bounded, Eventually
+  create_collection_if_not_exists: true
+
+# Configuration Weaviate
+weaviate:
+  url: "http://localhost:8080"
+  api_key: "${WEAVIATE_API_KEY}"  # Optionnel (cloud)
+  class_name: "ComplianceDocs"
+  vectorizer: "none"  # Embeddings fournis par étape 06
+  vector_index_type: "hnsw"
+  vector_index_config:
+    ef_construction: 128
+    max_connections: 64
+    ef: -1
+  distance_metric: "cosine"  # Options: cosine, dot, l2-squared, hamming, manhattan
+
 indexing:
   batch_size: 100
   show_progress: true
+  # Suppression des enregistrements existants avant insertion
+  # Si true, supprime tous les chunks d'un fichier avant de charger les nouveaux
+  # Utile pour éviter les doublons lors du retraitement d'un fichier
+  delete_existing_by_filename: true
 
 search:
   default_k: 5

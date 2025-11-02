@@ -66,27 +66,28 @@ preprocessing:
 
       # Chaîne de fallback (ordre de priorité)
       fallback_chain:
-        - library: "marker"
-          priority: 1
-          description: "Parser Marker - Haute qualité avec structure"
-          timeout_seconds: 30
-          max_file_size_mb: 100
-          config:
-            extract_images: true
-            extract_tables: true
-            preserve_layout: true
+        # Docling et Marker commentés temporairement (problème de threads zombies)
+        # - library: "docling"
+        #   priority: 1
+        #   description: "Parser Docling - Multiformat IBM"
+        #   timeout_seconds: 45
+        #   max_file_size_mb: 150
+        #   config:
+        #     extract_images: true
+        #     extract_tables: true
 
-        - library: "docling"
-          priority: 2
-          description: "Parser Docling - Multiformat IBM"
-          timeout_seconds: 45
-          max_file_size_mb: 150
-          config:
-            extract_images: true
-            extract_tables: true
+        # - library: "marker"
+        #   priority: 2
+        #   description: "Parser Marker - Haute qualité avec structure"
+        #   timeout_seconds: 30
+        #   max_file_size_mb: 100
+        #   config:
+        #     extract_images: true
+        #     extract_tables: true
+        #     preserve_layout: true
 
         - library: "pymupdf"
-          priority: 3
+          priority: 1  # Mis en premier (rapide et fiable)
           description: "PyMuPDF - Rapide et léger"
           timeout_seconds: 20
           max_file_size_mb: 200
@@ -94,17 +95,17 @@ preprocessing:
             extract_images: false
             extract_text_only: true
 
-        - library: "unstructured"
-          priority: 4
-          description: "Unstructured - Parser universel"
-          timeout_seconds: 60
-          max_file_size_mb: 100
-          config:
-            strategy: "hi_res"
-            extract_images: true
+        # - library: "unstructured"
+        #   priority: 4
+        #   description: "Unstructured - Parser universel (commenté - utilise docling en interne)"
+        #   timeout_seconds: 60
+        #   max_file_size_mb: 100
+        #   config:
+        #     strategy: "hi_res"
+        #     extract_images: true
 
         - library: "pypdf"
-          priority: 5
+          priority: 2  # Fallback rapide
           description: "PyPDF - Simple et robuste"
           timeout_seconds: 15
           max_file_size_mb: 200
@@ -112,7 +113,7 @@ preprocessing:
             extract_text_only: true
 
         - library: "pdfplumber"
-          priority: 6
+          priority: 3  # Dernier fallback (bon pour tableaux)
           description: "PDFPlumber - Extraction de tables"
           timeout_seconds: 25
           max_file_size_mb: 100
