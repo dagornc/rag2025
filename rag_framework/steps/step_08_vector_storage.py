@@ -186,6 +186,62 @@ class VectorStorageStep(BaseStep):
             batch_size = self.config.get("indexing", {}).get("batch_size", 100)
             show_progress = self.config.get("indexing", {}).get("show_progress", True)
 
+            # Suppression des chunks existants pour les mêmes fichiers (si activé)
+            delete_existing = self.config.get("indexing", {}).get(
+                "delete_existing_by_filename", False
+            )
+
+            if delete_existing:
+                # Extraction des noms de fichiers uniques depuis les métadonnées
+                unique_filenames = set()
+                for metadata in metadatas:
+                    filename = (
+                        metadata.get("file_name")
+                        or metadata.get("source_file")
+                        or metadata.get("filename")
+                    )
+                    if filename:
+                        unique_filenames.add(filename)
+
+                if unique_filenames:
+                    logger.info(
+                        f"Suppression des chunks existants pour "
+                        f"{len(unique_filenames)} fichiers: {list(unique_filenames)}"
+                    )
+
+                    # Suppression par filename
+                    deleted_count = 0
+                    for filename in unique_filenames:
+                        try:
+                            # Recherche des IDs à supprimer via where filter
+                            results = collection.get(
+                                where={
+                                    "$or": [
+                                        {"file_name": filename},
+                                        {"source_file": filename},
+                                        {"filename": filename},
+                                    ]
+                                }
+                            )
+
+                            if results and results.get("ids"):
+                                ids_to_delete = results["ids"]
+                                collection.delete(ids=ids_to_delete)
+                                deleted_count += len(ids_to_delete)
+                                logger.info(
+                                    f"  ✓ Supprimé {len(ids_to_delete)} chunks "
+                                    f"pour '{filename}'"
+                                )
+                        except Exception as e:
+                            logger.warning(
+                                f"  ✗ Erreur suppression pour '{filename}': {e}"
+                            )
+
+                    logger.info(
+                        f"✓ Total supprimé: {deleted_count} chunks "
+                        f"pour {len(unique_filenames)} fichiers"
+                    )
+
             # Stockage par batch
             total_stored = 0
             failed_chunks = 0
