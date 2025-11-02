@@ -8,7 +8,7 @@ import statistics
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 import psutil
 
@@ -76,7 +76,7 @@ class MetricsCollector:
         parser_used: str,
         text_length: int,
         file_size: int,
-        error: str | None = None,
+        error: Optional[str] = None,
     ) -> None:
         """Enregistre les métriques d'un document traité.
 
@@ -483,7 +483,9 @@ class PreprocessingStep(BaseStep):
         self.metrics_collector = MetricsCollector(metrics_config)
 
         # Configuration de l'optimisation mémoire (Feature #6)
-        self.memory_opt_config = config.get("memory_optimization", {"enabled": False})
+        self.memory_opt_config = preprocessing_config.get(
+            "memory_optimization", {"enabled": False}
+        )
         if self.memory_opt_config.get("enabled", False):
             gc_config = self.memory_opt_config.get("strategies", {}).get(
                 "garbage_collection", {}
@@ -579,7 +581,8 @@ class PreprocessingStep(BaseStep):
                     cleaned_text = self._clean_text(result.text)
 
                     # Validation de la longueur minimale
-                    min_length = self.config.get("text_processing", {}).get(
+                    preprocessing_config = self.config.get("preprocessing", {})
+                    min_length = preprocessing_config.get("text_processing", {}).get(
                         "min_text_length", 100
                     )
 
@@ -617,12 +620,13 @@ class PreprocessingStep(BaseStep):
                     }
 
                     # Ajout des métadonnées optionnelles
-                    if self.config.get("metadata", {}).get(
+                    preprocessing_config = self.config.get("preprocessing", {})
+                    if preprocessing_config.get("metadata", {}).get(
                         "include_extraction_method", True
                     ):
                         document_record["extractor_used"] = extractor_name
 
-                    if self.config.get("metadata", {}).get(
+                    if preprocessing_config.get("metadata", {}).get(
                         "include_confidence_score", True
                     ):
                         document_record["confidence"] = result.confidence_score
@@ -670,7 +674,7 @@ class PreprocessingStep(BaseStep):
                     self.metrics_collector.record_document(
                         success=True,
                         processing_time=processing_time,
-                        parser_used=extractor_name,
+                        parser_used=extractor_name or "unknown",
                         text_length=len(cleaned_text),
                         file_size=file_size,
                     )
@@ -699,8 +703,9 @@ class PreprocessingStep(BaseStep):
                         )
 
                     # Gestion d'erreur: skip ou raise
-                    skip_on_error = self.config.get("error_handling", {}).get(
-                        "skip_on_error", False
+                    preprocessing_config = self.config.get("preprocessing", {})
+                    skip_on_error = preprocessing_config.get("error_handling", {}).get(
+                        "continue_on_error", False
                     )
 
                     if not skip_on_error:
@@ -762,7 +767,10 @@ class PreprocessingStep(BaseStep):
         >>> print(clean)
         'Multiple spaces'
         """
-        cleaning_config = self.config.get("cleaning", {})
+        preprocessing_config = self.config.get("preprocessing", {})
+        cleaning_config = preprocessing_config.get("text_processing", {}).get(
+            "cleaning", {}
+        )
 
         # 1. Normalisation des espaces multiples
         if cleaning_config.get("normalize_whitespace", True):
@@ -808,8 +816,8 @@ class PreprocessingStep(BaseStep):
         self,
         document_record: dict[str, Any],
         file_path: Path,
-        base_watch_path: Path | None,
-    ) -> Path | None:
+        base_watch_path: Optional[Path],
+    ) -> Optional[Path]:
         """Sauvegarde le document extrait en JSON.
 
         Parameters

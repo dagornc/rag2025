@@ -221,3 +221,8 @@ exclude_lines = [
     "if TYPE_CHECKING:",
     "@abstractmethod",
 ]
+
+[tool.rye]
+dev-dependencies = [
+    "types-psutil>=7.0.0.20251001",
+]
