@@ -3,7 +3,7 @@
 
 preprocessing:
   # Mode d'optimisation global (modifiable à l'exécution)
-  optimization_mode: "memory"  # speed | memory | compromise | quality | custom
+  optimization_mode: "compromise"  # speed | memory | compromise | quality | custom
 
   # Définition des 5 modes d'optimisation prédéfinis
   optimization_modes:
@@ -547,6 +547,32 @@ preprocessing:
     export_format: "json"
     export_path: "logs/preprocessing_metrics.json"
     export_frequency: "per_batch"  # per_document | per_batch | on_shutdown
+
+  # ============================================
+  # Text Processing
+  # ============================================
+  text_processing:
+    # Validation de la longueur minimale de texte extrait
+    min_text_length: 100
+
+    # Configuration du nettoyage de texte
+    cleaning:
+      normalize_whitespace: true
+      remove_page_numbers: true
+      remove_empty_lines: true
+      min_line_length: 10
+      strip_html: true
+      lowercase: false
+      remove_special_chars: false
+
+  # ============================================
+  # Metadata Configuration
+  # ============================================
+  metadata:
+    # Inclure la méthode d'extraction dans les métadonnées
+    include_extraction_method: true
+    # Inclure le score de confiance dans les métadonnées
+    include_confidence_score: true
 
   # ============================================
   # Logging
