@@ -1,6 +1,8 @@
 """Gestionnaire de fallback pour l'extraction de texte."""
 
 import time
+from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import TimeoutError as FuturesTimeoutError
 from pathlib import Path
 from typing import Any, ClassVar, Optional
 
@@ -377,6 +379,9 @@ class FallbackManager:
         """
         self.config = config
         self.extractors: list[BaseExtractor] = []
+        self.extractor_timeouts: dict[
+            str, int
+        ] = {}  # Timeout par extracteur (secondes)
         self.profile = "custom"  # Défaut
 
         # Initialisation des extracteurs depuis la config
@@ -430,6 +435,7 @@ class FallbackManager:
             name = extractor_cfg.get("name")
             enabled = extractor_cfg.get("enabled", True)
             config = extractor_cfg.get("config", {})
+            timeout = extractor_cfg.get("timeout_seconds", 120)  # Défaut: 120s
 
             # Validation du nom
             if not name or not isinstance(name, str):
@@ -458,7 +464,11 @@ class FallbackManager:
                 # Instanciation de l'extracteur
                 extractor = extractor_class(config)
                 self.extractors.append(extractor)
-                logger.debug(f"Extracteur '{name}' initialisé")
+
+                # Stockage du timeout pour cet extracteur
+                self.extractor_timeouts[extractor.name] = timeout
+
+                logger.debug(f"Extracteur '{name}' initialisé (timeout={timeout}s)")
 
             except Exception as e:
                 logger.error(f"Erreur initialisation extracteur '{name}': {e}")
@@ -512,14 +522,34 @@ class FallbackManager:
                 )
                 continue
 
-            logger.info(f"Tentative extraction avec '{extractor.name}'...")
+            # Récupération du timeout pour cet extracteur
+            timeout_seconds = self.extractor_timeouts.get(extractor.name, 120)
+
+            logger.info(
+                f"Tentative extraction avec '{extractor.name}' "
+                f"(timeout={timeout_seconds}s)..."
+            )
 
             try:
                 # Mesure du temps d'extraction
                 start_time = time.time()
 
-                # Extraction
-                result = extractor.extract(file_path)
+                # Extraction avec timeout via ThreadPoolExecutor
+                with ThreadPoolExecutor(max_workers=1) as executor:
+                    future = executor.submit(extractor.extract, file_path)
+
+                    try:
+                        # Attendre le résultat avec timeout
+                        result = future.result(timeout=timeout_seconds)
+
+                    except FuturesTimeoutError:
+                        # Timeout dépassé : annuler et passer au suivant
+                        error_msg = f"Timeout dépassé ({timeout_seconds}s)"
+                        logger.warning(
+                            f"✗ Extraction avec '{extractor.name}' timeout: {error_msg}"
+                        )
+                        failures.append((extractor.name, error_msg))
+                        continue
 
                 extraction_time = time.time() - start_time
 
